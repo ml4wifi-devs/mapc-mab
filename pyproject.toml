@@ -1,0 +1,28 @@
+[project]
+name = "ml4wifi"
+version = "0.1.0"
+description = "MAPC (c-SR) for IEEE 802.11 networks using MAB"
+
+readme = {file = "README.md"}
+license = {file = "LICENSE"}
+keywords = ["802.11", "multi-access point coordination", "machine learning", "multi-armed bandits"]
+
+authors = [
+  {name = "Maksymilian Wojnar", email = "maksymilian.wojnar@agh.edu.pl"},
+  {name = "Wojciech Ciężobka", email = "wojciech.ciezobka@agh.edu.pl"},
+  {name = "Szymon Szott", email = "szymon.szott@agh.edu.pl"},
+  {name = "Katarzyna Kosek-Szott", email = "katarzyna.kosek-szott@agh.edu.pl"},
+  {name = "Krzysztof Rusek", email = "krzysztof.rusek@agh.edu.pl"}
+]
+
+requires-python = ">=3.9"
+dependencies = [
+  "chex~=0.1.83",
+  "jax~=0.4.18",
+  "jaxlib~=0.4.18",
+  "seaborn~=0.13.0"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
