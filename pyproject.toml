@@ -3,7 +3,7 @@ name = "ml4wifi"
 version = "0.1.0"
 description = "MAPC (c-SR) for IEEE 802.11 networks using MAB"
 
-readme = {file = "README.md"}
+readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["802.11", "multi-access point coordination", "machine learning", "multi-armed bandits"]
 
