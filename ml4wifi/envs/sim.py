@@ -7,12 +7,11 @@ from chex import Array, PRNGKey, Scalar
 
 
 # LogDistance channel model
-# https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 # https://www.nsnam.org/docs/models/html/propagation.html#logdistancepropagationlossmodel
-DEFAULT_TX_POWER = 16.0206
-DEFAULT_NOISE = -93.97
-REFERENCE_LOSS = 46.6777
-EXPONENT = 3.0
+DEFAULT_TX_POWER = 16.0206  # (40 mW) https://www.nsnam.org/docs/release/3.40/doxygen/d0/d7d/wifi-phy_8cc_source.html#l00171
+DEFAULT_NOISE = -93.97      # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
+REFERENCE_LOSS = 46.6777    # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00493
+EXPONENT = 3.0              # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00483
 
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 3200 ns GI
 DATA_RATES = jnp.array([7.3, 14.6, 21.9, 29.3, 43.9, 58.5, 65.8, 73.1, 87.8, 97.5, 109.7, 121.9])
