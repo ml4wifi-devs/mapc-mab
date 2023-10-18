@@ -59,13 +59,13 @@ class SimTestCase(unittest.TestCase):
         tx_power = jnp.ones(n_nodes) * DEFAULT_TX_POWER
 
         # Standard deviation of the additive white Gaussian noise
-        noise = 1.
+        sigma = 1.
 
         # JAX random number generator key
         key = jax.random.PRNGKey(42)
 
         # Initialize the approximate network throughput function
-        throughput_fn = init_static_network(pos, mcs, tx_power, noise)
+        throughput_fn = init_static_network(pos, mcs, tx_power, sigma)
 
         # Simulate the network for 150 steps
         thr1, thr2, thr3 = [], [], []
