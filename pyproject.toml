@@ -1,6 +1,7 @@
 [project]
 name = "ml4wifi"
-version = "0.1.0"
+#version = "0.1.0"
+dynamic = ["version"]
 description = "MAPC (c-SR) for IEEE 802.11 networks using MAB"
 
 readme = "README.md"
@@ -19,10 +20,19 @@ requires-python = ">=3.9"
 dependencies = [
   "chex~=0.1.83",
   "jax~=0.4.18",
-  "jaxlib~=0.4.18",
+#  "jaxlib~=0.4.18",
   "seaborn~=0.13.0"
 ]
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "ml4wifi/__init__.py"
+
+[tool.hatch.envs.default]
+dependencies=["pytest","jaxlib~=0.4.18"]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:test}"
