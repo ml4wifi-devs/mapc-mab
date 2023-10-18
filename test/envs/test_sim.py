@@ -4,7 +4,8 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.sim import DEFAULT_TX_POWER, init_static_network
+from ml4wifi.envs.scenarios.static import DEFAULT_SIGMA
+from ml4wifi.envs.sim import DEFAULT_TX_POWER, network_throughput
 
 
 class SimTestCase(unittest.TestCase):
@@ -59,22 +60,19 @@ class SimTestCase(unittest.TestCase):
         tx_power = jnp.ones(n_nodes) * DEFAULT_TX_POWER
 
         # Standard deviation of the additive white Gaussian noise
-        sigma = 1.
+        sigma = DEFAULT_SIGMA
 
         # JAX random number generator key
         key = jax.random.PRNGKey(42)
-
-        # Initialize the approximate network throughput function
-        throughput_fn = init_static_network(pos, mcs, tx_power, sigma)
 
         # Simulate the network for 150 steps
         thr1, thr2, thr3 = [], [], []
 
         for _ in range(150):
             key, k1, k2, k3 = jax.random.split(key, 4)
-            thr1.append(throughput_fn(k1, tx1))
-            thr2.append(throughput_fn(k2, tx2))
-            thr3.append(throughput_fn(k3, tx3))
+            thr1.append(network_throughput(k1, tx1, pos, mcs, tx_power, sigma))
+            thr2.append(network_throughput(k2, tx2, pos, mcs, tx_power, sigma))
+            thr3.append(network_throughput(k3, tx3, pos, mcs, tx_power, sigma))
 
         # Plot the positions of the nodes
         plt.figure(figsize=(7.5, 4.5))

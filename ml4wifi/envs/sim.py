@@ -1,6 +1,3 @@
-from functools import partial
-from typing import Callable
-
 import jax
 import jax.numpy as jnp
 from chex import Array, PRNGKey, Scalar
@@ -76,27 +73,3 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     expected_data_rate = DATA_RATES[mcs] * success_probability
 
     return expected_data_rate.sum()
-
-
-def init_static_network(pos: Array, mcs: Array, tx_power: Array, sigma: Scalar) -> Callable:
-    """
-    Returns a function that calculates the approximate network throughput initialized with the given parameters.
-
-    Parameters
-    ----------
-    pos: Array
-        Two dimensional array of node positions. Each row corresponds to X and Y coordinates of a node.
-    mcs: Array
-        Modulation and coding scheme of the nodes. Each entry corresponds to a node.
-    tx_power: Array
-        Transmission power of the nodes. Each entry corresponds to a node.
-    sigma: Scalar
-        Standard deviation of the additive white Gaussian noise.
-
-    Returns
-    -------
-    Callable
-        Function that calculates the network throughput.
-    """
-
-    return jax.jit(partial(network_throughput, pos=pos, mcs=mcs, tx_power=tx_power, sigma=sigma))
