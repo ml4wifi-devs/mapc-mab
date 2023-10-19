@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from functools import partial
 from typing import Dict
 
@@ -9,7 +10,7 @@ from chex import Array, Scalar, PRNGKey
 from ml4wifi.envs.sim import network_throughput
 
 
-class Scenario:
+class Scenario(ABC):
     """
     Base class for scenarios.
 
@@ -22,8 +23,37 @@ class Scenario:
     def __init__(self, associations: Dict) -> None:
         self.associations = associations
 
+    @abstractmethod
+    def __call__(self, *args, **kwargs) -> Scalar:
+        pass
+
     def get_associations(self) -> Dict:
         return self.associations
+
+    def plot(self, pos: Array, associations: Dict, filename: str = None) -> None:
+        colors = plt.colormaps['viridis'](jnp.linspace(0, 1, len(associations)))
+        _, ax = plt.subplots()
+
+        for i, (ap, stations) in enumerate(associations.items()):
+            ax.scatter(pos[ap, 0], pos[ap, 1], marker='x', color=colors[i], label=f'AP {ap}')
+            ax.scatter(pos[stations, 0], pos[stations, 1], marker='.', color=colors[i])
+            ax.annotate(f'AP {ap + 1}', (pos[ap, 0], pos[ap, 1]), color=colors[i], va='bottom', ha='center')
+
+            radius = jnp.max(jnp.sqrt(jnp.sum((pos[stations, :] - pos[ap, :]) ** 2, axis=-1)))
+            circle = plt.Circle((pos[ap, 0], pos[ap, 1]), radius * 1.1, fill=False, linewidth=0.5)
+            ax.add_patch(circle)
+
+        ax.set_xlabel('X [m]')
+        ax.set_ylabel('Y [m]')
+        ax.set_title('Location of nodes')
+        ax.grid()
+
+        if filename:
+            plt.tight_layout()
+            plt.savefig(filename, bbox_inches='tight')
+            plt.clf()
+        else:
+            plt.show()
 
 
 class StaticScenario(Scenario):
@@ -58,29 +88,7 @@ class StaticScenario(Scenario):
         return self.thr_fn(key, tx)
 
     def plot(self, filename: str = None) -> None:
-        colors = plt.colormaps['viridis'](jnp.linspace(0, 1, len(self.associations)))
-        _, ax = plt.subplots()
-
-        for i, (ap, stations) in enumerate(self.associations.items()):
-            ax.scatter(self.pos[ap, 0], self.pos[ap, 1], marker='x', color=colors[i], label=f'AP {ap}')
-            ax.scatter(self.pos[stations, 0], self.pos[stations, 1], marker='.', color=colors[i])
-            ax.annotate(f'AP {ap + 1}', (self.pos[ap, 0], self.pos[ap, 1]), color=colors[i], va='bottom', ha='center')
-
-            radius = jnp.max(jnp.sqrt(jnp.sum((self.pos[stations, :] - self.pos[ap, :]) ** 2, axis=-1)))
-            circle = plt.Circle((self.pos[ap, 0], self.pos[ap, 1]), radius * 1.1, fill=False, linewidth=0.5)
-            ax.add_patch(circle)
-
-        ax.set_xlabel('X [m]')
-        ax.set_ylabel('Y [m]')
-        ax.set_title('Location of nodes')
-        ax.grid()
-
-        if filename:
-            plt.tight_layout()
-            plt.savefig(filename, bbox_inches='tight')
-            plt.clf()
-        else:
-            plt.show()
+        super().plot(self.pos, self.associations, filename)
 
 
 class DynamicScenario(Scenario):
@@ -102,3 +110,6 @@ class DynamicScenario(Scenario):
 
     def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:
         return self.thr_fn(key, tx, pos, mcs, tx_power)
+
+    def plot(self, pos: Array, filename: str = None) -> None:
+        super().plot(pos, self.associations, filename)
