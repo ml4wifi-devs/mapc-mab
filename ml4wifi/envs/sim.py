@@ -7,7 +7,7 @@ from chex import Array, PRNGKey, Scalar
 # https://www.nsnam.org/docs/models/html/propagation.html#logdistancepropagationlossmodel
 DEFAULT_TX_POWER = 16.0206  # (40 mW) https://www.nsnam.org/docs/release/3.40/doxygen/d0/d7d/wifi-phy_8cc_source.html#l00171
 REFERENCE_LOSS = 46.6777    # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00493
-EXPONENT = 3.0              # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00483
+EXPONENT = 2.0              # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
 NOISE_FLOOR = -93.97        # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
 
@@ -25,11 +25,12 @@ MEAN_SNRS = jnp.array([
 def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar) -> Scalar:
     """
     Calculates the approximate network throughput based on the nodes' positions, MCS, and tx power.
-    Channel is modeled using log-distance path loss model with additive white Gaussian noise.
-    Network throughput is calculated as the sum of expected data rates of all transmitting nodes.
-    Expected data rate is calculated as the product of data rate and success probability which depends on the SINR.
-    SINR is calculated as the difference between the SNR of the transmitting node and the sum of SNRs of all
-    interfering nodes.
+    Channel is modeled using log-distance path loss model with additive white Gaussian noise. Network
+    throughput is calculated as the sum of data rates of all successful transmissions. Success of
+    a transmission is  Bernoulli random variable with success probability depending on the SINR. SINR is
+    calculated as the difference between the signal power and the interference level which is calculated
+    as the sum of the signal powers of all interfering nodes and the noise floor. **Attention:** This
+    simulation does not take into account the effects of hidden nodes and collisions.
 
     Parameters
     ----------
@@ -69,7 +70,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     sinr = (sinr * tx).sum(axis=0)
 
     success_probability = jax.scipy.stats.norm.cdf(sinr, loc=MEAN_SNRS[mcs], scale=2.)
-    success_probability = jnp.where(sinr, success_probability, 0.)
-    expected_data_rate = DATA_RATES[mcs] * success_probability
+    frame_transmitted = jax.random.bernoulli(key, success_probability * (sinr > 0))
+    expected_data_rate = DATA_RATES[mcs] * frame_transmitted
 
     return expected_data_rate.sum()
