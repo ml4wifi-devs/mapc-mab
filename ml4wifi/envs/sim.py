@@ -30,7 +30,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     a transmission is  Bernoulli random variable with success probability depending on the SINR. SINR is
     calculated as the difference between the signal power and the interference level which is calculated
     as the sum of the signal powers of all interfering nodes and the noise floor. **Attention:** This
-    simulation does not take into account the effects of hidden nodes and collisions.
+    simulation does not support multiple simultaneous transmissions to the same node.
 
     Parameters
     ----------
