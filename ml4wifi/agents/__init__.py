@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Dict, List
+from typing import Dict, List, Callable
 
 import copy
 import jax
@@ -19,14 +19,47 @@ def powerset(iterable):
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 
 
-# TODO The agent created by the Agent Factory
 class MAPCAgent():
-    pass
+    
+    def __init__(
+            self,
+            find_groups_dict: Dict,
+            assign_stations_dict: Dict,
+            ap_group_id_to_ap_group: Callable,
+            sta_group_id_to_sta_group: Callable
+        ) -> None:
+
+        self.find_groups_dict = find_groups_dict
+        self.assign_stations_dict = assign_stations_dict
+        self.ap_group_id_to_ap_group = ap_group_id_to_ap_group
+        self.sta_group_id_to_sta_group = sta_group_id_to_sta_group
+    
+    def sample(self, reward: Scalar, sharinng_ap: int, transmitting_station: int) -> int:
+        
+        # Sample the agent which groups access points
+        ap_group = self.ap_group_id_to_ap_group(
+            self.find_groups_dict[transmitting_station].sample(reward=reward),
+            sharinng_ap
+        )
+
+        # Sample the agent which assigns stations to access points groups
+        sta_group = self.sta_group_id_to_sta_group(
+            self.assign_stations_dict[ap_group].sample(reward=reward),
+            ap_group
+        )
+
+        return ap_group, sta_group
 
 
-class AgentFactory():
 
-    def __init__(self, associations: Dict[int, List[int]], agent_type: BaseAgent, agent_params: Dict) -> None:
+class MAPCAgentFactory():
+
+    def __init__(
+            self,
+            associations: Dict[int, List[int]],
+            agent_type: BaseAgent, agent_params: Dict
+        ) -> None:
+
         self.associations = associations
         self.agent_type = agent_type
         self.agent_params = agent_params
@@ -55,7 +88,6 @@ class AgentFactory():
 
         # Define dictionary of AssignStationsAgents
         assign_stations : Dict = {
-            # Tutaj mona na spokojnie wszystkie podzbiory, bez jebania się które są trywialne
             group: RLib(
                 agent_type=self.agent_type,
                 agent_params=self._assign_stations_params(group, self.agent_params),
@@ -66,11 +98,23 @@ class AgentFactory():
         # TODO Create and return the MAPCAgent
     
     def _assign_stations_params(self, group: List[int], agent_params: Dict) -> Dict:
+
         params = copy.deepcopy(agent_params)
-        
-        # TODO Define number of actions, and assign to params
+        n_actions = 1
+        for ap in group:
+            n_actions *= len(self.associations[ap])
+        params['n_arms'] = n_actions
 
         return params
+    
+    def _ap_group_id_to_ap_group(self, ap_group_id: int, sharing_ap: int) -> List[int]:
+        ap_set = set(self.access_points).difference({sharing_ap})
+        return list(powerset(ap_set))[ap_group_id]
+        
+
+    def _sta_group_id_to_sta_group(self, sta_group_id: int, ap_group: List[int]) -> List[int]:
+        # TODO
+        pass
 
 
         
