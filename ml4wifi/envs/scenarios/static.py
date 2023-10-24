@@ -35,7 +35,7 @@ def simple_scenario_1(
         4: [3, 5]
     }
 
-    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+    return StaticScenario('simple_scenario_1', pos, mcs, tx_power, sigma, associations)
 
 
 def simple_scenario_2(
@@ -81,7 +81,7 @@ def simple_scenario_2(
         3: [16, 17, 18, 19]
     }
 
-    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+    return StaticScenario('simple_scenario_2', pos, mcs, tx_power, sigma, associations)
 
 
 def simple_scenario_3(
@@ -110,7 +110,7 @@ def simple_scenario_3(
         1: [4, 5]
     }
 
-    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+    return StaticScenario('simple_scenario_3', pos, mcs, tx_power, sigma, associations)
 
 
 def random_scenario_1(
@@ -136,4 +136,4 @@ def random_scenario_1(
     pos = jnp.array(ap_pos.tolist() + sta_pos)
     associations = {i: list(range(n_ap + i * n_sta_per_ap, n_ap + (i + 1) * n_sta_per_ap)) for i in range(n_ap)}
 
-    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+    return StaticScenario('random_scenario_1', pos, mcs, tx_power, sigma, associations)
