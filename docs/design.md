@@ -8,18 +8,17 @@ $A\in \mathcal{A}$ is denoted as $\mathcal{N}(A)$.
 An MAPC C-SR decision is made according to the following procedure:
 
 1.  $A_k$ wins channel contention (based on DCF outcome, which can be
-    approximated by RR scheduling). [$N_a$
+    approximated by RR scheduling).  $N_a$ possibilities] 
+
+3.  $A_k$ selects station $S_l\in \mathcal{N}(A_k)$ for downlink
+    transmission (approximated by RR scheduling). [$|\mathcal{N}(A_k)|$
     possibilities]{style="color: red"}
 
-2.  $A_k$ selects station $S_l\in \mathcal{N}(A_k)$ for downlink
-    transmission (approximated by RR scheduling). [$| \mathcal{N}(A_k)|$
-    possibilities]{style="color: red"}
-
-3.  Select a set $\mathcal{F}_{k,l}$ of zero or more APs from
+4.  Select a set $\mathcal{F}_{k,l}$ of zero or more APs from
     $2^{\mathcal{A}\setminus\{A_k\}}$, where $2^{(\cdot)}$ denotes the
     power set. [$2^{N_a-1}$ possibilities]{style="color: red"}
 
-4.  Pick one or more element from a set
+5.  Pick one or more element from a set
     $\{(a,s): a\in \mathcal{F}_{k,l}, \quad s\in \mathcal{N}(a)\}$.
 
 Implementation proposal: construct all action spaces using *itertools*
@@ -50,12 +49,12 @@ TODO: $q$=?, $r$=?
 Assuming we have up to $m$ APs in simultaneous operation that are
 correlated, the output distribution can be expressed by a log
 probability, e.g., :
-$$\log P_{q_\theta}(\bm y|x_t)=\sum_i \alpha_i  y_i+ \sum_{i,j}\beta_{i,j} y_i y_j + \sum_{i,j,k}\gamma_{i,j,k}y_i y_j y_k + \ldots.$$
+$$\log P_{q_\theta}(\mathbf y|x_t)=\sum_i \alpha_i  y_i+ \sum_{i,j}\beta_{i,j} y_i y_j + \sum_{i,j,k}\gamma_{i,j,k}y_i y_j y_k + \ldots.$$
 Note that $\theta_{i_k}$ must be invariant to index permutation.
 
 TODO:
 
-1.  conjugate prior for $P(\bm \pi)$
+1.  conjugate prior for $P(\mathbf y)$
 
 2.  Sample from conjugate prior
 
@@ -85,10 +84,10 @@ information if the pair $(S,A)$ has been granted transmission.
 The action space corresponds to the available edges to be allowed for
 transmission. We can express the action.
 
-Action is taken by the policy function $\pi(\bm w_p, z_t)$, where $z_t$
+Action is taken by the policy function $\pi(\mathbf w_p, z_t)$, where $z_t$
 is an agent state and it consists of sequence of network states
 $z_t=(G_{t-H}\ldots,G_{t-1},G_t)$. The policy network is a GNN
-parameterized by weights $\bm w_p$. In a similar way we can define value
+parameterized by weights $\mathbf w_p$. In a similar way we can define value
 function and construct any RL algorithm for this problem.
 
 Such an approach is quite general and we can skip relation between
