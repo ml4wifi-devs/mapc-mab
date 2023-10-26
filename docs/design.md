@@ -78,7 +78,7 @@ Next steps ) -- Dict\[STA $\rightarrow$ MAB\]
 
 Define the network state at time $t$ as a graph $G_t=(V,E)$, where
 $V=\mathcal{A}\cup \mathcal{S}$ and $E=\{(S,A): S\in \mathcal{N}(A)\}$.
-Furthermore, introduce the edge attributes $\bm x$ to be one-hot encoded
+Furthermore, introduce the edge attributes $\mathbf x$ to be one-hot encoded
 information if the pair $(S,A)$ has been granted transmission.
 
 The action space corresponds to the available edges to be allowed for
