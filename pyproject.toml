@@ -36,5 +36,14 @@ dependencies=[
   "pytest"
 ]
 
+[tool.hatch.envs.plgvenv]
+path = '/net/pr2/projects/plgrid/plggml4wifi/plgvenv'
+dependencies = [
+    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.4.18+cuda11.cudnn86-cp310-cp310-manylinux2014_x86_64.whl"
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:test}"
