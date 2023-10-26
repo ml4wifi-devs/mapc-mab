@@ -92,3 +92,17 @@ function and construct any RL algorithm for this problem.
 
 Such an approach is quite general and we can skip relation between
 station and APs, let this to be learned by using full bipartite graph.
+
+Let us walk trough a simple example.
+
+Assuming AP1 is selected by RR and STA1 is allowed to transmit, the configuration looks as follows.
+
+![net1](./net1_step1.svg)
+
+The policy represents four possible actions corresponding to the edges in graph.
+Depending on teh algorithm, an action is chosen. Let it be to allow station  STA4 to transmit.
+
+Network configuration now looks like
+
+![net1](./net1_step2.svg)
+
