@@ -25,7 +25,8 @@ An MAPC C-SR decision is made according to the following procedure:
 Implementation proposal: construct all action spaces using *itertools*
 and build inverse LUT for selected AP and stations using
 *jax.experimental.sparse*, this way we should avoid recompilation.
-<https://colab.research.google.com/drive/1ihbJpcRQ9wl_pgec38BkPF2hd_JglUWi?usp=sharing>
+
+### [colab](https://colab.research.google.com/drive/1ihbJpcRQ9wl_pgec38BkPF2hd_JglUWi?usp=sharing)
 
 ## TS
 
@@ -65,13 +66,11 @@ TODO:
 
 1. Round Robin 
 1. Round Robin 
-2. $1$ agent per $1$ STA (Each STA has assigned AP.
+1. $1$ agent per $1$ STA (Each STA has assigned AP.
 Next steps ) -- Dict\[STA $\rightarrow$ MAB\] 
     - No. Agents:$\| \mathcal{S}\|$ 
-    - No. Actions: $\|2^{\mathcal{A}\setminus\{A_k\}}\
-$
-    - $1$ agent per $1$ element of the power set $2^{\mathcal{A}}$ --
-Dict\[$a\in 2^{\mathcal{A}}$ $\rightarrow$ MAB\] 
+    - No. Actions: $\|2^{\mathcal{A}\setminus\{A_k\}}\|$
+1.  $1$ agent per $1$ element of the power set $2^{\mathcal{A}}$ --Dict\[$a\in 2^{\mathcal{A}}$ $\rightarrow$ MAB\] 
     - No. Agents: $\|2^{N_{AP}} - N_{AP} -1\|$ 
     - No. Actions: $\Pi_{i \in \mathcal{F}_{k,l}} N_{STA}^{i}$
 
