@@ -7,18 +7,18 @@ $A\in \mathcal{A}$ is denoted as $\mathcal{N}(A)$.
 
 An MAPC C-SR decision is made according to the following procedure:
 
-1.  $A_k$ wins channel contention (based on DCF outcome, which can be
+1. $A_k$ wins channel contention (based on DCF outcome, which can be
     approximated by RR scheduling).  $N_a$ possibilities] 
 
-3.  $A_k$ selects station $S_l\in \mathcal{N}(A_k)$ for downlink
+1. $A_k$ selects station $S_l\in \mathcal{N}(A_k)$ for downlink
     transmission (approximated by RR scheduling). [$|\mathcal{N}(A_k)|$
     possibilities]{style="color: red"}
 
-4.  Select a set $\mathcal{F}_{k,l}$ of zero or more APs from
+1. Select a set $\mathcal{F}_{k,l}$ of zero or more APs from
     $2^{\mathcal{A}\setminus\{A_k\}}$, where $2^{(\cdot)}$ denotes the
     power set. [$2^{N_a-1}$ possibilities]{style="color: red"}
 
-5.  Pick one or more element from a set
+1. Pick one or more element from a set
     $\{(a,s): a\in \mathcal{F}_{k,l}, \quad s\in \mathcal{N}(a)\}$.
 
 Implementation proposal: construct all action spaces using *itertools*
@@ -33,7 +33,7 @@ and build inverse LUT for selected AP and stations using
     $x_1, x_2, x_3,\ldots \in \mathcal{X}$ to a system
 
 2.  applying action $x_t$, the agent observes an outcome $y_t$, which
-    the system randomly generates according to a conditional probability
+    the system randomly generates, according to a conditional probability
     measure $q_\theta(\cdot | x_t)$
 
 3.  The agent enjoys a reward $r_t = r(y_t)$, where $r$ is a known
@@ -66,7 +66,7 @@ TODO:
 1. Round Robin 
 1. Round Robin 
 1. $1$ agent per $1$ STA (Each STA has assigned AP.
-Next steps ) -- Dict\[STA $\rightarrow$ MAB\] 
+Next steps) -- Dict\[STA $\rightarrow$ MAB\] 
     - No. Agents:$\| \mathcal{S}\|$ 
     - No. Actions: $\|2^{\mathcal{A}\setminus\{A_k\}}\|$
 1.  $1$ agent per $1$ element of the power set $2^{\mathcal{A}}$ --Dict\[$a\in 2^{\mathcal{A}}$ $\rightarrow$ MAB\] 
@@ -85,22 +85,22 @@ The action space corresponds to the available edges to be allowed for
 transmission. We can express the action.
 
 Action is taken by the policy function $\pi(\mathbf w_p, z_t)$, where $z_t$
-is an agent state and it consists of sequence of network states
+is an agent state, and it consists of a sequence of network states
 $z_t=(G_{t-H}\ldots,G_{t-1},G_t)$. The policy network is a GNN
 parameterized by weights $\mathbf w_p$. In a similar way we can define value
 function and construct any RL algorithm for this problem.
 
-Such an approach is quite general and we can skip relation between
+Such an approach is quite general, and we can skip relation between
 station and APs, let this to be learned by using full bipartite graph.
 
-Let us walk trough a simple example.
+Let us walk through a simple example.
 
 Assuming AP1 is selected by RR and STA1 is allowed to transmit, the configuration looks as follows.
 
 ![net1](./net1_step1.svg)
 
-The policy represents four possible actions corresponding to the edges in graph.
-Depending on teh algorithm, an action is chosen. Let it be to allow station  STA4 to transmit.
+The policy represents four possible actions corresponding to the edges in the graph.
+Depending on the algorithm, an action is chosen. Let it be to allow station STA4 to transmit.
 
 Network configuration now looks like
 
