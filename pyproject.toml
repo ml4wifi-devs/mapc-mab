@@ -33,7 +33,7 @@ path = "ml4wifi/__init__.py"
 [tool.hatch.envs.default]
 path = './venv'
 dependencies=[
-  "jaxlib~=0.4.18",
+  "jaxlib",
   "pytest"
 ]
 
