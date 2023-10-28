@@ -1,7 +1,7 @@
+import json
 from argparse import ArgumentParser
 from typing import List
 
-import pandas as pd
 from chex import PRNGKey
 from reinforced_lib.agents.mab import EGreedy, Exp3, Softmax, UCB
 
@@ -26,19 +26,20 @@ AGENTS = {
 
 
 def run_scenario(agent_factory: AgentFactory, scenario: Scenario, n_reps: int, n_steps: int, key: PRNGKey) -> List:
-    results = []
+    runs = []
 
     for i in range(n_reps):
         agent = agent_factory.hierarchical_agent()
+        runs.append([])
 
         for _ in range(n_steps):
             key, subkey = jax.random.split(key)
             tx = agent.sample()
             thr = scenario(subkey, tx)
             agent.update(thr)
-            results.append(thr)
+            runs[-1].append(thr)
 
-    return results
+    return runs
 
 
 if __name__ == '__main__':
@@ -49,28 +50,21 @@ if __name__ == '__main__':
     args.add_argument('--seed', type=int, default=42)
     args = args.parse_args()
 
-    df = pd.DataFrame(columns=['scenario', 'agent', 'rep', 'step', 'thr'])
-
-    rep_column = [i for i in range(args.n_reps) for _ in range(args.n_steps)]
-    step_column = [i for _ in range(args.n_reps) for i in range(args.n_steps)]
+    results = []
 
     for agent_name, agent_params in AGENTS.items():
         for scenario in ALL_SCENARIOS:
             key = jax.random.PRNGKey(args.seed)
             associations = scenario.get_associations()
             agent_factory = AgentFactory(associations, *agent_params)
-            results = run_scenario(agent_factory, scenario, args.n_reps, args.n_steps, key)
 
-            scenario_column = [scenario.name] * args.n_reps * args.n_steps
-            agent_column = [agent_name] * args.n_reps * args.n_steps
+            runs = run_scenario(agent_factory, scenario, args.n_reps, args.n_steps, key)
 
-            new_df = pd.DataFrame({
-                'scenario': scenario_column,
-                'agent': agent_column,
-                'rep': rep_column,
-                'step': step_column,
-                'thr': results
+            results.append({
+                'scenario': scenario.name,
+                'agent': agent_name,
+                'runs': runs
             })
-            df = pd.concat([df, new_df], ignore_index=True)
 
-    df.to_csv(args.output, index=False)
+    with open(args.output, 'w') as file:
+        json.dump(results, file)
