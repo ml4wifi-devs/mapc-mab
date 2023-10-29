@@ -41,13 +41,13 @@ class MAPCAgent():
         
         # Sample the agent which groups access points
         ap_group = self.ap_group_action_to_ap_group(
-            self.find_groups_dict[designated_station].sample(reward=reward),
+            self.find_groups_dict[designated_station].sample(reward),
             sharinng_ap
         )
 
         # Sample the agent which assigns stations to access points groups
         sta_group = self.sta_group_action_to_sta_group(
-            self.assign_stations_dict[ap_group].sample(reward=reward),
+            {ap: self.assign_stations_dict[ap_group][ap].sample(reward) for ap in ap_group},
             ap_group
         )
 
@@ -55,6 +55,9 @@ class MAPCAgent():
         tx_matrix = jnp.zeros(self.tx_matrix_shape)
         tx_matrix = tx_matrix.at[sharinng_ap, designated_station].set(1)
         for ap, sta in zip(ap_group, sta_group):
+            if ap == sharinng_ap or sta == designated_station:
+                continue
+
             tx_matrix = tx_matrix.at[ap, sta].set(1)
 
         return tx_matrix
@@ -78,30 +81,29 @@ class MAPCAgentFactory():
         self.n_ap = len(self.access_points)
         self.n_sta = len(self.stations)
 
-        # Define number of groups each sharing AP can create
-        self.no_groups = jnp.power(2, self.n_ap - 1)
-
 
     def create_mapc_agent(self) -> MAPCAgent:
         
         # Define dictionary of Agent who are selecting groups
-        find_groups_params = copy.deepcopy(self.agent_params)
-        find_groups_params['n_arms'] = int(self.no_groups)
         find_groups : Dict = {
             sta: RLib(
                 agent_type=self.agent_type,
-                agent_params=find_groups_params,
+                agent_params=self.agent_params,
                 ext_type=MapcSimExt,
+                ext_params={'n_arms': 2 ** (self.n_ap - 1)}
             ) for sta in self.stations
         }
 
         # Define dictionary of AssignStationsAgents
         assign_stations : Dict = {
-            group: RLib(
-                agent_type=self.agent_type,
-                agent_params=self._assign_stations_params(group, self.agent_params),
-                ext_type=MapcSimExt,
-            ) for group in powerset(self.access_points)
+            group: {
+                ap: RLib(
+                    agent_type=self.agent_type,
+                    agent_params=self.agent_params,
+                    ext_type=MapcSimExt,
+                    ext_params={'n_arms': len(self.associations[ap])}
+                ) for ap in group
+            } for group in powerset(self.access_points)
         }
 
         # Define the MAPCAgent
@@ -112,17 +114,6 @@ class MAPCAgentFactory():
             sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
             tx_matrix_shape=(self.n_ap + self.n_sta, self.n_ap + self.n_sta)
         )
-    
-
-    def _assign_stations_params(self, group: List[int], agent_params: Dict) -> Dict:
-
-        params = copy.deepcopy(agent_params)
-        n_actions = 1
-        for ap in group:
-            n_actions *= len(self.associations[ap])
-        params['n_arms'] = n_actions
-
-        return params
     
 
     def _ap_group_action_to_ap_group(self, ap_group_action: int, sharing_ap: int) -> List[int]:
@@ -148,13 +139,13 @@ class MAPCAgentFactory():
         return ap_group
         
 
-    def _sta_group_action_to_sta_group(self, sta_group_action: int, ap_group: List[int]) -> List[int]:
+    def _sta_group_action_to_sta_group(self, sta_group_action: Dict[int, int], ap_group: List[int]) -> List[int]:
         """
         Translates the action of the agent to the list of stations which are served simoultaneously.
 
         Parameters
         ----------
-        sta_group_action : int
+        sta_group_action : Dict[int, int]
             The action of agent responsible for the selection of the stations group.
         ap_group : List[int]
             The list of access points which are sharing the same channel. These access points choose one
@@ -166,15 +157,7 @@ class MAPCAgentFactory():
             The list os stations which are served simoultaneously by the access points in ``ap_group``.
         """
         
-        sta_group_id = sta_group_action + 1
-        sta_group = []
-        divider = 1.0
-        for ap in ap_group:
-            sta_id = jnp.ceil(sta_group_id / divider) % len(self.associations[ap])
-            sta_group.append(self.associations[ap][sta_id])
-            divider *= len(self.associations[ap])
-        
-        return sta_group
+        return [self.associations[ap][sta_group_action[ap]] for ap in ap_group]
 
 
 

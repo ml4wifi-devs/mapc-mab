@@ -55,7 +55,7 @@ class ScenarioClasssTestCase(unittest.TestCase):
         xs = jnp.arange(n_steps)
         plt.plot(xs, thr)
         plt.xlim(0, n_steps)
-        plt.ylim(0, n_steps)
+        plt.ylim(0, 200)
         plt.xlabel('Timestep')
         plt.ylabel('Approximated throughput [Mb/s]')
         plt.title('Simulation of MAPC')
