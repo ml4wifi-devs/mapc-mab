@@ -76,7 +76,9 @@ class SimTestCase(unittest.TestCase):
 
         # Plot the positions of the nodes
         plt.figure(figsize=(7.5, 4.5))
-        plt.scatter(pos[:, 0], pos[:, 1], marker='x', s=10)
+        plt.rcParams['text.usetex'] = False
+
+        plt.scatter(pos[:, 0], pos[:, 1], marker='x')
 
         for p, name in zip(pos, ['AP A', 'AP B', 'STA 1', 'STA 2', 'STA 3', 'STA 4']):
             plt.text(p[0] - 2, p[1] + 1, name)
@@ -87,6 +89,7 @@ class SimTestCase(unittest.TestCase):
         plt.ylabel('Y [m]')
         plt.title('Location of nodes')
         plt.grid()
+        plt.tight_layout()
         plt.savefig('scenario_loc.pdf', bbox_inches='tight')
         plt.clf()
 
@@ -101,5 +104,6 @@ class SimTestCase(unittest.TestCase):
         plt.title('Simulation of MAPC')
         plt.legend()
         plt.grid()
+        plt.tight_layout()
         plt.savefig('scenario_thr.pdf', bbox_inches='tight')
         plt.clf()
