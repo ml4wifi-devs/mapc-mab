@@ -16,10 +16,8 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-    - name: Setup TeX Live
-      uses: teatimeguest/setup-texlive-action@v3
-      with:
-        packages: texlive-latex-extra
+    - name: Install LaTeX
+      run: sudo apt-get install -y texlive-latex-extra
 
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
