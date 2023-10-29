@@ -22,9 +22,10 @@ def plot_thr(names: List, throughput: List, xs: Array, scenario: str) -> None:
     plt.xlabel('Step')
     plt.ylabel('Aggregate throughput [Mb/s]')
     plt.xlim((xs[0], xs[-1]))
-    plt.ylim((0, 125))
+    plt.ylim((0, 150))
     plt.grid()
     plt.legend()
+    plt.tight_layout()
     plt.savefig(f'thr-{scenario}.pdf', bbox_inches='tight')
     plt.clf()
 
