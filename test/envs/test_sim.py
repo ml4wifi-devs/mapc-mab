@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 
 from ml4wifi.envs.scenarios.static import DEFAULT_SIGMA, DEFAULT_MCS
 from ml4wifi.envs.sim import DEFAULT_TX_POWER, network_throughput
-from ml4wifi.plots import set_style
 
 
 class SimTestCase(unittest.TestCase):
@@ -76,9 +75,7 @@ class SimTestCase(unittest.TestCase):
             thr3.append(network_throughput(k3, tx3, pos, mcs, tx_power, sigma))
 
         # Plot the positions of the nodes
-        set_style()
-        plt.figure(figsize=(5, 3))
-
+        plt.figure(figsize=(7.5, 4.5))
         plt.scatter(pos[:, 0], pos[:, 1], marker='x', s=10)
 
         for p, name in zip(pos, ['AP A', 'AP B', 'STA 1', 'STA 2', 'STA 3', 'STA 4']):
@@ -90,14 +87,13 @@ class SimTestCase(unittest.TestCase):
         plt.ylabel('Y [m]')
         plt.title('Location of nodes')
         plt.grid()
-        plt.tight_layout()
         plt.savefig('scenario_loc.pdf', bbox_inches='tight')
         plt.clf()
 
         # Plot the approximate throughput
-        plt.plot(thr1, label=r'STA 1 $\rightarrow$ AP A')
-        plt.plot(thr2, label=r'STA 2 $\rightarrow$ AP A and STA 3 $\rightarrow$ AP B')
-        plt.plot(thr3, label=r'STA 1 $\rightarrow$ AP A and STA 4 $\rightarrow$ AP B')
+        plt.plot(thr1, label='STA 1 -> AP A')
+        plt.plot(thr2, label='STA 2 -> AP A and STA 3 -> AP B')
+        plt.plot(thr3, label='STA 1 -> AP A and STA 4 -> AP B')
         plt.xlim(0, 150)
         plt.ylim(0, 100)
         plt.xlabel('Timestep')
@@ -105,6 +101,5 @@ class SimTestCase(unittest.TestCase):
         plt.title('Simulation of MAPC')
         plt.legend()
         plt.grid()
-        plt.tight_layout()
         plt.savefig('scenario_thr.pdf', bbox_inches='tight')
         plt.clf()
