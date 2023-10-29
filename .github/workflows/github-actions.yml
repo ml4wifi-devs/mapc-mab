@@ -19,10 +19,7 @@ jobs:
     - name: Setup TeX Live
       uses: teatimeguest/setup-texlive-action@v3
       with:
-        packages: >-
-          scheme-basic
-          cm-super
-          type1cm
+        packages: texlive-latex-extra
 
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
