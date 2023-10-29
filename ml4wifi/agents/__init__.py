@@ -7,10 +7,10 @@ import jax
 import jax.numpy as jnp
 from itertools import chain, combinations
 import matplotlib.pyplot as plt
-from chex import Array, Scalar, PRNGKey
+from chex import Array, Scalar, Shape, PRNGKey
 from reinforced_lib import RLib
 from reinforced_lib.agents import BaseAgent
-from envs.sim_ext import MapcSimExt
+from ml4wifi.envs.sim_ext import MapcSimExt
 
 
 def powerset(iterable):
@@ -26,20 +26,22 @@ class MAPCAgent():
             find_groups_dict: Dict,
             assign_stations_dict: Dict,
             ap_group_action_to_ap_group: Callable,
-            sta_group_action_to_sta_group: Callable
+            sta_group_action_to_sta_group: Callable,
+            tx_matrix_shape: Shape
         ) -> None:
 
         self.find_groups_dict = find_groups_dict
         self.assign_stations_dict = assign_stations_dict
         self.ap_group_action_to_ap_group = ap_group_action_to_ap_group
         self.sta_group_action_to_sta_group = sta_group_action_to_sta_group
+        self.tx_matrix_shape = tx_matrix_shape
     
 
-    def sample(self, reward: Scalar, sharinng_ap: int, transmitting_station: int) -> int:
+    def sample(self, reward: Scalar, sharinng_ap: int, designated_station: int) -> Array:
         
         # Sample the agent which groups access points
         ap_group = self.ap_group_action_to_ap_group(
-            self.find_groups_dict[transmitting_station].sample(reward=reward),
+            self.find_groups_dict[designated_station].sample(reward=reward),
             sharinng_ap
         )
 
@@ -49,7 +51,13 @@ class MAPCAgent():
             ap_group
         )
 
-        return ap_group, sta_group
+        # Create the transmission matrix based on the sampled groups
+        tx_matrix = jnp.zeros(self.tx_matrix_shape)
+        tx_matrix = tx_matrix.at[sharinng_ap, designated_station].set(1)
+        for ap, sta in zip(ap_group, sta_group):
+            tx_matrix = tx_matrix.at[ap, sta].set(1)
+
+        return tx_matrix
 
 
 class MAPCAgentFactory():
@@ -74,11 +82,11 @@ class MAPCAgentFactory():
         self.no_groups = jnp.power(2, self.n_ap - 1)
 
 
-    def hierarchical_agent(self) -> None:
+    def create_mapc_agent(self) -> MAPCAgent:
         
         # Define dictionary of Agent who are selecting groups
         find_groups_params = copy.deepcopy(self.agent_params)
-        find_groups_params['n_arms'] = self.no_groups
+        find_groups_params['n_arms'] = int(self.no_groups)
         find_groups : Dict = {
             sta: RLib(
                 agent_type=self.agent_type,
@@ -101,7 +109,8 @@ class MAPCAgentFactory():
             find_groups_dict=find_groups,
             assign_stations_dict=assign_stations,
             ap_group_action_to_ap_group=self._ap_group_action_to_ap_group,
-            sta_group_action_to_sta_group=self._sta_group_action_to_sta_group
+            sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
+            tx_matrix_shape=(self.n_ap + self.n_sta, self.n_ap + self.n_sta)
         )
     
 
@@ -134,7 +143,9 @@ class MAPCAgentFactory():
         """
 
         ap_set = set(self.access_points).difference({sharing_ap})
-        return list(powerset(ap_set))[ap_group_action]
+        ap_group = list(powerset(ap_set))[ap_group_action]
+
+        return ap_group
         
 
     def _sta_group_action_to_sta_group(self, sta_group_action: int, ap_group: List[int]) -> List[int]:
@@ -159,7 +170,8 @@ class MAPCAgentFactory():
         sta_group = []
         divider = 1.0
         for ap in ap_group:
-            sta_group += jnp.ceil(sta_group_id / divider) % len(self.associations[ap])
+            sta_id = jnp.ceil(sta_group_id / divider) % len(self.associations[ap])
+            sta_group.append(self.associations[ap][sta_id])
             divider *= len(self.associations[ap])
         
         return sta_group

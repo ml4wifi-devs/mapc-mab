@@ -6,7 +6,6 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 from ml4wifi.envs.scenarios.static import *
-from ml4wifi.envs.sim import DEFAULT_TX_POWER, network_throughput
 
 
 class ScenarioClasssTestCase(unittest.TestCase):
