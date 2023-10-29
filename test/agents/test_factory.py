@@ -1,61 +1,46 @@
 import unittest
 
 import jax
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from reinforced_lib.agents.mab import UCB
 
-from ml4wifi.envs.scenarios.static import *
-from ml4wifi.agents import MAPCAgentFactory
+from ml4wifi.envs.scenarios.static import simple_scenario_2
+from ml4wifi.agents import MapcAgentFactory
 
 
-class ScenarioClasssTestCase(unittest.TestCase):
-
-    key = jax.random.PRNGKey(42)
-    
+class ScenarioClassTestCase(unittest.TestCase):
     def test_simple_sim(self):
-        
         # Define test-case key and scenario
-        self.key, subkey = jax.random.split(self.key)
-        scenario = simple_scenario_3()
-        scenario.plot("scenario_3.png")
+        key = jax.random.PRNGKey(42)
+        scenario = simple_scenario_2()
+        scenario.plot("scenario_3.pdf")
 
         # Define the agent factory and create MAPC agent
-        agent_factory = MAPCAgentFactory(
+        agent_factory = MapcAgentFactory(
             scenario.associations,
             agent_type=UCB,
-            agent_params={
-                'c': 5.0
-            }
+            agent_params={'c': 500.0}
         )
         agent = agent_factory.create_mapc_agent()
 
-        # Simulate the network for 50 steps
-        n_steps = 50
+        # Simulate the network for 150 steps
+        n_steps = 150
         thr = []
-        thr_reward = 0.
-        for step in range(n_steps):
-            subkey, key_tx = jax.random.split(subkey)
+        reward = 0.
 
-            # Step I: Round robin to select the sharing AP
-            sharinng_ap = agent_factory.access_points[step % agent_factory.n_ap]
+        for step in range(n_steps + 1):
+            # Sample the agent
+            key, agent_key, tx_key = jax.random.split(key, 3)
+            tx = agent.sample(agent_key, reward)
 
-            # Step II: Round robin to select the designated station
-            designated_station = agent_factory.stations[step % agent_factory.n_sta]
-
-            # Step III and IV: Sample the agent to get the transmission matrix
-            tx = agent.sample(reward=thr_reward, sharinng_ap=sharinng_ap, designated_station=designated_station)
-            
             # Simulate the network
-            thr_reward = scenario.thr_fn(key_tx, tx)
-            thr.append(thr_reward)
-            
-        
+            reward = scenario(tx_key, tx)
+            thr.append(reward)
+
         # Plot the approximate throughput
-        xs = jnp.arange(n_steps)
-        plt.plot(xs, thr)
+        plt.plot(thr)
         plt.xlim(0, n_steps)
-        plt.ylim(0, 200)
+        plt.ylim(0, 300)
         plt.xlabel('Timestep')
         plt.ylabel('Approximated throughput [Mb/s]')
         plt.title('Simulation of MAPC')
