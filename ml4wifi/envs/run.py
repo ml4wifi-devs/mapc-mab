@@ -6,7 +6,7 @@ import jax
 from chex import PRNGKey
 from reinforced_lib.agents.mab import EGreedy, Exp3, Softmax, UCB
 
-from ml4wifi.agents import AgentFactory
+from ml4wifi.agents import MapcAgentFactory
 from ml4wifi.envs.scenarios.static import StaticScenario, get_all_scenarios
 
 
@@ -18,18 +18,24 @@ AGENTS = [
 ]
 
 
-def run_scenario(agent_factory: AgentFactory, scenario: StaticScenario, n_reps: int, n_steps: int, key: PRNGKey) -> List:
+def run_scenario(
+        agent_factory: MapcAgentFactory,
+        scenario: StaticScenario,
+        n_reps: int,
+        n_steps: int,
+        key: PRNGKey
+) -> List:
     runs = []
 
     for i in range(n_reps):
-        agent = agent_factory.hierarchical_agent()
+        agent = agent_factory.create_mapc_agent()
         runs.append([])
+        thr = 0.
 
         for j in range(n_steps):
-            key, subkey = jax.random.split(key)
-            tx = agent.sample()
-            thr = scenario(subkey, tx)
-            agent.update(thr)
+            key, agent_key, scenario_key = jax.random.split(key, 3)
+            tx = agent.sample(agent_key, thr)
+            thr = scenario(scenario_key, tx)
 
     return runs
 
@@ -50,7 +56,7 @@ if __name__ == '__main__':
 
         for agent_type, agent_params in AGENTS:
             key = jax.random.PRNGKey(args.seed)
-            agent_factory = AgentFactory(associations, agent_type, agent_params)
+            agent_factory = MapcAgentFactory(associations, agent_type, agent_params)
 
             agents.append({
                 'agent': agent_type.__name__.lower(),
