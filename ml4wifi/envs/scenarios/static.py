@@ -1,3 +1,5 @@
+from typing import List
+
 import jax.numpy as jnp
 import jax.random
 from chex import Array, Scalar
@@ -137,3 +139,12 @@ def random_scenario_1(
     associations = {i: list(range(n_ap + i * n_sta_per_ap, n_ap + (i + 1) * n_sta_per_ap)) for i in range(n_ap)}
 
     return StaticScenario('random_scenario_1', pos, mcs, tx_power, sigma, associations)
+
+
+def get_all_scenarios() -> List:
+    return [
+        simple_scenario_1(),
+        simple_scenario_2(),
+        simple_scenario_3(),
+        random_scenario_1()
+    ]
