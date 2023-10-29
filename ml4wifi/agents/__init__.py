@@ -224,5 +224,4 @@ class MapcAgentFactory:
             The list of stations which are served.
         """
 
-        print(sta_group_action)
         return [self.associations[ap][sta_id] for ap, sta_id in sta_group_action.items()]

@@ -1,33 +1,28 @@
+import os
 import unittest
 
-import os
 import jax
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 from ml4wifi.envs.scenarios.static import *
 
 
-class ScenarioClasssTestCase(unittest.TestCase):
-
-    key = jax.random.PRNGKey(42)
-
+class ScenarioClassTestCase(unittest.TestCase):
     def test_simple_plotting(self):
         scenario = simple_scenario_3()
-        scenario.plot("test_simple_scenario.png")
-        assert os.path.exists("test_simple_scenario.png")
+        scenario.plot("test_simple_scenario.pdf")
+        assert os.path.exists("test_simple_scenario.pdf")
 
     def test_random_plotting(self):
         scenario = random_scenario_1(seed=88)
         scenario.plot("test_random_scenario.png")
         assert os.path.exists("test_random_scenario.png")
-    
+
     def test_simple_sim(self):
-        
         # Define test-case key and scenario
-        self.key, subkey = jax.random.split(self.key)
+        key = jax.random.PRNGKey(42)
         scenario = simple_scenario_3()
-        
+
         # Transmission matrices indicating which node is transmitting to which node:
         # - in this example, STA 1 is transmitting to AP A
         tx1 = jnp.array([
@@ -61,12 +56,13 @@ class ScenarioClasssTestCase(unittest.TestCase):
 
         # Simulate the network for 150 steps
         thr1, thr2, thr3 = [], [], []
+
         for _ in range(150):
-            subkey, k1, k2, k3 = jax.random.split(subkey, 4)
+            key, k1, k2, k3 = jax.random.split(key, 4)
             thr1.append(scenario.thr_fn(k1, tx1))
             thr2.append(scenario.thr_fn(k2, tx2))
             thr3.append(scenario.thr_fn(k3, tx3))
-        
+
         # Plot the approximate throughput
         xs = jnp.arange(150)
         plt.scatter(xs, thr1, label='STA 1 -> AP A', alpha=0.5, s=10, edgecolor='none')

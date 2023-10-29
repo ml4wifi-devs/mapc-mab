@@ -13,7 +13,7 @@ class ScenarioClassTestCase(unittest.TestCase):
         # Define test-case key and scenario
         key = jax.random.PRNGKey(42)
         scenario = simple_scenario_2()
-        scenario.plot("scenario_3.pdf")
+        scenario.plot("scenario_2.pdf")
 
         # Define the agent factory and create MAPC agent
         agent_factory = MapcAgentFactory(
@@ -46,5 +46,5 @@ class ScenarioClassTestCase(unittest.TestCase):
         plt.title('Simulation of MAPC')
         plt.grid()
         plt.tight_layout()
-        plt.savefig('scenario_3_thr.pdf', bbox_inches='tight')
+        plt.savefig('scenario_2_thr.pdf', bbox_inches='tight')
         plt.clf()
