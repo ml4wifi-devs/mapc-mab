@@ -65,13 +65,12 @@ TODO:
 
 1. Round Robin 
 1. Round Robin 
-1. $1$ agent per $1$ STA (Each STA has assigned AP.
-Next steps) -- Dict\[STA $\rightarrow$ MAB\] 
+1. $1$ agent per $1$ STA (Each STA has assigned APs) -- Dict\[STA $\rightarrow a \in 2^{\mathcal{A}\setminus\{A_k\}}$\] 
     - No. Agents:$\| \mathcal{S}\|$ 
     - No. Actions: $\|2^{\mathcal{A}\setminus\{A_k\}}\|$
-1.  $1$ agent per $1$ element of the power set $2^{\mathcal{A}}$ --Dict\[$a\in 2^{\mathcal{A}}$ $\rightarrow$ MAB\] 
-    - No. Agents: $\|2^{N_{AP}} - N_{AP} -1\|$ 
-    - No. Actions: $\Pi_{i \in \mathcal{F}_{k,l}} N_{STA}^{i}$
+1.  $1$ agent per $1$ element of the power set $2^{\mathcal{A}}$ -- Dict\[$a \rightarrow$ STAs\] 
+    - No. Agents: $\|2^{\mathcal{A}}\|$
+    - No. Actions: $\Sigma_{i \in \mathcal{F}_{k,l}} N_{STA}^{i}$
 
 
 # Stateful/Contextful Approach
