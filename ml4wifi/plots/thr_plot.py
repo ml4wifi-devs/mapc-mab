@@ -32,8 +32,8 @@ def plot_thr(names: List, throughput: List, xs: Array, scenario: str) -> None:
 
 if __name__ == '__main__':
     args = ArgumentParser()
-    args.add_argument('--file', type=str, required=True)
-    args.add_argument('--steps', type=int, required=True)
+    args.add_argument('-f', '--file', type=str, required=True)
+    args.add_argument('-s', '--aggregate_steps', type=int, required=True)
     args = args.parse_args()
 
     with open(args.file, 'r') as file:
@@ -43,9 +43,9 @@ if __name__ == '__main__':
         names, throughput = [], []
 
         for agent in scenario['agents']:
-            names.append(agent['agent'])
-            runs = [jnp.array(run).reshape((-1, args.steps)).mean(axis=-1) for run in agent['runs']]
+            names.append(agent['agent']['name'])
+            runs = [jnp.array(run).reshape((-1, args.aggregate_steps)).mean(axis=-1) for run in agent['runs']]
             throughput.append(jnp.array(runs))
 
-        xs = jnp.arange(throughput[0].shape[-1]) * args.steps
-        plot_thr(names, throughput, xs, scenario['scenario'])
+        xs = jnp.arange(throughput[0].shape[-1]) * args.aggregate_steps
+        plot_thr(names, throughput, xs, scenario['scenario']['name'])

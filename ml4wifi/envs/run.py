@@ -4,18 +4,11 @@ from typing import List
 
 import jax
 from chex import PRNGKey
-from reinforced_lib.agents.mab import EGreedy, Exp3, Softmax, UCB
+from reinforced_lib.agents.mab import *
+from tqdm import tqdm
 
 from ml4wifi.agents import MapcAgentFactory
-from ml4wifi.envs.scenarios.static import StaticScenario, get_all_scenarios
-
-
-AGENTS = [
-    (EGreedy, {'e': 0.1, 'optimistic_start': 1e3}),
-    (Exp3, {'gamma': 0.1, 'min_reward': 0., 'max_reward': 1e3}),
-    (Softmax, {'lr': 1., 'tau': 1., 'multiplier': 1e-3}),
-    (UCB, {'c': 0.1})
-]
+from ml4wifi.envs.scenarios.static import *
 
 
 def run_scenario(
@@ -36,37 +29,47 @@ def run_scenario(
             key, agent_key, scenario_key = jax.random.split(key, 3)
             tx = agent.sample(agent_key, thr)
             thr = scenario(scenario_key, tx)
+            runs[-1].append(thr)
 
-    return runs
+    return jax.tree_map(lambda x: x.tolist(), runs)
 
 
 if __name__ == '__main__':
     args = ArgumentParser()
-    args.add_argument('--n_reps', type=int, required=True)
-    args.add_argument('--n_steps', type=int, required=True)
-    args.add_argument('--output', type=str, default='all_results.json')
-    args.add_argument('--seed', type=int, default=42)
+    args.add_argument('-c', '--config', type=str, default='default_config.json')
+    args.add_argument('-o', '--output', type=str, default='all_results.json')
     args = args.parse_args()
 
-    results = []
+    with open(args.config, 'r') as file:
+        config = json.load(file)
 
-    for scenario in get_all_scenarios():
+    all_results = []
+
+    for scenario_config in tqdm(config['scenarios'], desc='Scenarios'):
+        scenario = globals()[scenario_config['name']](**scenario_config['params'])
+
         associations = scenario.get_associations()
-        agents = []
+        scenario_results = []
 
-        for agent_type, agent_params in AGENTS:
-            key = jax.random.PRNGKey(args.seed)
-            agent_factory = MapcAgentFactory(associations, agent_type, agent_params)
+        for agent_config in tqdm(config['agents'], desc='Agents', leave=False):
+            key = jax.random.PRNGKey(config['seed'])
+            agent_factory = MapcAgentFactory(associations, globals()[agent_config['name']], agent_config['params'])
 
-            agents.append({
-                'agent': agent_type.__name__.lower(),
-                'runs': run_scenario(agent_factory, scenario, args.n_reps, args.n_steps, key)
+            scenario_results.append({
+                'agent': {
+                    'name': agent_config['name'],
+                    'params': agent_config['params']
+                },
+                'runs': run_scenario(agent_factory, scenario, config['n_reps'], config['n_steps'], key)
             })
 
-        results.append({
-            'scenario': scenario.name,
-            'agents': agents
+        all_results.append({
+            'scenario': {
+                'name': scenario_config['name'],
+                'params': scenario_config['params']
+            },
+            'agents': scenario_results
         })
 
     with open(args.output, 'w') as file:
-        json.dump(results, file)
+        json.dump(all_results, file)

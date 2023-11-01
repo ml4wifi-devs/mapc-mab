@@ -6,7 +6,7 @@ import jax.random
 from chex import Array, Scalar, Shape, PRNGKey
 from reinforced_lib import RLib
 
-from ml4wifi.envs.sim_ext import MapcSimExt
+from ml4wifi.envs.sim import MapcSimExt
 
 
 class MapcAgent:
