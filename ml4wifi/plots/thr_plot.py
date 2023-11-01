@@ -16,7 +16,7 @@ def plot_thr(names: List, throughput: List, xs: Array, scenario: str) -> None:
 
     for i, (name, thr) in enumerate(zip(names, throughput)):
         mean, ci_low, ci_high = confidence_interval(thr)
-        plt.plot(xs, mean, marker='o', markersize=2, label=AGENT_NAMES[name], c=colors[i])
+        plt.plot(xs, mean, marker='o', markersize=2, label=AGENT_NAMES.get(name, name), c=colors[i])
         plt.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
 
     plt.xlabel('Step')

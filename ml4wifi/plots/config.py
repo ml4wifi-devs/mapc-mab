@@ -24,10 +24,8 @@ PLOT_PARAMS = {
 
 
 AGENT_NAMES = {
-    'egreedy': r'$\varepsilon$-greedy',
-    'exp3': 'EXP3',
-    'softmax': 'Softmax',
-    'ucb': 'UCB'
+    'EGreedy': r'$\varepsilon$-greedy',
+    'Exp3': 'EXP3'
 }
 
 
