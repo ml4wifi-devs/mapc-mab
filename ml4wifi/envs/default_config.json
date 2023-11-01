@@ -1,0 +1,54 @@
+{
+  "n_reps": 10,
+  "n_steps": 50000,
+  "seed": 42,
+  "scenarios": [
+    {
+      "name": "simple_scenario_1",
+      "params": {}
+    },
+    {
+      "name": "simple_scenario_2",
+      "params": {}
+    },
+    {
+      "name": "simple_scenario_3",
+      "params": {}
+    },
+    {
+      "name": "random_scenario_1",
+      "params": {}
+    }
+  ],
+  "agents": [
+    {
+      "name": "EGreedy",
+      "params": {
+        "e": 0.1,
+        "optimistic_start": 1e3
+      }
+    },
+    {
+      "name": "Exp3",
+      "params": {
+        "gamma": 0.1,
+        "min_reward": 0,
+        "max_reward": 1e3
+      }
+    },
+    {
+      "name": "Softmax",
+      "params": {
+        "lr": 1.0,
+        "tau": 1.0,
+        "multiplier": 1e-3
+      }
+    },
+    {
+      "name": "UCB",
+      "params": {
+        "c": 1.0
+      }
+    }
+  ]
+}

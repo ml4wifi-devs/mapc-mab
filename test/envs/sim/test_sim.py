@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.scenarios.static import DEFAULT_SIGMA
+from ml4wifi.envs.scenarios.static import DEFAULT_SIGMA, DEFAULT_MCS
 from ml4wifi.envs.sim import DEFAULT_TX_POWER, network_throughput
 
 
@@ -53,8 +53,8 @@ class SimTestCase(unittest.TestCase):
             [0, 1, 0, 0, 0, 0]
         ])
 
-        # Modulation and coding scheme of the nodes (here, all nodes use MCS 4)
-        mcs = jnp.ones(n_nodes, dtype=jnp.int32) * 4
+        # Modulation and coding scheme of the nodes (here, all nodes use default MCS)
+        mcs = jnp.ones(n_nodes, dtype=jnp.int32) * DEFAULT_MCS
 
         # Transmission power of the nodes (all nodes use the default transmission power)
         tx_power = jnp.ones(n_nodes) * DEFAULT_TX_POWER
