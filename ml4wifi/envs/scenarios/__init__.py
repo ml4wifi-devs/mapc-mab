@@ -20,16 +20,12 @@ class Scenario(ABC):
         Dictionary of associations between access points and stations.
     """
 
-    def __init__(self, name: str, associations: Dict) -> None:
-        self.name = name
+    def __init__(self, associations: Dict) -> None:
         self.associations = associations
 
     @abstractmethod
     def __call__(self, *args, **kwargs) -> Scalar:
         pass
-
-    def __str__(self) -> str:
-        return self.name
 
     def get_associations(self) -> Dict:
         return self.associations
@@ -79,8 +75,8 @@ class StaticScenario(Scenario):
         Dictionary of associations between access points and stations.
     """
 
-    def __init__(self, name: str, pos: Array, mcs: int, tx_power: Scalar, sigma: Scalar, associations: Dict) -> None:
-        super().__init__(name, associations)
+    def __init__(self, pos: Array, mcs: int, tx_power: Scalar, sigma: Scalar, associations: Dict) -> None:
+        super().__init__(associations)
 
         self.pos = pos
         mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
@@ -108,8 +104,8 @@ class DynamicScenario(Scenario):
         Dictionary of associations between access points and stations.
     """
 
-    def __init__(self, name: str, sigma: Scalar, associations: Dict) -> None:
-        super().__init__(name, associations)
+    def __init__(self, sigma: Scalar, associations: Dict) -> None:
+        super().__init__(associations)
         self.thr_fn = jax.jit(partial(network_throughput, sigma=sigma))
 
     def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:

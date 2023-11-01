@@ -76,12 +76,10 @@ class SimTestCase(unittest.TestCase):
 
         # Plot the positions of the nodes
         plt.figure(figsize=(7.5, 4.5))
-        plt.rcParams['text.usetex'] = False
-
         plt.scatter(pos[:, 0], pos[:, 1], marker='x')
 
         for p, name in zip(pos, ['AP A', 'AP B', 'STA 1', 'STA 2', 'STA 3', 'STA 4']):
-            plt.text(p[0] - 2, p[1] + 1, name)
+            plt.text(p[0] - 1, p[1] + 1, name)
 
         plt.xlim(0, 50)
         plt.ylim(0, 30)
