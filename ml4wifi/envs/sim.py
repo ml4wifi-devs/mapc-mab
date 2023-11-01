@@ -11,8 +11,8 @@ EXPONENT = 2.0              # https://tsapps.nist.gov/publication/get_pdf.cfm?pu
 NOISE_FLOOR = -93.97        # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
 
-# Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 3200 ns GI
-DATA_RATES = jnp.array([7.3, 14.6, 21.9, 29.3, 43.9, 58.5, 65.8, 73.1, 87.8, 97.5, 109.7, 121.9])
+# Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
+DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
 
 # Based on ns-3 simulations with LogDistance channel model
 MEAN_SNRS = jnp.array([

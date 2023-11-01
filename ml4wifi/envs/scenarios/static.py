@@ -8,7 +8,7 @@ from ml4wifi.envs.sim import DEFAULT_TX_POWER
 
 # Default statistic simulation parameters
 DEFAULT_SIGMA = 2.    # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
-DEFAULT_MCS = 4
+DEFAULT_MCS = 11
 
 
 def simple_scenario_1(
