@@ -2,6 +2,7 @@ import unittest
 
 import jax
 import matplotlib.pyplot as plt
+import numpy as np
 from reinforced_lib.agents.mab import UCB
 
 from ml4wifi.envs.scenarios.static import simple_scenario_2
@@ -12,6 +13,8 @@ class ScenarioClassTestCase(unittest.TestCase):
     def test_simple_sim(self):
         # Define test-case key and scenario
         key = jax.random.PRNGKey(42)
+        np.random.seed(42)
+
         scenario = simple_scenario_2()
         scenario.plot("scenario_2.pdf")
 
@@ -30,8 +33,8 @@ class ScenarioClassTestCase(unittest.TestCase):
 
         for step in range(n_steps + 1):
             # Sample the agent
-            key, agent_key, tx_key = jax.random.split(key, 3)
-            tx = agent.sample(agent_key, reward)
+            key, tx_key = jax.random.split(key, 2)
+            tx = agent.sample(reward)
 
             # Simulate the network
             reward = scenario(tx_key, tx)
