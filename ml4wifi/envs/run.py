@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from typing import List
 
 import jax
-from chex import PRNGKey
+import numpy as np
 from reinforced_lib.agents.mab import *
 from tqdm import tqdm
 
@@ -16,8 +16,11 @@ def run_scenario(
         scenario: StaticScenario,
         n_reps: int,
         n_steps: int,
-        key: PRNGKey
+        seed: int
 ) -> List:
+    key = jax.random.PRNGKey(seed)
+    np.random.seed(seed)
+
     runs = []
 
     for i in range(n_reps):
@@ -26,8 +29,8 @@ def run_scenario(
         thr = 0.
 
         for j in range(n_steps):
-            key, agent_key, scenario_key = jax.random.split(key, 3)
-            tx = agent.sample(agent_key, thr)
+            key, scenario_key = jax.random.split(key)
+            tx = agent.sample(thr)
             thr = scenario(scenario_key, tx)
             runs[-1].append(thr)
 
@@ -52,7 +55,6 @@ if __name__ == '__main__':
         scenario_results = []
 
         for agent_config in tqdm(config['agents'], desc='Agents', leave=False):
-            key = jax.random.PRNGKey(config['seed'])
             agent_factory = MapcAgentFactory(associations, globals()[agent_config['name']], agent_config['params'])
 
             scenario_results.append({
@@ -60,7 +62,7 @@ if __name__ == '__main__':
                     'name': agent_config['name'],
                     'params': agent_config['params']
                 },
-                'runs': run_scenario(agent_factory, scenario, config['n_reps'], config['n_steps'], key)
+                'runs': run_scenario(agent_factory, scenario, config['n_reps'], config['n_steps'], config['seed'])
             })
 
         all_results.append({

@@ -1,11 +1,10 @@
 from typing import Tuple
 
-import jax.numpy as jnp
-from chex import Array, Scalar
+import numpy as np
 from scipy.stats import t, ttest_ind
 
 
-def confidence_interval(data: Array, ci: Scalar = 0.99) -> Tuple:
+def confidence_interval(data: np.ndarray, ci: float = 0.99) -> Tuple:
     measurements = data.shape[0]
     mean = data.mean(axis=0)
     std = data.std(axis=0)
@@ -13,15 +12,15 @@ def confidence_interval(data: Array, ci: Scalar = 0.99) -> Tuple:
     alpha = 1 - ci
     z = t.ppf(1 - alpha / 2, measurements - 1)
 
-    ci_low = mean - z * std / jnp.sqrt(measurements)
-    ci_high = mean + z * std / jnp.sqrt(measurements)
+    ci_low = mean - z * std / np.sqrt(measurements)
+    ci_high = mean + z * std / np.sqrt(measurements)
 
     return mean, ci_low, ci_high
 
 
-def ttest(data: Array) -> Array:
+def ttest(data: np.ndarray) -> np.ndarray:
     n = data.shape[0]
-    results = jnp.zeros((n, n))
+    results = np.zeros((n, n))
 
     for i in range(n):
         for j in range(i + 1, n):

@@ -1,9 +1,8 @@
 from itertools import chain, combinations
 from typing import Dict, List, Callable, Iterable, Tuple
 
-import jax.numpy as jnp
-import jax.random
-from chex import Array, Scalar, Shape, PRNGKey
+import numpy as np
+from chex import Array, Scalar, Shape
 from reinforced_lib import RLib
 
 from ml4wifi.envs.sim import MapcSimExt
@@ -42,8 +41,8 @@ class MapcAgent:
             sta_group_action_to_sta_group: Callable,
             tx_matrix_shape: Shape
     ) -> None:
-        self.associations = {ap: jnp.array(stations) for ap, stations in associations.items()}
-        self.access_points = jnp.array(list(associations.keys()))
+        self.associations = {ap: np.array(stations) for ap, stations in associations.items()}
+        self.access_points = np.array(list(associations.keys()))
 
         self.find_groups_dict = find_groups_dict
         self.assign_stations_dict = assign_stations_dict
@@ -51,14 +50,12 @@ class MapcAgent:
         self.sta_group_action_to_sta_group = sta_group_action_to_sta_group
         self.tx_matrix_shape = tx_matrix_shape
 
-    def sample(self, key: PRNGKey, reward: Scalar) -> Array:
+    def sample(self, reward: Scalar) -> Array:
         """
         Samples the agent to get the transmission matrix.
 
         Parameters
         ----------
-        key : PRNGKey
-            The key used to sample the agents.
         reward: float
             The reward obtained in the previous step.
 
@@ -68,11 +65,9 @@ class MapcAgent:
             The transmission matrix.
         """
 
-        ap_key, sta_key = jax.random.split(key)
-
         # Sample sharing AP and designated station
-        sharing_ap = jax.random.choice(ap_key, self.access_points).item()
-        designated_station = jax.random.choice(sta_key, self.associations[sharing_ap]).item()
+        sharing_ap = np.random.choice(self.access_points)
+        designated_station = np.random.choice(self.associations[sharing_ap])
 
         # Sample the agent which find groups of APs
         ap_group = self.ap_group_action_to_ap_group(
@@ -86,11 +81,11 @@ class MapcAgent:
         )
 
         # Create the transmission matrix based on the sampled pairs
-        tx_matrix = jnp.zeros(self.tx_matrix_shape)
-        tx_matrix = tx_matrix.at[sharing_ap, designated_station].set(1)
+        tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
+        tx_matrix[sharing_ap, designated_station] = 1
 
         for ap, sta in zip(ap_group, sta_group):
-            tx_matrix = tx_matrix.at[ap, sta].set(1)
+            tx_matrix[ap, sta] = 1
 
         return tx_matrix
 
