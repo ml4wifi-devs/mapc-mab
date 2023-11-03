@@ -7,6 +7,7 @@ from chex import Array, PRNGKey, Scalar
 # https://www.nsnam.org/docs/models/html/propagation.html#logdistancepropagationlossmodel
 DEFAULT_TX_POWER = 16.0206  # (40 mW) https://www.nsnam.org/docs/release/3.40/doxygen/d0/d7d/wifi-phy_8cc_source.html#l00171
 REFERENCE_LOSS = 46.6777    # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00493
+REFERENCE_DISTANCE = 1.0    # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00488
 EXPONENT = 2.0              # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
 NOISE_FLOOR = -93.97        # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
@@ -55,6 +56,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     """
 
     distance = jnp.sqrt(jnp.sum((pos[:, None, :] - pos[None, ...]) ** 2, axis=-1))
+    distance = jnp.clip(distance, REFERENCE_DISTANCE, None)
 
     path_loss = REFERENCE_LOSS + 10 * EXPONENT * jnp.log10(distance)
     signal_power = tx_power - path_loss
