@@ -71,6 +71,7 @@ def run(distance_ap: int, distance_sta: int, mcs: int = 11, seed: int = 42, plot
         plt.plot(xs, thr_internal_2, label='internal_2 (diagnoal))', color=COLORS[3])
         plt.plot(xs, thr_single, label='single transmission', color='black', linestyle='--')
         plt.xlim(0, n_steps)
+        plt.ylim(0, 600)
         plt.xlabel('Timestep')
         plt.ylabel('Approximated throughput [Mb/s]')
         plt.title('Simulation of MAPC')
@@ -96,6 +97,7 @@ def plot_cumulative():
     plt.plot(distances_ap, mean_internal_2, label='internal 2 (diagnoal))', color=COLORS[3])
     plt.plot(distances_ap, mean_single, label='single transmission', color='black', linestyle='--')
     plt.xscale('log')
+    plt.ylim(0, 600)
     plt.xlabel('AP-AP distance [m]')
     plt.ylabel('Approximated throughput [Mb/s]')
     plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
@@ -144,5 +146,5 @@ if __name__ == "__main__":
     # Plot the scenario topology
     d_ap = 40.
     tmp_scenario = simple_scenario_2(d_ap=d_ap, d_sta=distance_sta, mcs=mcs)
-    tmp_scenario.plot(f'scenario_2_top_mcs{mcs}_dap_{d_ap}_dsta{distance_sta}.pdf')
+    tmp_scenario.plot(f'scenario_2_top_dap_{d_ap}_dsta{distance_sta}.pdf')
 
