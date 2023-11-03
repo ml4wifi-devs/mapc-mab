@@ -20,6 +20,8 @@ dependencies = [
   "chex~=0.1.83",
   "jax~=0.4.18",
   "jaxlib~=0.4.18",
+  "optuna~=3.4.0",
+  "optuna-dashboard~=0.13.0",
   "seaborn~=0.13.0",
   "reinforced-lib==1.0.0",
   "tqdm~=4.66.1"
