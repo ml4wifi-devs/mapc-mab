@@ -5,6 +5,7 @@ from typing import Dict
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+import numpy as np
 from chex import Array, Scalar, PRNGKey
 
 from ml4wifi.envs.sim import network_throughput
@@ -31,7 +32,7 @@ class Scenario(ABC):
         return self.associations
 
     def plot(self, pos: Array, associations: Dict, filename: str = None) -> None:
-        colors = plt.colormaps['viridis'](jnp.linspace(0, 1, len(associations)))
+        colors = plt.colormaps['viridis'](np.linspace(0, 1, len(associations)))
         _, ax = plt.subplots()
 
         for i, (ap, stations) in enumerate(associations.items()):
@@ -39,7 +40,7 @@ class Scenario(ABC):
             ax.scatter(pos[stations, 0], pos[stations, 1], marker='.', color=colors[i])
             ax.annotate(f'AP {ap + 1}', (pos[ap, 0], pos[ap, 1]), color=colors[i], va='bottom', ha='center')
 
-            radius = jnp.max(jnp.sqrt(jnp.sum((pos[stations, :] - pos[ap, :]) ** 2, axis=-1)))
+            radius = np.max(np.sqrt(np.sum((pos[stations, :] - pos[ap, :]) ** 2, axis=-1)))
             circle = plt.Circle((pos[ap, 0], pos[ap, 1]), radius * 1.1, fill=False, linewidth=0.5)
             ax.add_patch(circle)
 
