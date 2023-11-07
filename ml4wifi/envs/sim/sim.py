@@ -11,6 +11,7 @@ REFERENCE_DISTANCE = 1.0    # https://www.nsnam.org/docs/release/3.40/doxygen/d5
 EXPONENT = 2.0              # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
 NOISE_FLOOR = -93.97        # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
+DEFAULT_SIGMA = 2.          # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
 
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
