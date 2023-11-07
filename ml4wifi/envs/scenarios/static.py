@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 import jax.random
-from chex import Array, Scalar
+from chex import Scalar
 
 from ml4wifi.envs.scenarios import StaticScenario
 from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA
@@ -8,8 +8,8 @@ from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA
 
 def simple_scenario_1(
         d: Scalar = 40.,
-        mcs: Array = 4,
-        tx_power: Array = DEFAULT_TX_POWER,
+        mcs: int = 4,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     """
@@ -36,8 +36,8 @@ def simple_scenario_1(
 def simple_scenario_2(
         d_ap: Scalar = 50.,
         d_sta: Scalar = 1.,
-        mcs: Array = 11,
-        tx_power: Array = DEFAULT_TX_POWER,
+        mcs: Scalar = 11,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     """
@@ -81,8 +81,8 @@ def simple_scenario_2(
 
 def simple_scenario_3(
         d: Scalar = 30.,
-        mcs: Array = 4,
-        tx_power: Array = DEFAULT_TX_POWER,
+        mcs: int = 4,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     """
@@ -115,8 +115,8 @@ def random_scenario_1(
         n_ap: int = 4,
         d_sta: Scalar = 1.,
         n_sta_per_ap: int = 4,
-        mcs: Array = 11,
-        tx_power: Array = DEFAULT_TX_POWER,
+        mcs: int = 11,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     ap_key, key = jax.random.split(jax.random.PRNGKey(seed))

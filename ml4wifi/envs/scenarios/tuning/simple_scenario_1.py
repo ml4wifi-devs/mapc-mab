@@ -1,15 +1,14 @@
-import sys
 import jax
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pl
 from argparse import ArgumentParser
 
 from ml4wifi.envs.scenarios.static import *
-import ml4wifi.plots
+
 
 COLORS = pl.cm.viridis(jnp.linspace(0., 1., 3))
 plt.rcParams.update({'figure.figsize': (4, 3)})
+
 
 def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
 
@@ -75,9 +74,9 @@ def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
     # Plot the approximate throughput
     if plot:
         xs = jnp.arange(n_steps)
-        plt.plot(xs, thr_optimal, label='o-AP1 o o AP2-o (optimal)', color=COLORS[0])
-        plt.plot(xs, thr_suboptimal, label='o-AP1 o o-AP2 o (suboptimal)', color=COLORS[1])
-        plt.plot(xs, thr_wasteful, label='o AP1-o o-AP2 o (wasteful)', color=COLORS[2])
+        plt.plot(xs, thr_optimal, label='o-A o o B-o (optimal)', color=COLORS[0])
+        plt.plot(xs, thr_suboptimal, label='o-A o o-B o (suboptimal)', color=COLORS[1])
+        plt.plot(xs, thr_wasteful, label='o A-o o-B o (wasteful)', color=COLORS[2])
         plt.plot(xs, thr_single, label='single transmission', color='black', linestyle='--')
         plt.xlim(0, n_steps)
         plt.ylim(0, 150)
@@ -100,9 +99,9 @@ def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
 
 def plot_cumulative():
 
-    plt.plot(distances, mean_optimal, label='o-AP1 o o AP2-o (optimal)', color=COLORS[0])
-    plt.plot(distances, mean_suboptimal, label='o-AP1 o o-AP2 o (suboptimal)', color=COLORS[1])
-    plt.plot(distances, mean_wasteful, label='o AP1-o o-AP2 o (wasteful)', color=COLORS[2])
+    plt.plot(distances, mean_optimal, label='o-A o o B-o (optimal)', color=COLORS[0])
+    plt.plot(distances, mean_suboptimal, label='o-A o o-B o (suboptimal)', color=COLORS[1])
+    plt.plot(distances, mean_wasteful, label='o A-o o-B o (wasteful)', color=COLORS[2])
     plt.plot(distances, mean_single, label='single transmission', color='black', linestyle='--')
     plt.xscale('log')
     plt.ylim(0, 150)
@@ -114,6 +113,7 @@ def plot_cumulative():
     plt.tight_layout()
     plt.savefig(f'scenario_1_cum_mcs{mcs}.pdf', bbox_inches='tight')
     plt.clf()
+
 
 if __name__ == "__main__":
 
@@ -148,8 +148,3 @@ if __name__ == "__main__":
     d = 10
     tmp_scenario = simple_scenario_1(d=d, mcs=mcs)
     tmp_scenario.plot(f'scenario_1_top_dap_{d}.pdf')
-
-# o-AP1 o o AP2-o (optimal)
-# o-AP1 o o-AP2 o (suboptimal)
-# o AP1-o o-AP2 o (wasteful)
-
