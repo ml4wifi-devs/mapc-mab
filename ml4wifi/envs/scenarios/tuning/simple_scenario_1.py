@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # Run the simulation
     print(f"=== MCS {mcs} ===")
     mean_optimal, mean_suboptimal, mean_wasteful, mean_single = [], [], [], []
-    distances = jnp.logspace(-1, 3, res, base=10)
+    distances = jnp.logspace(0, 3, res, base=10)
     for d in distances:
         thr_optimal, thr_suboptimal, thr_wasteful, thr_single = run(distance=d, mcs=int(mcs), plot=plot_flag)
         mean_optimal.append(thr_optimal)
