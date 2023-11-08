@@ -14,7 +14,7 @@
       "name": "simple_scenario_2",
       "params": {
         "d_ap": 50.0,
-        "d_start": 1.0,
+        "d_sta": 1.0,
         "mcs": 11
       }
     },
