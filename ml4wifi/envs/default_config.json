@@ -1,10 +1,11 @@
 {
   "n_reps": 20,
-  "n_steps": 10000,
   "seed": 42,
   "scenarios": [
     {
       "name": "simple_scenario_1",
+      "n_steps": 1020,
+      "ylim": 100.0,
       "params": {
         "d": 40.0,
         "mcs": 4
@@ -12,6 +13,8 @@
     },
     {
       "name": "simple_scenario_2",
+      "n_steps": 20400,
+      "ylim": 250.0,
       "params": {
         "d_ap": 50.0,
         "d_sta": 1.0,
@@ -20,6 +23,8 @@
     },
     {
       "name": "simple_scenario_3",
+      "n_steps": 1020,
+      "ylim": 100.0,
       "params": {
         "d": 30.0,
         "mcs": 4

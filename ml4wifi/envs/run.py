@@ -62,14 +62,11 @@ if __name__ == '__main__':
                     'name': agent_config['name'],
                     'params': agent_config['params']
                 },
-                'runs': run_scenario(agent_factory, scenario, config['n_reps'], config['n_steps'], config['seed'])
+                'runs': run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], config['seed'])
             })
 
         all_results.append({
-            'scenario': {
-                'name': scenario_config['name'],
-                'params': scenario_config['params']
-            },
+            'scenario': scenario_config,
             'agents': scenario_results
         })
 
