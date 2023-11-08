@@ -7,14 +7,18 @@ from reinforced_lib.agents.mab import *
 
 from ml4wifi.agents import MapcAgentFactory
 from ml4wifi.envs.run import run_scenario
-from ml4wifi.envs.scenarios.static import *
+from ml4wifi.envs.scenarios.static import random_scenario_1
 
 
-# TODO develop training scenarios
 TRAINING_SCENARIOS = [
-    simple_scenario_1(),
-    simple_scenario_2(),
-    simple_scenario_3(),
+    random_scenario_1(seed=1, d_ap=200., n_ap=2, d_sta=40., n_sta_per_ap=2, mcs=4),
+    random_scenario_1(seed=7, d_ap=200., n_ap=2, d_sta=40., n_sta_per_ap=3, mcs=4),
+    random_scenario_1(seed=7, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=2, mcs=4),
+    random_scenario_1(seed=7, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=3, mcs=6),
+    random_scenario_1(seed=10, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=4, mcs=6),
+    random_scenario_1(seed=9, d_ap=100., n_ap=4, d_sta=5., n_sta_per_ap=2, mcs=11),
+    random_scenario_1(seed=10, d_ap=100., n_ap=4, d_sta=5., n_sta_per_ap=3, mcs=11),
+    random_scenario_1(seed=20, d_ap=200., n_ap=4, d_sta=5., n_sta_per_ap=4, mcs=11)
 ]
 
 
@@ -68,9 +72,14 @@ if __name__ == '__main__':
     args = ArgumentParser()
     args.add_argument('-a', '--agent', type=str, required=True)
     args.add_argument('-d', '--database', type=str, default='optuna.db')
-    args.add_argument('-s', '--n_steps', type=int, required=True)
+    args.add_argument('-p', '--plot', action='store_true', default=False)
+    args.add_argument('-s', '--n_steps', type=int, default=5000)
     args.add_argument('-n', '--n_trials', type=int, required=True)
     args = args.parse_args()
+
+    if args.plot:
+        for i, scenario in enumerate(TRAINING_SCENARIOS, start=1):
+            scenario.plot(f'training_scenario_{i}.pdf')
 
     study = optuna.create_study(
         storage=f'sqlite:///{args.database}',
