@@ -7,17 +7,21 @@ import matplotlib.pylab as pl
 import matplotlib.pyplot as plt
 from chex import Array
 
+from ml4wifi.envs.sim import DATA_RATES
 from ml4wifi.plots.config import AGENT_NAMES
 from ml4wifi.plots.utils import confidence_interval
 
 
-def plot_thr(names: List, throughput: List, xs: Array, scenario: str) -> None:
+def plot_thr(names: List, throughput: List, xs: Array, scenario: str, single_tx_thr: float = None) -> None:
     colors = pl.cm.viridis(np.linspace(0., 1., len(names)))
 
     for i, (name, thr) in enumerate(zip(names, throughput)):
         mean, ci_low, ci_high = confidence_interval(thr)
         plt.plot(xs, mean, marker='o', markersize=2, label=AGENT_NAMES.get(name, name), c=colors[i])
         plt.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
+
+    if single_tx_thr is not None:
+        plt.axhline(single_tx_thr, linestyle='--', color='black', label='Single TX')
 
     plt.xlabel('Step')
     plt.ylabel('Aggregate throughput [Mb/s]')
@@ -47,5 +51,7 @@ if __name__ == '__main__':
             runs = [np.array(run).reshape((-1, args.aggregate_steps)).mean(axis=-1) for run in agent['runs']]
             throughput.append(np.array(runs))
 
+        single_tx_thr = DATA_RATES[scenario['scenario']['params']['mcs']] if 'mcs' in scenario['scenario']['params'] else None
         xs = np.arange(throughput[0].shape[-1]) * args.aggregate_steps
-        plot_thr(names, throughput, xs, scenario['scenario']['name'])
+
+        plot_thr(names, throughput, xs, scenario['scenario']['name'], single_tx_thr)

@@ -1,53 +1,51 @@
 {
-  "n_reps": 10,
-  "n_steps": 50000,
+  "n_reps": 20,
+  "n_steps": 10000,
   "seed": 42,
   "scenarios": [
     {
       "name": "simple_scenario_1",
-      "params": {}
+      "params": {
+        "d": 40.0,
+        "mcs": 4
+      }
     },
     {
       "name": "simple_scenario_2",
-      "params": {}
+      "params": {
+        "d_ap": 50.0,
+        "d_start": 1.0,
+        "mcs": 11
+      }
     },
     {
       "name": "simple_scenario_3",
-      "params": {}
-    },
-    {
-      "name": "random_scenario_1",
-      "params": {}
+      "params": {
+        "d": 30.0,
+        "mcs": 4
+      }
     }
   ],
   "agents": [
     {
       "name": "EGreedy",
       "params": {
-        "e": 0.1,
-        "optimistic_start": 1e3
-      }
-    },
-    {
-      "name": "Exp3",
-      "params": {
-        "gamma": 0.1,
-        "min_reward": 0,
-        "max_reward": 1e3
+        "e": 0.04176525937077551,
+        "optimistic_start": 14.57152449193153
       }
     },
     {
       "name": "Softmax",
       "params": {
-        "lr": 1.0,
-        "tau": 1.0,
-        "multiplier": 1e-3
+        "lr": 2.127150986897817,
+        "tau": 8.713813363036957,
+        "multiplier": 0.02156825908646279
       }
     },
     {
       "name": "UCB",
       "params": {
-        "c": 1.0
+        "c": 58.842379882326384
       }
     }
   ]
