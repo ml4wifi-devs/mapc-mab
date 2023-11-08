@@ -32,7 +32,7 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int) -> float:
     elif agent == 'Exp3':
         agent_type = Exp3
         agent_params = {
-            'gamma': trial.suggest_float('gamma', 0., 1., log=True),
+            'gamma': trial.suggest_float('gamma', 1e-6, 1., log=True),
             'min_reward': 0.,
             'max_reward': 1000.
         }
@@ -41,7 +41,7 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int) -> float:
         agent_params = {
             'lr': trial.suggest_float('lr', 1e-2, 1e2, log=True),
             'tau': trial.suggest_float('tau', 1e-2, 1e2, log=True),
-            'multiplier': trial.suggest_float('multiplier', 1e-5, 1., log=True)
+            'multiplier': trial.suggest_float('multiplier', 1e-4, 1., log=True)
         }
     elif agent == 'UCB':
         agent_type = UCB
