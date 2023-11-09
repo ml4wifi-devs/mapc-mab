@@ -4,6 +4,7 @@ import matplotlib.pylab as pl
 from argparse import ArgumentParser
 
 from ml4wifi.envs.scenarios.static import *
+from ml4wifi import plots
 
 
 COLORS = pl.cm.viridis(jnp.linspace(0., 1., 4))

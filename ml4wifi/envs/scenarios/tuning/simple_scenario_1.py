@@ -4,20 +4,21 @@ import matplotlib.pylab as pl
 from argparse import ArgumentParser
 
 from ml4wifi.envs.scenarios.static import *
+from ml4wifi import plots
 
 
 COLORS = pl.cm.viridis(jnp.linspace(0., 1., 3))
 plt.rcParams.update({'figure.figsize': (4, 3)})
 
 
-def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
+def run(distance: int, mcs: int = 4, seed: int = 42, plot: bool = False):
 
     # Define test-case key and scenario
     key = jax.random.PRNGKey(seed)
     scenario = simple_scenario_1(d=distance, mcs=mcs)
 
     # Transmission matrices indicating which node is transmitting to which node:
-    # - in this example, AP 1 is transmitting to STA 1, and AP 2 is transmitting to STA 4
+    # - in this example, AP A is transmitting to STA 1, and AP B is transmitting to STA 4
     tx_optimal = jnp.array([
         [0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0],
@@ -27,7 +28,7 @@ def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
         [0, 0, 0, 0, 0, 0]
     ])
 
-    # - in this example, AP 1 is transmitting to STA 1, and AP 2 is transmitting to STA 3
+    # - in this example, AP A is transmitting to STA 1, and AP B is transmitting to STA 3
     tx_suboptimal = jnp.array([
         [0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0],
@@ -37,7 +38,7 @@ def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
         [0, 0, 0, 0, 0, 0]
     ])
 
-    # - in this example, AP 1 is transmitting to STA 2, and AP 2 is transmitting to STA 3
+    # - in this example, AP A is transmitting to STA 2, and AP B is transmitting to STA 3
     tx_wasteful = jnp.array([
         [0, 0, 0, 0, 0, 0],
         [0, 0, 1, 0, 0, 0],
@@ -47,7 +48,7 @@ def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
         [0, 0, 0, 0, 0, 0]
     ])
 
-    # - this is a benchmark example with single transmission from AP 1 to STA 1
+    # - this is a benchmark example with single transmission from AP A to STA 1
     tx_single = jnp.array([
         [0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0],
@@ -147,4 +148,4 @@ if __name__ == "__main__":
     # Plot the scenario topology
     d = 10
     tmp_scenario = simple_scenario_1(d=d, mcs=mcs)
-    tmp_scenario.plot(f'scenario_1_top_dap_{d}.pdf')
+    tmp_scenario.plot(f'scenario_1_top_d_{d}.pdf')
