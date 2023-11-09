@@ -17,9 +17,7 @@
     },
     {
       "name": "random_scenario_1",
-      "params": {
-        "seed": 42
-      }
+      "params": {}
     }
   ],
   "agents": [
