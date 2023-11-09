@@ -23,14 +23,10 @@ def plot_thr(names: List, throughput: List, xs: Array, scenario_config: dict) ->
     if 'mcs' in scenario_config['params']:
         plt.axhline(DATA_RATES[scenario_config['params']['mcs']], linestyle='--', color='gray', label='Single TX')
 
-    if 'ylim' in scenario_config:
-        plt.ylim((0, scenario_config['ylim']))
-    else:
-        plt.ylim(bottom=0)
-
-    plt.xlim((xs[0], xs[-1]))
     plt.xlabel('Step')
     plt.ylabel('Aggregate throughput [Mb/s]')
+    plt.xlim((xs[0], xs[-1]))
+    plt.ylim(bottom=0)
     plt.grid()
     plt.legend()
     plt.tight_layout()
