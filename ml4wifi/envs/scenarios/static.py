@@ -1,32 +1,27 @@
 import jax.numpy as jnp
 import jax.random
-from chex import Array, Scalar
+from chex import Scalar
 
 from ml4wifi.envs.scenarios import StaticScenario
-from ml4wifi.envs.sim import DEFAULT_TX_POWER
-
-
-# Default statistic simulation parameters
-DEFAULT_SIGMA = 2.    # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
-DEFAULT_MCS = 11
+from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA
 
 
 def simple_scenario_1(
-        d: Scalar = 5.,
-        mcs: Array = DEFAULT_MCS,
-        tx_power: Array = DEFAULT_TX_POWER,
+        d: Scalar = 40.,
+        mcs: int = 4,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     """
-    STA 1     AP 1     STA 2     STA 3     AP 2     STA 4
+    STA 1     AP A     STA 2     STA 3     AP B     STA 4
     """
 
     pos = jnp.array([
         [0 * d, 0.],  # STA 1
-        [1 * d, 0.],  # AP 1
+        [1 * d, 0.],  # AP A
         [2 * d, 0.],  # STA 2
         [3 * d, 0.],  # STA 3
-        [4 * d, 0.],  # AP 2
+        [4 * d, 0.],  # AP B
         [5 * d, 0.]   # STA 4
     ])
 
@@ -39,16 +34,16 @@ def simple_scenario_1(
 
 
 def simple_scenario_2(
-        d_ap: Scalar = 15.,
-        d_sta: Scalar = 5.,
-        mcs: Array = DEFAULT_MCS,
-        tx_power: Array = DEFAULT_TX_POWER,
+        d_ap: Scalar = 50.,
+        d_sta: Scalar = 1.,
+        mcs: Scalar = 11,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     """
     STA 16   STA 15                  STA 12   STA 11
 
-         AP 4                             AP 3
+         AP D                             AP C
 
     STA 13   STA 14                  STA 9    STA 10
 
@@ -56,16 +51,16 @@ def simple_scenario_2(
 
     STA 4    STA 3                   STA 8    STA 7
 
-         AP 1                             AP 2
+         AP A                             AP B
 
     STA 1    STA 2                   STA 5    STA 6
     """
 
     ap_pos = [
-        [0 * d_ap, 0 * d_ap],  # AP 1
-        [1 * d_ap, 0 * d_ap],  # AP 2
-        [1 * d_ap, 1 * d_ap],  # AP 3
-        [0 * d_ap, 1 * d_ap],  # AP 4
+        [0 * d_ap, 0 * d_ap],  # AP A
+        [1 * d_ap, 0 * d_ap],  # AP B
+        [1 * d_ap, 1 * d_ap],  # AP C
+        [0 * d_ap, 1 * d_ap],  # AP D
     ]
 
     dx = jnp.array([-1, 1, 1, -1]) * d_sta / jnp.sqrt(2)
@@ -85,8 +80,9 @@ def simple_scenario_2(
 
 
 def simple_scenario_3(
-        mcs: Array = DEFAULT_MCS,
-        tx_power: Array = DEFAULT_TX_POWER,
+        d: Scalar = 30.,
+        mcs: int = 4,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     """
@@ -97,30 +93,30 @@ def simple_scenario_3(
     """
 
     pos = jnp.array([
-        [10., 10.],  # AP A
-        [40., 10.],  # AP B
-        [10., 20.],  # STA 1
-        [ 5., 10.],  # STA 2
-        [25., 10.],  # STA 3
-        [45., 10.]   # STA 4
+        [d, 0],      # AP A
+        [d, d],      # STA 1
+        [0, 0],      # STA 2
+        [5 * d, 0],  # AP B
+        [3 * d, 0],  # STA 3
+        [6 * d, 0]   # STA 4
     ])
 
     associations = {
-        0: [2, 3],
-        1: [4, 5]
+        0: [1, 2],
+        3: [4, 5]
     }
 
     return StaticScenario(pos, mcs, tx_power, sigma, associations)
 
 
 def random_scenario_1(
-        seed: int = 42,
-        d_ap: Scalar = 25.,
+        seed: int,
+        d_ap: Scalar = 100.,
         n_ap: int = 4,
-        d_sta: Scalar = 5.,
-        n_sta_per_ap: int = 5,
-        mcs: Array = DEFAULT_MCS,
-        tx_power: Array = DEFAULT_TX_POWER,
+        d_sta: Scalar = 1.,
+        n_sta_per_ap: int = 4,
+        mcs: int = 11,
+        tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
     ap_key, key = jax.random.split(jax.random.PRNGKey(seed))
