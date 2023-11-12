@@ -1,7 +1,7 @@
 import string
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Dict
+from typing import Dict, Optional
 
 import jax
 import jax.numpy as jnp
@@ -81,14 +81,15 @@ class StaticScenario(Scenario):
         Dictionary of associations between access points and stations.
     """
 
-    def __init__(self, pos: Array, mcs: int, tx_power: Scalar, sigma: Scalar, associations: Dict) -> None:
+    def __init__(self, pos: Array, mcs: int, tx_power: Scalar, sigma: Scalar, associations: Dict, walls: Optional[Array] = None) -> None:
         super().__init__(associations)
 
         self.pos = pos
+        self.walls = walls if walls is not None else jnp.zeros((pos.shape[0], pos.shape[0]))
         mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
         tx_power = jnp.ones(pos.shape[0]) * tx_power
 
-        self.thr_fn = jax.jit(partial(network_throughput, pos=pos, mcs=mcs, tx_power=tx_power, sigma=sigma))
+        self.thr_fn = jax.jit(partial(network_throughput, pos=pos, mcs=mcs, tx_power=tx_power, sigma=sigma, walls=self.walls))
 
     def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
         return self.thr_fn(key, tx)
@@ -114,8 +115,9 @@ class DynamicScenario(Scenario):
         super().__init__(associations)
         self.thr_fn = jax.jit(partial(network_throughput, sigma=sigma))
 
-    def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:
-        return self.thr_fn(key, tx, pos, mcs, tx_power)
+    def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, walls: Optional[Array]) -> Scalar:
+        walls = walls if walls is not None else jnp.zeros((pos.shape[0], pos.shape[0]))
+        return self.thr_fn(key, tx, pos, mcs, tx_power, walls)
 
     def plot(self, pos: Array, filename: str = None) -> None:
         super().plot(pos, self.associations, filename)
