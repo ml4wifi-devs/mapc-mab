@@ -181,8 +181,14 @@ def simple_scenario_4(
                 for ap in aps:
                     if i in associations[ap] and j in associations[ap]:
                         walls = walls.at[i, j].set(False)
+    
+    # Walls positions
+    walls_pos = jnp.array([
+        [-d_ap / 2, d_ap / 2, d_ap + d_ap / 2, d_ap / 2],
+        [d_ap / 2, -d_ap / 2, d_ap / 2, d_ap + d_ap / 2],
+    ])
 
-    return StaticScenario(pos, mcs, tx_power, sigma, associations, walls)
+    return StaticScenario(pos, mcs, tx_power, sigma, associations, walls, walls_pos)
 
 
 def random_scenario_1(
