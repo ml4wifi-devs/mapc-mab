@@ -77,3 +77,59 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     expected_data_rate = DATA_RATES[mcs] * frame_transmitted
 
     return expected_data_rate.sum()
+
+
+def ideal_network_throughput(key: PRNGKey, tx: Array, pos: Array, tx_power: Array, sigma: Scalar) -> Scalar:
+    """
+    Calculates the approximate network throughput based on the nodes' positions, ideal MCS, and tx power.
+    Channel is modeled using log-distance path loss model with additive white Gaussian noise. Network
+    throughput is calculated as the sum of data rates of all successful transmissions. Success of
+    a transmission is  Bernoulli random variable with success probability depending on the SINR. SINR is
+    calculated as the difference between the signal power and the interference level which is calculated
+    as the sum of the signal powers of all interfering nodes and the noise floor. **Attention:** This
+    simulation does not support multiple simultaneous transmissions to the same node.
+
+    Parameters
+    ----------
+    key: PRNGKey
+        JAX random number generator key.
+    tx: Array
+        Two dimensional array of booleans indicating whether a node is transmitting to another node.
+        If node i is transmitting to node j, then tx[i, j] = 1, otherwise tx[i, j] = 0.
+    pos: Array
+        Two dimensional array of node positions. Each row corresponds to X and Y coordinates of a node.
+    tx_power: Array
+        Transmission power of the nodes. Each entry corresponds to a node.
+    sigma: Scalar
+        Standard deviation of the additive white Gaussian noise.
+
+    Returns
+    -------
+    Scalar
+        Approximated network throughput in Mb/s.
+    """
+
+    mcs = jnp.reshape(jnp.arange(12, dtype=jnp.int32), (-1, 1)) * jnp.ones(pos.shape[0], dtype=jnp.int32)
+
+    distance = jnp.sqrt(jnp.sum((pos[:, None, :] - pos[None, ...]) ** 2, axis=-1))
+    distance = jnp.clip(distance, REFERENCE_DISTANCE, None)
+
+    path_loss = REFERENCE_LOSS + 10 * EXPONENT * jnp.log10(distance)
+    signal_power = tx_power - path_loss
+    signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
+
+    interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)
+    interference_lin = jnp.power(10, signal_power / 10)
+    interference_lin = (interference_matrix * interference_lin).sum(axis=0)
+    interference = 10 * jnp.log10(interference_lin + NOISE_FLOOR_LIN)
+
+    sinr = signal_power - interference
+    sinr = sinr + sigma * jax.random.normal(key, shape=path_loss.shape)
+    sinr = (sinr * tx).sum(axis=0)
+    sinr = sinr * jnp.ones_like(mcs)
+
+    success_probability = jax.scipy.stats.norm.cdf(sinr, loc=MEAN_SNRS[mcs], scale=2.)
+    frame_transmitted = jax.random.bernoulli(key, success_probability * (sinr > 0))
+    expected_data_rate = DATA_RATES[mcs] * frame_transmitted
+
+    return expected_data_rate.sum(axis=1).max()

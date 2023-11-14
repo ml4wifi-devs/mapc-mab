@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from chex import Array, Scalar, PRNGKey
 
-from ml4wifi.envs.sim import network_throughput
+from ml4wifi.envs.sim import ideal_network_throughput
 
 
 class Scenario(ABC):
@@ -88,7 +88,7 @@ class StaticScenario(Scenario):
         mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
         tx_power = jnp.ones(pos.shape[0]) * tx_power
 
-        self.thr_fn = jax.jit(partial(network_throughput, pos=pos, mcs=mcs, tx_power=tx_power, sigma=sigma))
+        self.thr_fn = jax.jit(partial(ideal_network_throughput, pos=pos, tx_power=tx_power, sigma=sigma))
 
     def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
         return self.thr_fn(key, tx)
@@ -112,10 +112,10 @@ class DynamicScenario(Scenario):
 
     def __init__(self, sigma: Scalar, associations: Dict) -> None:
         super().__init__(associations)
-        self.thr_fn = jax.jit(partial(network_throughput, sigma=sigma))
+        self.thr_fn = jax.jit(partial(ideal_network_throughput, sigma=sigma))
 
     def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:
-        return self.thr_fn(key, tx, pos, mcs, tx_power)
+        return self.thr_fn(key, tx, pos, tx_power)
 
     def plot(self, pos: Array, filename: str = None) -> None:
         super().plot(pos, self.associations, filename)
