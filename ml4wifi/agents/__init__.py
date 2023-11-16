@@ -50,6 +50,12 @@ class MapcAgent:
         self.sta_group_action_to_sta_group = sta_group_action_to_sta_group
         self.tx_matrix_shape = tx_matrix_shape
 
+        self.step = 0
+        self.rewards = []
+
+        self.find_groups_last_step = {sta: 0 for sta in find_groups_dict}
+        self.assign_stations_last_step = {group: {ap: 0 for ap in group} for group in assign_stations_dict}
+
     def sample(self, reward: Scalar) -> Array:
         """
         Samples the agent to get the transmission matrix.
@@ -65,21 +71,32 @@ class MapcAgent:
             The transmission matrix.
         """
 
+        self.step += 1
+        self.rewards.append(reward)
+
         # Sample sharing AP and designated station
         sharing_ap = np.random.choice(self.access_points)
         designated_station = np.random.choice(self.associations[sharing_ap])
 
         # Sample the agent which find groups of APs
+        ap_reward_id = self.find_groups_last_step[designated_station]
+        self.find_groups_last_step[designated_station] = self.step
+
         ap_group = self.ap_group_action_to_ap_group(
-            self.find_groups_dict[designated_station].sample(reward),
+            self.find_groups_dict[designated_station].sample(self.rewards[ap_reward_id]),
             sharing_ap
         )
         all_aps = tuple(sorted(ap_group + (sharing_ap,)))
 
         # Sample the agent which assigns stations to APs
-        sta_group = self.sta_group_action_to_sta_group(
-            {ap: self.assign_stations_dict[all_aps][ap].sample(reward) for ap in ap_group}
-        )
+        sta_group_action = {}
+
+        for ap in ap_group:
+            sta_reward_id = self.assign_stations_last_step[all_aps][ap]
+            self.assign_stations_last_step[all_aps][ap] = self.step
+            sta_group_action[ap] = self.assign_stations_dict[all_aps][ap].sample(self.rewards[sta_reward_id])
+
+        sta_group = self.sta_group_action_to_sta_group(sta_group_action)
 
         # Create the transmission matrix based on the sampled pairs
         tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
