@@ -74,10 +74,11 @@ class MapcAgent:
             self.find_groups_dict[designated_station].sample(reward),
             sharing_ap
         )
+        all_aps = tuple(sorted(ap_group + (sharing_ap,)))
 
         # Sample the agent which assigns stations to APs
         sta_group = self.sta_group_action_to_sta_group(
-            {ap: self.assign_stations_dict[ap_group][ap].sample(reward) for ap in ap_group if ap != sharing_ap}
+            {ap: self.assign_stations_dict[all_aps][ap].sample(reward) for ap in ap_group}
         )
 
         # Create the transmission matrix based on the sampled pairs
@@ -178,7 +179,7 @@ class MapcAgentFactory:
             The powerset of the given iterable.
         """
 
-        s = list(iterable)
+        s = sorted(list(iterable))
         return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
 
     def _ap_group_action_to_ap_group(self, ap_group_action: int, sharing_ap: int) -> Tuple[int]:
@@ -199,10 +200,7 @@ class MapcAgentFactory:
         """
 
         ap_set = set(self.access_points).difference({sharing_ap})
-        ap_group = list(self._powerset(ap_set))[ap_group_action]
-        ap_group = sorted(ap_group + (sharing_ap,))
-
-        return tuple(ap_group)
+        return tuple(self._powerset(ap_set))[ap_group_action]
 
     def _sta_group_action_to_sta_group(self, sta_group_action: Dict[int, int]) -> List[int]:
         """
