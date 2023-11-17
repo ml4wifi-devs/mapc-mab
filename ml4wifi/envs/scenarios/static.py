@@ -191,6 +191,96 @@ def simple_scenario_4(
     return StaticScenario(pos, mcs, tx_power, sigma, associations, walls, walls_pos)
 
 
+def simple_scenario_5(
+        d_ap: Scalar = 50.,
+        d_sta: Scalar = 1.,
+        mcs: Scalar = 11,
+        tx_power: Scalar = DEFAULT_TX_POWER,
+        sigma: Scalar = DEFAULT_SIGMA
+) -> StaticScenario:
+    """
+    STA 16   STA 15         |        STA 12   STA 11
+                            |
+         AP D               |              AP C
+                            |
+    STA 13   STA 14         |         STA 9    STA 10
+                            |
+    ------------------------+------------------------
+                             
+    STA 4    STA 3                    STA 8    STA 7
+                             
+         AP A                              AP B
+                             
+    STA 1    STA 2                    STA 5    STA 6
+    """
+
+    ap_pos = [
+        [0 * d_ap, 0 * d_ap],  # AP A
+        [1 * d_ap, 0 * d_ap],  # AP B
+        [1 * d_ap, 1 * d_ap],  # AP C
+        [0 * d_ap, 1 * d_ap],  # AP D
+    ]
+
+    dx = jnp.array([-1, 1, 1, -1]) * d_sta / jnp.sqrt(2)
+    dy = jnp.array([-1, -1, 1, 1]) * d_sta / jnp.sqrt(2)
+
+    sta_pos = [[x + dx[i], y + dy[i]] for x, y in ap_pos for i in range(len(dx))]
+    pos = jnp.array(ap_pos + sta_pos)
+
+    associations = {
+        0: [4, 5, 6, 7],
+        1: [8, 9, 10, 11],
+        2: [12, 13, 14, 15],
+        3: [16, 17, 18, 19]
+    }
+
+    aps = associations.keys()
+
+    # Setup walls in between each BSS
+    walls = jnp.zeros((20, 20))
+    walls = walls.at[4:, 4:].set(True)
+    for i in range(20):
+        for j in range(20):
+
+            # If both are APs
+            if i in aps and j in aps:
+                walls = walls.at[i, j].set(i != j)
+            
+            # If i is an AP
+            elif i in aps:
+                for ap_j in set(aps) - {i}:
+                    for sta in associations[ap_j]:
+                        walls = walls.at[i, sta].set(True)
+            
+            # If j is an AP
+            elif j in aps:
+                for ap_i in set(aps) - {j}:
+                    for sta in associations[ap_i]:
+                        walls = walls.at[sta, j].set(True)
+            
+            # If both are STAs
+            else:
+                for ap in aps:
+                    if i in associations[ap] and j in associations[ap]:
+                        walls = walls.at[i, j].set(False)
+    
+    # - Remove wall between AP A and AP B
+    walls = walls.at[:2, :2].set(False)
+    walls = walls.at[1, 4:8].set(False)
+    walls = walls.at[4:8, 1].set(False)
+    walls = walls.at[0, 8:12].set(False)
+    walls = walls.at[8:12, 0].set(False)
+    walls = walls.at[4:12, 4:12].set(False)
+    
+    # Walls positions
+    walls_pos = jnp.array([
+        [-d_ap / 2, d_ap / 2, d_ap + d_ap / 2, d_ap / 2],
+        [d_ap / 2, d_ap / 2, d_ap / 2, d_ap + d_ap / 2],
+    ])
+
+    return StaticScenario(pos, mcs, tx_power, sigma, associations, walls, walls_pos)
+
+
 def random_scenario_1(
         seed: int,
         d_ap: Scalar = 100.,
