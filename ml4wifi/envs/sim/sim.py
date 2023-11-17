@@ -12,6 +12,7 @@ EXPONENT = 2.0              # https://tsapps.nist.gov/publication/get_pdf.cfm?pu
 NOISE_FLOOR = -93.97        # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
 DEFAULT_SIGMA = 2.          # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
+WALLS_LOSS = 15.            # https://www.nsnam.org/docs/release/3.40/doxygen/d2/d4b/buildings-propagation-loss-model_8cc_source.html#l00113
 
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
@@ -24,7 +25,7 @@ MEAN_SNRS = jnp.array([
 ])
 
 
-def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar) -> Scalar:
+def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
     """
     Calculates the approximate network throughput based on the nodes' positions, MCS, and tx power.
     Channel is modeled using log-distance path loss model with additive white Gaussian noise. Network
@@ -60,7 +61,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     distance = jnp.clip(distance, REFERENCE_DISTANCE, None)
 
     path_loss = REFERENCE_LOSS + 10 * EXPONENT * jnp.log10(distance)
-    signal_power = tx_power - path_loss
+    signal_power = tx_power - path_loss - WALLS_LOSS * walls
     signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
 
     interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)

@@ -61,6 +61,9 @@ class SimTestCase(unittest.TestCase):
         # Standard deviation of the additive white Gaussian noise
         sigma = DEFAULT_SIGMA
 
+        # Set walls to zero
+        walls = jnp.zeros((pos.shape[0], pos.shape[0]))
+
         # JAX random number generator key
         key = jax.random.PRNGKey(42)
 
@@ -69,9 +72,9 @@ class SimTestCase(unittest.TestCase):
 
         for _ in range(150):
             key, k1, k2, k3 = jax.random.split(key, 4)
-            thr1.append(network_throughput(k1, tx1, pos, mcs, tx_power, sigma))
-            thr2.append(network_throughput(k2, tx2, pos, mcs, tx_power, sigma))
-            thr3.append(network_throughput(k3, tx3, pos, mcs, tx_power, sigma))
+            thr1.append(network_throughput(k1, tx1, pos, mcs, tx_power, sigma, walls))
+            thr2.append(network_throughput(k2, tx2, pos, mcs, tx_power, sigma, walls))
+            thr3.append(network_throughput(k3, tx3, pos, mcs, tx_power, sigma, walls))
 
         # Plot the positions of the nodes
         plt.figure(figsize=(7.5, 4.5))
