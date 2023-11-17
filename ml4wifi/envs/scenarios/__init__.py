@@ -29,7 +29,7 @@ class Scenario(ABC):
     def __init__(self, associations: Dict, walls: Optional[Array] = None, walls_pos: Optional[Array] = None) -> None:
         n_nodes = len(associations) + sum([len(n) for n in associations.values()])
         self.associations = associations
-        self.walls = walls or jnp.zeros((n_nodes, n_nodes))
+        self.walls = walls if walls is not None else jnp.zeros((n_nodes, n_nodes))
         self.walls_pos = walls_pos
 
     @abstractmethod
