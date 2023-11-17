@@ -14,6 +14,11 @@ NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
 DEFAULT_SIGMA = 2.          # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
 WALLS_LOSS = 15.            # https://www.nsnam.org/docs/release/3.40/doxygen/d2/d4b/buildings-propagation-loss-model_8cc_source.html#l00113
 
+# 11ax Channel Model
+# https://www.ieee802.org/11/Reports/tgax_update.htm#:~:text=TGax%20Selection%20Procedure-,11%2D14%2D0980,-TGax%20Simulation%20Scenarios
+BREAKING_POINT = 10.        # https://mentor.ieee.org/802.11/dcn/14/11-14-0980-16-00ax-simulation-scenarios.docx (p. 19)
+CENTRAL_FREQUENCY = 5.160   # In GHz https://en.wikipedia.org/wiki/List_of_WLAN_channels#5_GHz_(802.11a/h/n/ac/ax)
+
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
 
@@ -60,8 +65,9 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     distance = jnp.sqrt(jnp.sum((pos[:, None, :] - pos[None, ...]) ** 2, axis=-1))
     distance = jnp.clip(distance, REFERENCE_DISTANCE, None)
 
-    path_loss = REFERENCE_LOSS + 10 * EXPONENT * jnp.log10(distance)
-    signal_power = tx_power - path_loss - WALLS_LOSS * walls
+    path_loss = 40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 2.4) +\
+        (distance > BREAKING_POINT) * 35 * jnp.log10(distance / BREAKING_POINT) + 7 * walls
+    signal_power = tx_power - path_loss
     signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
 
     interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)
