@@ -96,7 +96,8 @@ class NormalThompsonSampling(BaseAgent):
             Initial state of the Thompson sampling agent.
         """
 
-        return NormalThompsonSamplingState(alpha=jnp.ones((n_arms)), beta=jnp.ones((n_arms)), lam=2*jnp.ones((n_arms)),
+        return NormalThompsonSamplingState(alpha=jnp.ones((n_arms)), beta=jnp.ones((n_arms)),
+                                           lam=2 * jnp.ones((n_arms)),
                                            mu=jnp.zeros((n_arms)))
 
     @staticmethod
@@ -152,3 +153,31 @@ class NormalThompsonSampling(BaseAgent):
         theta = dist.sample(seed=key)
         action = jnp.argmax(tfd.Normal(**theta).mean())
         return action
+
+
+class LogNormalThompsonSampling(NormalThompsonSampling):
+    """
+    Thompson Sampling based on lognormal distribution. This algorithm is designed to handle positive rewards.
+
+    For more details, refer to the documentation on :ref:`NormalThompsonSampling`.
+
+
+    """
+    @staticmethod
+    def sample(state: NormalThompsonSamplingState, key: PRNGKey) -> jnp.int32:
+        r"""
+        Abstract distribution into base class
+
+        """
+
+        dist = tfd.JointDistributionNamedAutoBatched(
+            dict(scale=tfb.Invert(tfb.Square())(tfd.InverseGamma(concentration=state.alpha, scale=state.beta)),
+                 loc=lambda scale: tfd.Normal(loc=state.mu, scale=scale / jnp.sqrt(state.lam))))
+        theta = dist.sample(seed=key)
+        action = jnp.argmax(tfd.LogNormal(**theta).mean())
+        return action
+
+    @staticmethod
+    def update(state: NormalThompsonSamplingState, key: PRNGKey, action: jnp.int32,
+               reward: Scalar, ) -> NormalThompsonSamplingState:
+        return NormalThompsonSampling.update(state, key, action, jnp.log(reward))
