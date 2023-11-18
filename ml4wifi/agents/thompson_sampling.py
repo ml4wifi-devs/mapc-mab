@@ -37,7 +37,7 @@ class NormalThompsonSamplingState(AgentState):
 
 class NormalThompsonSampling(BaseAgent):
     r"""
-    Normal Thompson sampling agent [1,2]_.
+    Normal Thompson sampling agent [1]_ , [2]_.
 
     Parameters
     ----------
