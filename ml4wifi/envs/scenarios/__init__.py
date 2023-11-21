@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from chex import Array, Scalar, PRNGKey
 
-from ml4wifi.envs.sim import EXPONENT, REFERENCE_LOSS, network_throughput
+from ml4wifi.envs.sim import network_throughput, path_loss
 
 
 CCA_THRESHOLD = -82.0  # IEEE Std 802.11-2020 (Revision of IEEE Std 802.11-2016), 17.3.10.6: CCA requirements
@@ -99,10 +99,11 @@ class Scenario(ABC):
 
         ap_pos = pos[ap_ids]
         ap_tx_power = tx_power[ap_ids]
+        ap_walls = self.walls[ap_ids][:, ap_ids]
 
         distance = np.sqrt(np.sum((ap_pos[:, None, :] - ap_pos[None, ...]) ** 2, axis=-1))
-        path_loss = REFERENCE_LOSS + 10 * EXPONENT * np.log10(distance)
-        signal_power = ap_tx_power - path_loss
+        signal_power = ap_tx_power - path_loss(distance, ap_walls)
+        signal_power = np.where(np.isnan(signal_power), np.inf, signal_power)
 
         return np.all(signal_power > CCA_THRESHOLD)
 
@@ -190,10 +191,10 @@ class DynamicScenario(Scenario):
             walls_pos: Optional[Array] = None
     ) -> None:
         super().__init__(associations, walls, walls_pos)
-        self.thr_fn = jax.jit(partial(network_throughput, sigma=sigma))
+        self.thr_fn = jax.jit(partial(network_throughput, sigma=sigma, walls=self.walls))
 
     def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:
-        return self.thr_fn(key, tx, pos, mcs, tx_power, self.walls)
+        return self.thr_fn(key, tx, pos, mcs, tx_power)
 
     def plot(self, pos: Array, filename: str = None) -> None:
         super().plot(pos, filename)

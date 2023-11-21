@@ -3,21 +3,16 @@ import jax.numpy as jnp
 from chex import Array, PRNGKey, Scalar
 
 
-# LogDistance channel model
-# https://www.nsnam.org/docs/models/html/propagation.html#logdistancepropagationlossmodel
+# TGax channel model
+# https://www.ieee802.org/11/Reports/tgax_update.htm#:~:text=TGax%20Selection%20Procedure-,11%2D14%2D0980,-TGax%20Simulation%20Scenarios
 DEFAULT_TX_POWER = 16.0206  # (40 mW) https://www.nsnam.org/docs/release/3.40/doxygen/d0/d7d/wifi-phy_8cc_source.html#l00171
-REFERENCE_LOSS = 46.6777    # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00493
-REFERENCE_DISTANCE = 1.0    # https://www.nsnam.org/docs/release/3.40/doxygen/d5/d74/propagation-loss-model_8cc_source.html#l00488
-EXPONENT = 2.0              # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
 NOISE_FLOOR = -93.97        # https://www.nsnam.org/docs/models/html/wifi-testing.html#packet-error-rate-performance
 NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
 DEFAULT_SIGMA = 2.          # https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=908165
-WALLS_LOSS = 15.            # https://www.nsnam.org/docs/release/3.40/doxygen/d2/d4b/buildings-propagation-loss-model_8cc_source.html#l00113
-
-# 11ax Channel Model
-# https://www.ieee802.org/11/Reports/tgax_update.htm#:~:text=TGax%20Selection%20Procedure-,11%2D14%2D0980,-TGax%20Simulation%20Scenarios
 BREAKING_POINT = 10.        # https://mentor.ieee.org/802.11/dcn/14/11-14-0980-16-00ax-simulation-scenarios.docx (p. 19)
-CENTRAL_FREQUENCY = 5.160   # In GHz https://en.wikipedia.org/wiki/List_of_WLAN_channels#5_GHz_(802.11a/h/n/ac/ax)
+CENTRAL_FREQUENCY = 5.160   # (GHz) https://en.wikipedia.org/wiki/List_of_WLAN_channels#5_GHz_(802.11a/h/n/ac/ax)
+REFERENCE_DISTANCE = 1.0
+WALL_LOSS = 7.
 
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
@@ -28,6 +23,11 @@ MEAN_SNRS = jnp.array([
     11.151267538857537, 15.413200906170632, 16.735812667249125, 18.091175930406580,
     21.806290592040960, 23.331824973610920, 29.788906076547470, 31.750234694079595
 ])
+
+
+def path_loss(distance: Array, walls: Array) -> Array:
+    return (40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 5.25) +
+            (distance > BREAKING_POINT) * 35 * jnp.log10(distance / BREAKING_POINT) + WALL_LOSS * walls)
 
 
 def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
@@ -55,6 +55,8 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
         Transmission power of the nodes. Each entry corresponds to a node.
     sigma: Scalar
         Standard deviation of the additive white Gaussian noise.
+    walls: Array
+        Adjacency matrix of walls. Each entry corresponds to a node.
 
     Returns
     -------
@@ -65,9 +67,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     distance = jnp.sqrt(jnp.sum((pos[:, None, :] - pos[None, ...]) ** 2, axis=-1))
     distance = jnp.clip(distance, REFERENCE_DISTANCE, None)
 
-    path_loss = 40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 2.4) +\
-        (distance > BREAKING_POINT) * 35 * jnp.log10(distance / BREAKING_POINT) + 7 * walls
-    signal_power = tx_power - path_loss
+    signal_power = tx_power - path_loss(distance, walls)
     signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
 
     interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)
@@ -76,7 +76,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     interference = 10 * jnp.log10(interference_lin + NOISE_FLOOR_LIN)
 
     sinr = signal_power - interference
-    sinr = sinr + sigma * jax.random.normal(key, shape=path_loss.shape)
+    sinr = sinr + sigma * jax.random.normal(key, shape=signal_power.shape)
     sinr = (sinr * tx).sum(axis=0)
 
     success_probability = jax.scipy.stats.norm.cdf(sinr, loc=MEAN_SNRS[mcs], scale=2.)
