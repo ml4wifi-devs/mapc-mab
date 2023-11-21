@@ -28,7 +28,7 @@ class ScenarioClassTestCase(unittest.TestCase):
 
         # Simulate the network for 150 steps
         n_steps = 150
-        thr = []
+        data_rate = []
         reward = 0.
 
         for step in range(n_steps + 1):
@@ -38,16 +38,16 @@ class ScenarioClassTestCase(unittest.TestCase):
 
             # Simulate the network
             reward = scenario(tx_key, tx)
-            thr.append(reward)
+            data_rate.append(reward)
 
-        # Plot the approximate throughput
-        plt.plot(thr)
+        # Plot the effective data rate
+        plt.plot(data_rate)
         plt.xlim(0, n_steps)
         plt.ylim(0, 300)
         plt.xlabel('Timestep')
-        plt.ylabel('Approximated throughput [Mb/s]')
+        plt.ylabel('Approximated data_rateoughput [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.grid()
         plt.tight_layout()
-        plt.savefig('scenario_2_thr.pdf', bbox_inches='tight')
+        plt.savefig('scenario_2_data_rate.pdf', bbox_inches='tight')
         plt.clf()

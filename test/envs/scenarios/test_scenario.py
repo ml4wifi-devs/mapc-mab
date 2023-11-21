@@ -14,7 +14,7 @@ class ScenarioClassTestCase(unittest.TestCase):
         assert os.path.exists("test_simple_scenario.pdf")
 
     def test_random_plotting(self):
-        scenario = random_scenario_1(seed=88)
+        scenario = random_scenario(seed=88)
         scenario.plot("test_random_scenario.png")
         assert os.path.exists("test_random_scenario.png")
 
@@ -55,28 +55,28 @@ class ScenarioClassTestCase(unittest.TestCase):
         ])
 
         # Simulate the network for 150 steps
-        thr1, thr2, thr3 = [], [], []
+        data_rate_1, data_rate_2, data_rate_3 = [], [], []
 
         for _ in range(150):
             key, k1, k2, k3 = jax.random.split(key, 4)
-            thr1.append(scenario.thr_fn(k1, tx1))
-            thr2.append(scenario.thr_fn(k2, tx2))
-            thr3.append(scenario.thr_fn(k3, tx3))
+            data_rate_1.append(scenario(k1, tx1))
+            data_rate_2.append(scenario(k2, tx2))
+            data_rate_3.append(scenario(k3, tx3))
 
-        # Plot the approximate throughput
+        # Plot effective data rate
         xs = jnp.arange(150)
-        plt.scatter(xs, thr1, label='STA 1 -> AP A', alpha=0.5, s=10, edgecolor='none')
-        plt.scatter(xs, thr2, label='STA 2 -> AP A and STA 3 -> AP B', alpha=1., s=10, edgecolor='none')
-        plt.scatter(xs, thr3, label='STA 1 -> AP A and STA 4 -> AP B', alpha=1., s=10, edgecolor='none')
+        plt.scatter(xs, data_rate_1, label='STA 1 -> AP A', alpha=0.5, s=10, edgecolor='none')
+        plt.scatter(xs, data_rate_2, label='STA 2 -> AP A and STA 3 -> AP B', alpha=1., s=10, edgecolor='none')
+        plt.scatter(xs, data_rate_3, label='STA 1 -> AP A and STA 4 -> AP B', alpha=1., s=10, edgecolor='none')
         plt.xlim(0, 150)
         plt.ylim(0, 100)
         plt.xlabel('Timestep')
-        plt.ylabel('Approximated throughput [Mb/s]')
+        plt.ylabel('Effective Data Rate [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.legend()
         plt.grid()
         plt.tight_layout()
-        plt.savefig('scenario_3_thr.pdf', bbox_inches='tight')
+        plt.savefig('scenario_3_rate.pdf', bbox_inches='tight')
         plt.clf()
 
     def test_cca_threshold(self):

@@ -12,11 +12,11 @@ from ml4wifi.plots.config import AGENT_NAMES
 from ml4wifi.plots.utils import confidence_interval
 
 
-def plot_thr(names: List, throughput: List, xs: Array, scenario_config: dict) -> None:
+def plot(names: List, data_rate: List, xs: Array, scenario_config: dict) -> None:
     colors = pl.cm.viridis(np.linspace(0., 1., len(names)))
 
-    for i, (name, thr) in enumerate(zip(names, throughput)):
-        mean, ci_low, ci_high = confidence_interval(thr)
+    for i, (name, rate) in enumerate(zip(names, data_rate)):
+        mean, ci_low, ci_high = confidence_interval(rate)
         plt.plot(xs, mean, marker='o', markersize=1, label=AGENT_NAMES.get(name, name), c=colors[i])
         plt.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
 
@@ -24,13 +24,13 @@ def plot_thr(names: List, throughput: List, xs: Array, scenario_config: dict) ->
         plt.axhline(DATA_RATES[scenario_config['params']['mcs']], linestyle='--', color='gray', label='Single TX')
 
     plt.xlabel('Step')
-    plt.ylabel('Aggregate throughput [Mb/s]')
+    plt.ylabel('Effective Data Rate [Mb/s]')
     plt.xlim((xs[0], xs[-1]))
     plt.ylim(bottom=0)
     plt.grid()
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f'thr-{scenario_config["name"]}.pdf', bbox_inches='tight')
+    plt.savefig(f'rate-{scenario_config["name"]}.pdf', bbox_inches='tight')
     plt.clf()
 
 
@@ -44,13 +44,13 @@ if __name__ == '__main__':
         results = json.load(file)
 
     for scenario in results:
-        names, throughput = [], []
+        names, data_rate = [], []
         aggregate_steps = args.aggregate_steps or int(scenario['scenario']['n_steps'] / 51)
 
         for agent in scenario['agents']:
             names.append(agent['agent']['name'])
             runs = [np.array(run).reshape((-1, aggregate_steps)).mean(axis=-1) for run in agent['runs']]
-            throughput.append(np.array(runs))
+            data_rate.append(np.array(runs))
 
-        xs = np.arange(throughput[0].shape[-1]) * aggregate_steps
-        plot_thr(names, throughput, xs, scenario['scenario'])
+        xs = np.arange(data_rate[0].shape[-1]) * aggregate_steps
+        plot(names, data_rate, xs, scenario['scenario'])

@@ -49,46 +49,48 @@ def run(distance_ap: int, distance_sta: int, mcs: int = 11, seed: int = 42, plot
     tx_single = tx_single.at[0, 4].set(1)
 
     # Simulate the network
-    thr_external_4, thr_internal_4, thr_external_2, thr_internal_2, thr_single = [], [], [], [], []
+    rate_external_4, rate_internal_4, rate_external_2, rate_internal_2, rate_single = [], [], [], [], []
     n_steps = 200
+
     for _ in range(n_steps):
         key, k1, k2, k3, k4, k5 = jax.random.split(key, 6)
-        thr_external_4.append(scenario.thr_fn(k1, tx_external_4))
-        thr_internal_4.append(scenario.thr_fn(k2, tx_internal_4))
-        thr_external_2.append(scenario.thr_fn(k3, tx_external_2))
-        thr_internal_2.append(scenario.thr_fn(k4, tx_internal_2))
-        thr_single.append(scenario.thr_fn(k5, tx_single))
-    thr_external_4 = jnp.array(thr_external_4)
-    thr_internal_4 = jnp.array(thr_internal_4)
-    thr_external_2 = jnp.array(thr_external_2)
-    thr_internal_2 = jnp.array(thr_internal_2)
-    thr_single = jnp.array(thr_single)
+        rate_external_4.append(scenario(k1, tx_external_4))
+        rate_internal_4.append(scenario(k2, tx_internal_4))
+        rate_external_2.append(scenario(k3, tx_external_2))
+        rate_internal_2.append(scenario(k4, tx_internal_2))
+        rate_single.append(scenario(k5, tx_single))
+
+    rate_external_4 = jnp.array(rate_external_4)
+    rate_internal_4 = jnp.array(rate_internal_4)
+    rate_external_2 = jnp.array(rate_external_2)
+    rate_internal_2 = jnp.array(rate_internal_2)
+    rate_single = jnp.array(rate_single)
     
-    # Plot the approximate throughput
+    # Plot effective data rate
     if plot:
         xs = jnp.arange(n_steps)
-        plt.plot(xs, thr_external_4, label='external 4', color=COLORS[0])
-        plt.plot(xs, thr_internal_4, label='internal 4', color=COLORS[1])
-        plt.plot(xs, thr_external_2, label='external 2 (diagonal)', color=COLORS[2])
-        plt.plot(xs, thr_internal_2, label='internal 2 (diagonal)', color=COLORS[3])
-        plt.plot(xs, thr_single, label='single transmission', color='black', linestyle='--')
+        plt.plot(xs, rate_external_4, label='external 4', color=COLORS[0])
+        plt.plot(xs, rate_internal_4, label='internal 4', color=COLORS[1])
+        plt.plot(xs, rate_external_2, label='external 2 (diagonal)', color=COLORS[2])
+        plt.plot(xs, rate_internal_2, label='internal 2 (diagonal)', color=COLORS[3])
+        plt.plot(xs, rate_single, label='single transmission', color='black', linestyle='--')
         plt.xlim(0, n_steps)
         plt.ylim(0, 600)
         plt.xlabel('Timestep')
-        plt.ylabel('Approximated throughput [Mb/s]')
+        plt.ylabel('Effective Data Rate [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.legend(loc='upper left')
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'scenario_2_thr_dap{distance_ap:.4f}_dsta{distance_sta:.4f}.pdf', bbox_inches='tight')
+        plt.savefig(f'scenario_2_dap{distance_ap:.4f}_dsta{distance_sta:.4f}.pdf', bbox_inches='tight')
         plt.clf()
     
     return (
-        jnp.mean(thr_external_4),
-        jnp.mean(thr_internal_4),
-        jnp.mean(thr_external_2),
-        jnp.mean(thr_internal_2),
-        jnp.mean(thr_single)
+        jnp.mean(rate_external_4),
+        jnp.mean(rate_internal_4),
+        jnp.mean(rate_external_2),
+        jnp.mean(rate_internal_2),
+        jnp.mean(rate_single)
     )
 
 
@@ -101,7 +103,7 @@ def plot_cumulative():
     plt.xscale('log')
     plt.ylim(0, 600)
     plt.xlabel('AP-AP distance [m]')
-    plt.ylabel('Approximated throughput [Mb/s]')
+    plt.ylabel('Effective Data Rate [Mb/s]')
     plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
     plt.legend(loc='upper left')
     plt.grid()
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--mcs", type=int, help="MCS index")
     parser.add_argument("-s", "--distance_sta", type=float, help="Distance between AP and STA [m]")
     parser.add_argument("-r", "--resolution", type=int, default=50, help="The distance space resolution to search")
-    parser.add_argument("-p", "--plot", action="store_true", help="Plot throughput in time")
+    parser.add_argument("-p", "--plot", action="store_true", help="Plot effective data rate")
 
     # Parse arguments
     args = parser.parse_args()
@@ -130,19 +132,20 @@ if __name__ == "__main__":
     print(f"=== MCS {mcs}, d_sta {distance_sta} m ===")
     mean_external_4, mean_internal_4, mean_external_2, mean_internal_2, mean_single = [], [], [], [], []
     distances_ap = jnp.logspace(1, 2.5, res, base=10)
+
     for d in distances_ap:
-        thr_external_4, thr_internal_4, thr_external_2, thr_internal_2, thr_single = run(
+        rate_external_4, rate_internal_4, rate_external_2, rate_internal_2, rate_single = run(
             distance_ap=d, distance_sta=distance_sta, mcs=mcs, plot=plot_flag, seed=42
         )
-        mean_external_4.append(thr_external_4)
-        mean_internal_4.append(thr_internal_4)
-        mean_external_2.append(thr_external_2)
-        mean_internal_2.append(thr_internal_2)
-        mean_single.append(thr_single)
+        mean_external_4.append(rate_external_4)
+        mean_internal_4.append(rate_internal_4)
+        mean_external_2.append(rate_external_2)
+        mean_internal_2.append(rate_internal_2)
+        mean_single.append(rate_single)
         print(f"Distance {d:.3f}m: ", end="")
-        print(f"{thr_external_4:.2f} > {thr_internal_4:.2f} > {thr_external_2:.2f} > {thr_internal_2:.2f} > {thr_single:.2f}")
+        print(f"{rate_external_4:.2f} > {rate_internal_4:.2f} > {rate_external_2:.2f} > {rate_internal_2:.2f} > {rate_single:.2f}")
     
-    # Plot the approximate throughput
+    # Plot effective data rate
     plot_cumulative()
 
     # Plot the scenario topology

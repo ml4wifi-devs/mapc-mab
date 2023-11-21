@@ -26,13 +26,13 @@ def run_scenario(
     for i in range(n_reps):
         agent = agent_factory.create_mapc_agent()
         runs.append([])
-        thr = 0.
+        data_rate = 0.
 
         for j in range(n_steps):
             key, scenario_key = jax.random.split(key)
-            tx = agent.sample(thr)
-            thr = scenario(scenario_key, tx)
-            runs[-1].append(thr)
+            tx = agent.sample(data_rate)
+            data_rate = scenario(scenario_key, tx)
+            runs[-1].append(data_rate)
 
     return jax.tree_map(lambda x: x.tolist(), runs)
 
