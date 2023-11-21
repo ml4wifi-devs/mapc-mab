@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_throughput
+from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_data_rate
 
 
 class SimTestCase(unittest.TestCase):
@@ -68,13 +68,13 @@ class SimTestCase(unittest.TestCase):
         key = jax.random.PRNGKey(42)
 
         # Simulate the network for 150 steps
-        thr1, thr2, thr3 = [], [], []
+        data_rate_1, data_rate_2, data_rate_3 = [], [], []
 
         for _ in range(150):
             key, k1, k2, k3 = jax.random.split(key, 4)
-            thr1.append(network_throughput(k1, tx1, pos, mcs, tx_power, sigma, walls))
-            thr2.append(network_throughput(k2, tx2, pos, mcs, tx_power, sigma, walls))
-            thr3.append(network_throughput(k3, tx3, pos, mcs, tx_power, sigma, walls))
+            data_rate_1.append(network_data_rate(k1, tx1, pos, mcs, tx_power, sigma, walls))
+            data_rate_2.append(network_data_rate(k2, tx2, pos, mcs, tx_power, sigma, walls))
+            data_rate_3.append(network_data_rate(k3, tx3, pos, mcs, tx_power, sigma, walls))
 
         # Plot the positions of the nodes
         plt.figure(figsize=(7.5, 4.5))
@@ -93,17 +93,17 @@ class SimTestCase(unittest.TestCase):
         plt.savefig('scenario_loc.pdf', bbox_inches='tight')
         plt.clf()
 
-        # Plot the approximate throughput
-        plt.plot(thr1, label='STA 1 -> AP A')
-        plt.plot(thr2, label='STA 2 -> AP A and STA 3 -> AP B')
-        plt.plot(thr3, label='STA 1 -> AP A and STA 4 -> AP B')
+        # Plot the effective data rate
+        plt.plot(data_rate_1, label='STA 1 -> AP A')
+        plt.plot(data_rate_2, label='STA 2 -> AP A and STA 3 -> AP B')
+        plt.plot(data_rate_3, label='STA 1 -> AP A and STA 4 -> AP B')
         plt.xlim(0, 150)
         plt.ylim(0, 100)
         plt.xlabel('Timestep')
-        plt.ylabel('Approximated throughput [Mb/s]')
+        plt.ylabel('Effective Data Rate [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.legend()
         plt.grid()
         plt.tight_layout()
-        plt.savefig('scenario_thr.pdf', bbox_inches='tight')
+        plt.savefig('scenario_rate.pdf', bbox_inches='tight')
         plt.clf()

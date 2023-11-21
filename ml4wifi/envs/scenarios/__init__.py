@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from chex import Array, Scalar, PRNGKey
 
-from ml4wifi.envs.sim import EXPONENT, REFERENCE_LOSS, network_throughput
+from ml4wifi.envs.sim import EXPONENT, REFERENCE_LOSS, network_data_rate
 
 
 CCA_THRESHOLD = -82.0  # IEEE Std 802.11-2020 (Revision of IEEE Std 802.11-2016), 17.3.10.6: CCA requirements
@@ -146,8 +146,8 @@ class StaticScenario(Scenario):
         self.mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
         self.tx_power = jnp.ones(pos.shape[0]) * tx_power
 
-        self.thr_fn = jax.jit(partial(
-            network_throughput,
+        self.data_rate_fn = jax.jit(partial(
+            network_data_rate,
             pos=self.pos,
             mcs=self.mcs,
             tx_power=self.tx_power,
@@ -156,7 +156,7 @@ class StaticScenario(Scenario):
         ))
 
     def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
-        return self.thr_fn(key, tx)
+        return self.data_rate_fn(key, tx)
 
     def plot(self, filename: str = None) -> None:
         super().plot(self.pos, filename)
@@ -190,10 +190,10 @@ class DynamicScenario(Scenario):
             walls_pos: Optional[Array] = None
     ) -> None:
         super().__init__(associations, walls, walls_pos)
-        self.thr_fn = jax.jit(partial(network_throughput, sigma=sigma))
+        self.data_rate_fn = jax.jit(partial(network_data_rate, sigma=sigma))
 
     def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:
-        return self.thr_fn(key, tx, pos, mcs, tx_power, self.walls)
+        return self.data_rate_fn(key, tx, pos, mcs, tx_power, self.walls)
 
     def plot(self, pos: Array, filename: str = None) -> None:
         super().plot(pos, filename)

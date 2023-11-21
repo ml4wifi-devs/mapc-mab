@@ -59,42 +59,44 @@ def run(distance: int, mcs: int = 4, seed: int = 42, plot: bool = False):
     ])
 
     # Simulate the network
-    thr_optimal, thr_suboptimal, thr_wasteful, thr_single = [], [], [], []
+    rate_optimal, rate_suboptimal, rate_wasteful, rate_single = [], [], [], []
     n_steps = 200
+
     for _ in range(n_steps):
         key, k1, k2, k3, k4 = jax.random.split(key, 5)
-        thr_optimal.append(scenario.thr_fn(k1, tx_optimal))
-        thr_suboptimal.append(scenario.thr_fn(k2, tx_suboptimal))
-        thr_wasteful.append(scenario.thr_fn(k3, tx_wasteful))
-        thr_single.append(scenario.thr_fn(k4, tx_single))
-    thr_optimal = jnp.array(thr_optimal)
-    thr_suboptimal = jnp.array(thr_suboptimal)
-    thr_wasteful = jnp.array(thr_wasteful)
-    thr_single = jnp.array(thr_single)
+        rate_optimal.append(scenario(k1, tx_optimal))
+        rate_suboptimal.append(scenario(k2, tx_suboptimal))
+        rate_wasteful.append(scenario(k3, tx_wasteful))
+        rate_single.append(scenario(k4, tx_single))
+
+    rate_optimal = jnp.array(rate_optimal)
+    rate_suboptimal = jnp.array(rate_suboptimal)
+    rate_wasteful = jnp.array(rate_wasteful)
+    rate_single = jnp.array(rate_single)
     
-    # Plot the approximate throughput
+    # Plot effective data rate
     if plot:
         xs = jnp.arange(n_steps)
-        plt.plot(xs, thr_optimal, label='o-A o o B-o (optimal)', color=COLORS[0])
-        plt.plot(xs, thr_suboptimal, label='o-A o o-B o (suboptimal)', color=COLORS[1])
-        plt.plot(xs, thr_wasteful, label='o A-o o-B o (wasteful)', color=COLORS[2])
-        plt.plot(xs, thr_single, label='single transmission', color='black', linestyle='--')
+        plt.plot(xs, rate_optimal, label='o-A o o B-o (optimal)', color=COLORS[0])
+        plt.plot(xs, rate_suboptimal, label='o-A o o-B o (suboptimal)', color=COLORS[1])
+        plt.plot(xs, rate_wasteful, label='o A-o o-B o (wasteful)', color=COLORS[2])
+        plt.plot(xs, rate_single, label='single transmission', color='black', linestyle='--')
         plt.xlim(0, n_steps)
         plt.ylim(0, 150)
         plt.xlabel('Timestep')
-        plt.ylabel('Approximated throughput [Mb/s]')
+        plt.ylabel('Effective Data Rate [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.legend(loc='upper left')
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'scenario_1_thr_d{distance:.4f}.pdf', bbox_inches='tight')
+        plt.savefig(f'scenario_1_d{distance:.4f}.pdf', bbox_inches='tight')
         plt.clf()
     
     return (
-        jnp.mean(thr_optimal),
-        jnp.mean(thr_suboptimal),
-        jnp.mean(thr_wasteful),
-        jnp.mean(thr_single)
+        jnp.mean(rate_optimal),
+        jnp.mean(rate_suboptimal),
+        jnp.mean(rate_wasteful),
+        jnp.mean(rate_single)
     )
 
 
@@ -107,7 +109,7 @@ def plot_cumulative():
     plt.xscale('log')
     plt.ylim(0, 150)
     plt.xlabel('Distance gap [m]')
-    plt.ylabel('Approximated throughput [Mb/s]')
+    plt.ylabel('Effective Data Rate [Mb/s]')
     plt.title(f'MCS {mcs}')
     plt.legend(loc='upper left')
     plt.grid()
@@ -122,7 +124,7 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-m", "--mcs", type=int, help="MCS index")
     parser.add_argument("-r", "--resolution", type=int, default=50, help="The distance space resolution to search")
-    parser.add_argument("-p", "--plot", action="store_true", help="Plot throughput in time")
+    parser.add_argument("-p", "--plot", action="store_true", help="Plot effective data rate")
 
     # Parse arguments
     args = parser.parse_args()
@@ -134,15 +136,16 @@ if __name__ == "__main__":
     print(f"=== MCS {mcs} ===")
     mean_optimal, mean_suboptimal, mean_wasteful, mean_single = [], [], [], []
     distances = jnp.logspace(0, 3, res, base=10)
+
     for d in distances:
-        thr_optimal, thr_suboptimal, thr_wasteful, thr_single = run(distance=d, mcs=int(mcs), plot=plot_flag)
-        mean_optimal.append(thr_optimal)
-        mean_suboptimal.append(thr_suboptimal)
-        mean_wasteful.append(thr_wasteful)
-        mean_single.append(thr_single)
-        print(f"Distance {d:.3f}m: {thr_optimal:.2f} > {thr_suboptimal:.2f} > {thr_wasteful:.2f} > {thr_single:.2f}")
+        rate_optimal, rate_suboptimal, rate_wasteful, rate_single = run(distance=d, mcs=int(mcs), plot=plot_flag)
+        mean_optimal.append(rate_optimal)
+        mean_suboptimal.append(rate_suboptimal)
+        mean_wasteful.append(rate_wasteful)
+        mean_single.append(rate_single)
+        print(f"Distance {d:.3f}m: {rate_optimal:.2f} > {rate_suboptimal:.2f} > {rate_wasteful:.2f} > {rate_single:.2f}")
     
-    # Plot the approximate throughput
+    # Plot the effective data rate
     plot_cumulative()
 
     # Plot the scenario topology

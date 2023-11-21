@@ -25,11 +25,11 @@ MEAN_SNRS = jnp.array([
 ])
 
 
-def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
+def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
     """
-    Calculates the approximate network throughput based on the nodes' positions, MCS, and tx power.
-    Channel is modeled using log-distance path loss model with additive white Gaussian noise. Network
-    throughput is calculated as the sum of data rates of all successful transmissions. Success of
+    Calculates the aggregated effective data rate based on the nodes' positions, MCS, and tx power.
+    Channel is modeled using log-distance path loss model with additive white Gaussian noise. Effective
+    data rate is calculated as the sum of data rates of all successful transmissions. Success of
     a transmission is  Bernoulli random variable with success probability depending on the SINR. SINR is
     calculated as the difference between the signal power and the interference level which is calculated
     as the sum of the signal powers of all interfering nodes and the noise floor. **Attention:** This
@@ -54,7 +54,7 @@ def network_throughput(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power
     Returns
     -------
     Scalar
-        Approximated network throughput in Mb/s.
+        Aggregated effective data rate in Mb/s.
     """
 
     distance = jnp.sqrt(jnp.sum((pos[:, None, :] - pos[None, ...]) ** 2, axis=-1))
