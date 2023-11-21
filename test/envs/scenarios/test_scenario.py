@@ -78,3 +78,9 @@ class ScenarioClassTestCase(unittest.TestCase):
         plt.tight_layout()
         plt.savefig('scenario_3_thr.pdf', bbox_inches='tight')
         plt.clf()
+
+    def test_cca_threshold(self):
+        assert simple_scenario_1(d=100.).is_cca_single_tx()
+        assert simple_scenario_2(d_ap=200.).is_cca_single_tx()
+        assert not simple_scenario_1(d=200.).is_cca_single_tx()
+        assert not simple_scenario_2(d_ap=300.).is_cca_single_tx()
