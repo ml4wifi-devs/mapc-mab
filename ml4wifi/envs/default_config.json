@@ -49,6 +49,14 @@
       "params": {
         "c": 100.70888594484329
       }
+    },
+    {
+      "name": "NormalThompsonSampling",
+      "params": {}
+    },
+    {
+      "name": "LogNormalThompsonSampling",
+      "params": {}
     }
   ]
 }
