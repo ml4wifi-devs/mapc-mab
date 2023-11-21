@@ -14,7 +14,7 @@ class ScenarioClassTestCase(unittest.TestCase):
         assert os.path.exists("test_simple_scenario.pdf")
 
     def test_random_plotting(self):
-        scenario = random_scenario_1(seed=88)
+        scenario = random_scenario(seed=88)
         scenario.plot("test_random_scenario.png")
         assert os.path.exists("test_random_scenario.png")
 

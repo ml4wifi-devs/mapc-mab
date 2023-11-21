@@ -6,9 +6,12 @@ from ml4wifi.envs.scenarios import StaticScenario
 from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA
 
 
+DEFAULT_MCS = 11
+
+
 def simple_scenario_1(
         d: Scalar = 40.,
-        mcs: int = 4,
+        mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -36,7 +39,7 @@ def simple_scenario_1(
 def simple_scenario_2(
         d_ap: Scalar = 50.,
         d_sta: Scalar = 1.,
-        mcs: Scalar = 11,
+        mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -81,7 +84,7 @@ def simple_scenario_2(
 
 def simple_scenario_3(
         d: Scalar = 30.,
-        mcs: int = 4,
+        mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -110,9 +113,9 @@ def simple_scenario_3(
 
 
 def simple_scenario_4(
-        d_ap: Scalar = 50.,
+        d_ap: Scalar = 10.,
         d_sta: Scalar = 1.,
-        mcs: Scalar = 11,
+        mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -192,9 +195,9 @@ def simple_scenario_4(
 
 
 def simple_scenario_5(
-        d_ap: Scalar = 50.,
+        d_ap: Scalar = 12.,
         d_sta: Scalar = 1.,
-        mcs: Scalar = 11,
+        mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -281,13 +284,13 @@ def simple_scenario_5(
     return StaticScenario(pos, mcs, tx_power, sigma, associations, walls, walls_pos)
 
 
-def random_scenario_1(
+def random_scenario(
         seed: int,
         d_ap: Scalar = 100.,
         n_ap: int = 4,
         d_sta: Scalar = 1.,
         n_sta_per_ap: int = 4,
-        mcs: int = 11,
+        mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:

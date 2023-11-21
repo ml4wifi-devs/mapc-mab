@@ -7,18 +7,18 @@ from reinforced_lib.agents.mab import *
 
 from ml4wifi.agents import MapcAgentFactory
 from ml4wifi.envs.run import run_scenario
-from ml4wifi.envs.scenarios.static import random_scenario_1
+from ml4wifi.envs.scenarios.static import random_scenario
 
 
 TRAINING_SCENARIOS = [
-    random_scenario_1(seed=1, d_ap=200., n_ap=2, d_sta=40., n_sta_per_ap=2, mcs=4),
-    random_scenario_1(seed=7, d_ap=200., n_ap=2, d_sta=40., n_sta_per_ap=3, mcs=4),
-    random_scenario_1(seed=7, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=2, mcs=4),
-    random_scenario_1(seed=7, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=3, mcs=6),
-    random_scenario_1(seed=10, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=4, mcs=6),
-    random_scenario_1(seed=9, d_ap=100., n_ap=4, d_sta=5., n_sta_per_ap=2, mcs=11),
-    random_scenario_1(seed=10, d_ap=100., n_ap=4, d_sta=5., n_sta_per_ap=3, mcs=11),
-    random_scenario_1(seed=20, d_ap=200., n_ap=4, d_sta=5., n_sta_per_ap=4, mcs=11)
+    random_scenario(seed=1, d_ap=200., n_ap=2, d_sta=40., n_sta_per_ap=2, mcs=4),
+    random_scenario(seed=7, d_ap=200., n_ap=2, d_sta=40., n_sta_per_ap=3, mcs=4),
+    random_scenario(seed=7, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=2, mcs=4),
+    random_scenario(seed=7, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=3, mcs=6),
+    random_scenario(seed=10, d_ap=200., n_ap=3, d_sta=40., n_sta_per_ap=4, mcs=6),
+    random_scenario(seed=9, d_ap=100., n_ap=4, d_sta=5., n_sta_per_ap=2, mcs=11),
+    random_scenario(seed=10, d_ap=100., n_ap=4, d_sta=5., n_sta_per_ap=3, mcs=11),
+    random_scenario(seed=20, d_ap=200., n_ap=4, d_sta=5., n_sta_per_ap=4, mcs=11)
 ]
 
 
