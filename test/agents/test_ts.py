@@ -13,14 +13,14 @@ tfd = tfp.distributions
 
 class TSTestCase(unittest.TestCase):
     def test_normal_cycle(self):
-        ts = NormalThompsonSampling(8)
+        ts = NormalThompsonSampling(n_arms=8, alpha=1., beta=1., lam=2., mu=0.)
         k1, k2, k3 = jax.random.split(jax.random.key(4), 3)
         state = ts.init(k1)
         next_state = ts.update(state, k2, action=3, reward=3.0)
         a = ts.sample(next_state, k3)
 
     def test_lognormal_cycle(self):
-        ts = LogNormalThompsonSampling(8)
+        ts = LogNormalThompsonSampling(n_arms=8, alpha=1., beta=1., lam=2., mu=0.)
         k1, k2, k3 = jax.random.split(jax.random.key(4), 3)
         state = ts.init(k1)
         next_state = ts.update(state, k2, action=3, reward=3.0)
@@ -33,7 +33,7 @@ class TSTestCase(unittest.TestCase):
         env = tfd.Normal(loc=np.asarray([5, 20.]), scale=3)
         env.sample(seed=sample_key)
 
-        ts = NormalThompsonSampling(2)
+        ts = NormalThompsonSampling(n_arms=2, alpha=1., beta=1., lam=2., mu=0.)
         k, init_key = jax.random.split(k)
         state = ts.init(init_key)
 
@@ -48,6 +48,7 @@ class TSTestCase(unittest.TestCase):
     def test_normal_with_reinforced_lib(self):
         rl = RLib(
             agent_type=NormalThompsonSampling,
+            agent_params={'alpha': 1., 'beta': 1., 'lam': 2., 'mu': 0.},
             ext_type=MapcSimExt,
             ext_params={'n_arms': 4}
         )
@@ -57,6 +58,7 @@ class TSTestCase(unittest.TestCase):
     def test_lognormal_with_reinforced_lib(self):
         rl = RLib(
             agent_type=LogNormalThompsonSampling,
+            agent_params={'alpha': 1., 'beta': 1., 'lam': 2., 'mu': 0.},
             ext_type=MapcSimExt,
             ext_params={'n_arms': 4}
         )

@@ -43,6 +43,14 @@ class NormalThompsonSampling(BaseAgent):
     ----------
     n_arms : int
         Number of bandit arms. :math:`N \in \mathbb{N}_{+}` .
+    alpha : float
+        See also :ref:`NormalThompsonSamplingState` for interpretation
+    beta : float
+        See also :ref:`NormalThompsonSamplingState` for interpretation
+    lam : float
+        See also :ref:`NormalThompsonSamplingState` for interpretation
+    mu : float
+        See also :ref:`NormalThompsonSamplingState` for interpretation
 
     References
     ----------
@@ -50,10 +58,17 @@ class NormalThompsonSampling(BaseAgent):
     .. [2] https://www.cs.ubc.ca/~murphyk/Papers/bayesGauss.pdf
     """
 
-    def __init__(self, n_arms: int) -> None:
+    def __init__(
+            self,
+            n_arms: int,
+            alpha: float,
+            beta: float,
+            lam: float,
+            mu: float
+    ) -> None:
         self.n_arms = n_arms
 
-        self.init = jax.jit(partial(self.init, n_arms=self.n_arms))
+        self.init = jax.jit(partial(self.init, n_arms=self.n_arms, alpha=alpha, beta=beta, lam=lam, mu=mu))
         self.update = jax.jit(self.update)
         self.sample = jax.jit(self.sample)
 
@@ -79,7 +94,7 @@ class NormalThompsonSampling(BaseAgent):
         return gym.spaces.Discrete(self.n_arms)
 
     @staticmethod
-    def init(key: PRNGKey, n_arms: int) -> NormalThompsonSamplingState:
+    def init(key: PRNGKey, n_arms: int,alpha:float, beta:float, lam:float, mu:float) -> NormalThompsonSamplingState:
         r"""
         Creates and initializes an instance of the Thompson sampling agent for ``n_arms`` arms.
 
@@ -89,7 +104,14 @@ class NormalThompsonSampling(BaseAgent):
             A PRNG key used as the random key.
         n_arms : int
             Number of bandit arms.
-
+        alpha : float
+            See also :ref:`NormalThompsonSamplingState` for interpretation
+        beta : float
+            See also :ref:`NormalThompsonSamplingState` for interpretation
+        lam : float
+            See also :ref:`NormalThompsonSamplingState` for interpretation
+        mu : float
+            See also :ref:`NormalThompsonSamplingState` for interpretation
         Returns
         -------
         NormalThompsonSamplingState
@@ -97,10 +119,10 @@ class NormalThompsonSampling(BaseAgent):
         """
 
         return NormalThompsonSamplingState(
-            alpha=jnp.ones((n_arms, 1)),
-            beta=jnp.ones((n_arms, 1)),
-            lam=2 * jnp.ones((n_arms, 1)),
-            mu=jnp.zeros((n_arms, 1))
+            alpha=alpha * jnp.ones((n_arms, 1)),
+            beta=beta * jnp.ones((n_arms, 1)),
+            lam=lam * jnp.ones((n_arms, 1)),
+            mu=mu * jnp.zeros((n_arms, 1))
         )
 
     @staticmethod

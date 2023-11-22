@@ -52,11 +52,12 @@
     },
     {
       "name": "NormalThompsonSampling",
-      "params": {}
-    },
-    {
-      "name": "LogNormalThompsonSampling",
-      "params": {}
+      "params": {
+        "alpha": 0.0053060073566330536,
+        "beta": 0.7951820353529595,
+        "lam": 0.023229996380157884,
+        "mu": 8332.296208260148
+      }
     }
   ]
 }
