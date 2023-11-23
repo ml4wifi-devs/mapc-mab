@@ -6,6 +6,7 @@ import optuna
 from reinforced_lib.agents.mab import *
 
 from ml4wifi.agents import MapcAgentFactory
+from ml4wifi.agents.thompson_sampling import NormalThompsonSampling
 from ml4wifi.envs.run import run_scenario
 from ml4wifi.envs.scenarios.static import random_scenario
 
@@ -47,6 +48,14 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int) -> float:
         agent_type = UCB
         agent_params = {
             'c': trial.suggest_float('c', 0., 1e3)
+        }
+    elif agent == 'NormalThompsonSampling':
+        agent_type = NormalThompsonSampling
+        agent_params = {
+            'alpha': trial.suggest_float('alpha', 1e-6, 1e2, log=True),
+            'beta': trial.suggest_float('beta', 1e-4, 1e6, log=True),
+            'lam': trial.suggest_float('lam', 1e-4, 1e6, log=True),
+            'mu': trial.suggest_float('mu', 0, 1e4)
         }
     else:
         raise ValueError(f'Unknown agent {agent}')
