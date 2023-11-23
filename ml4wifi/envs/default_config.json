@@ -3,14 +3,6 @@
   "seed": 42,
   "scenarios": [
     {
-      "name": "simple_scenario_1",
-      "n_steps": 510,
-      "params": {
-        "d": 40.0,
-        "mcs": 4
-      }
-    },
-    {
       "name": "simple_scenario_2",
       "n_steps": 510,
       "params": {
@@ -20,11 +12,21 @@
       }
     },
     {
-      "name": "simple_scenario_3",
+      "name": "simple_scenario_4",
       "n_steps": 510,
       "params": {
-        "d": 30.0,
-        "mcs": 4
+        "d_ap": 10.0,
+        "d_sta": 1.0,
+        "mcs": 11
+      }
+    },
+    {
+      "name": "simple_scenario_5",
+      "n_steps": 510,
+      "params": {
+        "d_ap": 25.0,
+        "d_sta": 2.0,
+        "mcs": 11
       }
     }
   ],
