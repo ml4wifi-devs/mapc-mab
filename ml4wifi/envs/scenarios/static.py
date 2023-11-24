@@ -195,8 +195,8 @@ def simple_scenario_4(
 
 
 def simple_scenario_5(
-        d_ap: Scalar = 12.,
-        d_sta: Scalar = 1.,
+        d_ap: Scalar = 25.,
+        d_sta: Scalar = 2.,
         mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA

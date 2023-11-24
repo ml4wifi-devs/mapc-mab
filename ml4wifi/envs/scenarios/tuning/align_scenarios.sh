@@ -29,6 +29,14 @@ align_scenario_3() {
     echo "Done."
 }
 
+align_scenario_5() {
+    echo "Aligning scenario 5..."
+    python ml4wifi/envs/scenarios/tuning/simple_scenario_5.py -m "11" -s "2" -r "8" -p
+    python ml4wifi/envs/scenarios/tuning/simple_scenario_5.py -m "11" -s "2" -r "$1"
+    echo "Done."
+}
+
 align_scenario_1 $RESOLUTION
 align_scenario_2 $RESOLUTION
 align_scenario_3 $RESOLUTION
+align_scenario_5 $RESOLUTION
