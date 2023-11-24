@@ -1,0 +1,26 @@
+{
+  "n_reps": 5,
+  "seed": 42,
+  "scenarios": [
+    {
+      "name": "simple_scenario_5",
+      "n_steps": 510,
+      "params": {
+        "d_ap": 25.0,
+        "d_sta": 2.0,
+        "mcs": 11
+      }
+    }
+  ],
+  "agents": [
+    {
+      "name": "NormalThompsonSampling",
+      "params": {
+        "alpha": 0.0053060073566330536,
+        "beta": 0.7951820353529595,
+        "lam": 0.023229996380157884,
+        "mu": 8332.296208260148
+      }
+    }
+  ]
+}

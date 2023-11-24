@@ -1,7 +1,7 @@
 import string
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
@@ -106,6 +106,32 @@ class Scenario(ABC):
         signal_power = np.where(np.isnan(signal_power), np.inf, signal_power)
 
         return np.all(signal_power > CCA_THRESHOLD)
+    
+    def tx_matrix_to_action(self, tx_matrix: Array) -> Array:
+        """
+        Convert a transmission matrix to a list of transmissions. Assumes downlink.
+
+        Parameters
+        ----------
+        tx_matrix: Array
+            Transmission matrix. Each entry corresponds to a node.
+
+        Returns
+        -------
+        Array
+            A list, where each entry is either one element list of the AP->STA transmission or an empty one.
+        """
+
+        aps = list(self.associations.keys())
+        action = [[] for _ in aps]
+
+        for ap in aps:
+            assert jnp.sum(tx_matrix[ap, :]) <= 1, 'Multiple transmissions at AP'
+            for sta in self.associations[ap]:
+                if tx_matrix[ap, sta]:
+                    action[ap].append(sta)
+
+        return action
 
 
 class StaticScenario(Scenario):
