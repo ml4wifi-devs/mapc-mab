@@ -52,13 +52,7 @@ probability, e.g., :
 $$\log P_{q_\theta}(\mathbf y|x_t)=\sum_i \alpha_i  y_i+ \sum_{i,j}\beta_{i,j} y_i y_j + \sum_{i,j,k}\gamma_{i,j,k}y_i y_j y_k + \ldots.$$
 Note that $\theta_{i_k}$ must be invariant to index permutation.
 
-TODO:
-
-1.  conjugate prior for $P(\mathbf y)$
-
-2.  Sample from conjugate prior
-
-3.  Update conjugate prior
+Candidate distribution for stohastic policy is [DeterminantalPointProcess](https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/DeterminantalPointProcess)
 
 # Conclusions regarding the implementation
 
