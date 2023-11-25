@@ -72,9 +72,9 @@ class SimTestCase(unittest.TestCase):
 
         for _ in range(150):
             key, k1, k2, k3 = jax.random.split(key, 4)
-            data_rate_1.append(network_data_rate(k1, tx1, pos, mcs, tx_power, sigma, walls))
-            data_rate_2.append(network_data_rate(k2, tx2, pos, mcs, tx_power, sigma, walls))
-            data_rate_3.append(network_data_rate(k3, tx3, pos, mcs, tx_power, sigma, walls))
+            data_rate_1.append(jax.jit(network_data_rate)(k1, tx1, pos, mcs, tx_power, sigma, walls))
+            data_rate_2.append(jax.jit(network_data_rate)(k2, tx2, pos, mcs, tx_power, sigma, walls))
+            data_rate_3.append(jax.jit(network_data_rate)(k3, tx3, pos, mcs, tx_power, sigma, walls))
 
         # Plot the positions of the nodes
         plt.figure(figsize=(7.5, 4.5))
@@ -98,7 +98,7 @@ class SimTestCase(unittest.TestCase):
         plt.plot(data_rate_2, label='STA 2 -> AP A and STA 3 -> AP B')
         plt.plot(data_rate_3, label='STA 1 -> AP A and STA 4 -> AP B')
         plt.xlim(0, 150)
-        plt.ylim(0, 100)
+        #plt.ylim(0, 100)
         plt.xlabel('Timestep')
         plt.ylabel('Effective Data Rate [Mb/s]')
         plt.title('Simulation of MAPC')
