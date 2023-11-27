@@ -1,6 +1,9 @@
 import jax
 import jax.numpy as jnp
+import tensorflow_probability.substrates.jax as tfp
 from chex import Array, PRNGKey, Scalar
+
+tfd = tfp.distributions
 
 
 # TGax channel model
@@ -16,6 +19,14 @@ WALL_LOSS = 7.
 
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
+
+# Based on ns-3 static simulations with 1 station, ideal channel, and constant MCS
+AMPDU_SIZES = jnp.array([3, 6, 9, 12, 18, 25, 28, 31, 37, 41, 41, 41], dtype=jnp.float32)
+
+# Agent application interval.
+# ref https://ieeexplore.ieee.org/document/8930559
+TAU=5.484*1e-3 # s
+FRAME_LEN = jnp.asarray(1500*8)
 
 # Based on ns-3 simulations with LogDistance channel model
 MEAN_SNRS = jnp.array([
@@ -64,6 +75,8 @@ def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power:
         Aggregated effective data rate in Mb/s.
     """
 
+    normal_key, binomial_key = jax.random.split(key)
+
     distance = jnp.sqrt(jnp.sum((pos[:, None, :] - pos[None, ...]) ** 2, axis=-1))
     distance = jnp.clip(distance, REFERENCE_DISTANCE, None)
 
@@ -76,11 +89,13 @@ def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power:
     interference = 10 * jnp.log10(interference_lin + NOISE_FLOOR_LIN)
 
     sinr = signal_power - interference
-    sinr = sinr + sigma * jax.random.normal(key, shape=signal_power.shape)
+    sinr = sinr + tfd.Normal(loc=jnp.zeros_like(signal_power), scale=sigma).sample(seed=normal_key)
     sinr = (sinr * tx).sum(axis=0)
 
-    success_probability = jax.scipy.stats.norm.cdf(sinr, loc=MEAN_SNRS[mcs], scale=2.)
-    frame_transmitted = jax.random.bernoulli(key, success_probability * (sinr > 0))
-    expected_data_rate = DATA_RATES[mcs] * frame_transmitted
+    n = jnp.round(DATA_RATES[mcs]*1e6*TAU/FRAME_LEN)
 
-    return expected_data_rate.sum()
+    success_probability = tfd.Normal(loc=MEAN_SNRS[mcs], scale=2.).cdf(sinr) * (sinr > 0)
+    frames_transmitted = tfd.Binomial(total_count=n, probs=success_probability).sample(seed=binomial_key)
+    average_data_rate = FRAME_LEN*(frames_transmitted / TAU)
+
+    return average_data_rate.sum()/float(1e6) # Mbps
