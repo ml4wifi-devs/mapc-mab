@@ -84,9 +84,14 @@ def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power:
     signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
 
     interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)
-    interference_lin = jnp.power(10, signal_power / 10)
-    interference_lin = (interference_matrix * interference_lin).sum(axis=0)
-    interference = 10 * jnp.log10(interference_lin + NOISE_FLOOR_LIN)
+    interference = jax.vmap(lambda sig, inter: jax.nn.logsumexp(a=sig, b=inter),
+                            in_axes=(1, 1))(signal_power, interference_matrix)
+    interference = jnp.where(jnp.isinf(interference),
+                             10 * jnp.log10(NOISE_FLOOR_LIN), interference)
+
+    # interference_lin = jnp.power(10, signal_power / 10)
+    # interference_lin = (interference_matrix * interference_lin).sum(axis=0)
+    # interference = 10 * jnp.log10(interference_lin + NOISE_FLOOR_LIN)
 
     sinr = signal_power - interference
     sinr = sinr + tfd.Normal(loc=jnp.zeros_like(signal_power), scale=sigma).sample(seed=normal_key)
