@@ -44,6 +44,21 @@ and build inverse LUT for selected AP and stations using
 
 TODO: $q$=?, $r$=?
 
+## Sim
+This is correct for handling it frame by frame, but still we scale by rate. My original reasoning was as follows.
+
+1. Let's assume we run agent every $\tau$ [s], and that the links are saturated i.e. the rate is $C$=`DATA_RATES[mcs]`
+2. During time $\tau$ we transmit $C \tau$ bits and $n=\frac{C \tau}{a}$ frames/ampdu where $a$ corresponds to length[bit] of frame/ampdu
+3. Let $p$ be the probability of successful transmission of  frame/ampdu.
+4. In time window $\tau$ we have $n$ such and the number of successful is given by the binomial distribution with parameter $p$ and `total_count` $n$
+5. Let's count the total number $k$ of successful frames/ampdu as a reward. We can divide it by $\tau$ to get rate - this cancels out with first $\tau$,
+ $$E \frac{k a}{\tau} = p na /\tau=p\frac{C a}{a}=p C$$ and variance
+
+$$V \frac{k a}{\tau} = \frac{p(1-p) na^2}{\tau^2}=p(1-p)\frac{C a}{ \tau}$$ .
+
+Expected rate is as in the case of scaling by rate ***but the variance is not*** its scales linearly instead of quadratically.  
+
+
 ## Probability distribution
 
 Assuming we have up to $m$ APs in simultaneous operation that are
@@ -52,13 +67,7 @@ probability, e.g., :
 $$\log P_{q_\theta}(\mathbf y|x_t)=\sum_i \alpha_i  y_i+ \sum_{i,j}\beta_{i,j} y_i y_j + \sum_{i,j,k}\gamma_{i,j,k}y_i y_j y_k + \ldots.$$
 Note that $\theta_{i_k}$ must be invariant to index permutation.
 
-TODO:
-
-1.  conjugate prior for $P(\mathbf y)$
-
-2.  Sample from conjugate prior
-
-3.  Update conjugate prior
+Candidate distribution for stohastic policy is [DeterminantalPointProcess](https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/DeterminantalPointProcess)
 
 # Conclusions regarding the implementation
 
