@@ -5,6 +5,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_data_rate
+from ml4wifi.envs.sim.sim import _logsumexp_db
 
 
 class SimTestCase(unittest.TestCase):
@@ -107,3 +108,30 @@ class SimTestCase(unittest.TestCase):
         plt.tight_layout()
         plt.savefig('scenario_rate.pdf', bbox_inches='tight')
         plt.clf()
+
+    def test_logsumexp(self):
+        NOISE_FLOOR = -93.97
+        NOISE_FLOOR_LIN = jnp.power(10, NOISE_FLOOR / 10)
+
+        key = jax.random.key(42)
+        signal_power = jax.random.normal(key, (10, 10))
+
+        tx = jnp.zeros((10, 10))
+        tx = tx.at[3, 5].set(1)
+        tx = tx.at[4, 1].set(1)
+        tx = tx.at[0, 2].set(1)
+
+        interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(
+            axis=-1, keepdims=True) * (1 - tx)
+        interference_lin = jnp.power(10, signal_power / 10)
+        interference_lin = (interference_matrix * interference_lin).sum(axis=0)
+        interference_original = 10 * jnp.log10(
+            interference_lin + NOISE_FLOOR_LIN)
+
+        interference_new = jax.vmap(_logsumexp_db,
+                                    in_axes=(1, 1))(signal_power,
+                                                    interference_matrix)
+        interference_new = jnp.where(jnp.isinf(interference_new),
+                                     10 * jnp.log10(NOISE_FLOOR_LIN),
+                                     interference_new)
+        self.assertTrue(jnp.allclose(interference_original, interference_new))

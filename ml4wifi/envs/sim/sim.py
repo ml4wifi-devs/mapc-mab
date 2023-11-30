@@ -40,6 +40,34 @@ def path_loss(distance: Array, walls: Array) -> Array:
     return (40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 5.25) +
             (distance > BREAKING_POINT) * 35 * jnp.log10(distance / BREAKING_POINT) + WALL_LOSS * walls)
 
+def _logsumexp_db(a:Array, b:Array)->Array:
+    """
+    Computes :ref:`jax.nn.logsumexp` for dB i.e. :math:`10log_10(\sum_i b_i 10^{a_i/10})`
+
+    This function is equivalent to
+
+    .. code-block:: python
+
+        interference_lin = jnp.power(10, a / 10)
+        interference_lin = (b * interference_lin).sum()
+        interference = 10 * jnp.log10(interference_lin )
+
+
+    Parameters
+    ----------
+    a: Array
+        Parameters are the same as for :ref:`jax.nn.logsumexp`
+    b: Array
+        Parameters are the same as for :ref:`jax.nn.logsumexp`
+
+    Returns
+    -------
+    Array
+
+
+    """
+    LOG10DIV10 = jnp.log(10.) / 10.
+    return jax.nn.logsumexp(a=LOG10DIV10*a, b=b)/LOG10DIV10
 
 def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
     """
@@ -84,8 +112,8 @@ def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power:
     signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
 
     interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)
-    interference = jax.vmap(lambda sig, inter: jax.nn.logsumexp(a=sig, b=inter),
-                            in_axes=(1, 1))(signal_power, interference_matrix)
+
+    interference = jax.vmap(_logsumexp_db, in_axes=(1, 1))(signal_power, interference_matrix)
     interference = jnp.where(jnp.isinf(interference),
                              10 * jnp.log10(NOISE_FLOOR_LIN), interference)
 
