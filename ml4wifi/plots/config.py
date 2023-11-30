@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 COLUMN_WIDTH = 3.5
 COLUMN_HIGHT = 2 * COLUMN_WIDTH / (1 + 5 ** 0.5)
@@ -16,7 +16,8 @@ PLOT_PARAMS = {
     'grid.linewidth': 0.5,
     'legend.title_fontsize': 7,
     'legend.fontsize': 7,
-    'lines.linewidth': 0.5,
+    'lines.linewidth': 1.,
+    'lines.markersize': 2,
     'text.usetex': True,
     'xtick.major.width': 0.5,
     'ytick.major.width': 0.5,
@@ -25,9 +26,14 @@ PLOT_PARAMS = {
 
 AGENT_NAMES = {
     'EGreedy': r'$\varepsilon$-greedy',
-    'Exp3': 'EXP3'
+    'Exp3': 'EXP3',
+    'NormalThompsonSampling': 'Normal TS'
 }
 
 
 def set_style() -> None:
     plt.rcParams.update(PLOT_PARAMS)
+
+
+def get_cmap(n: int) -> plt.cm:
+    return plt.cm.viridis(np.linspace(0., 0.8, n))

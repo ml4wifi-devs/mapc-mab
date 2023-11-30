@@ -1,13 +1,12 @@
 import jax
 import matplotlib.pyplot as plt
-import matplotlib.pylab as pl
 from argparse import ArgumentParser
 
 from ml4wifi.envs.scenarios.static import *
-from ml4wifi import plots
+from ml4wifi.plots.config import get_cmap
 
 
-COLORS = pl.cm.viridis(jnp.linspace(0., 1., 4))
+COLORS = get_cmap(4)
 plt.rcParams.update({'figure.figsize': (4, 3)})
 
 
@@ -71,7 +70,7 @@ def run(distance: int, mcs: int = 11, seed: int = 42, plot: bool = False):
         plt.xlim(0, n_steps)
         plt.ylim(0, 150)
         plt.xlabel('Timestep')
-        plt.ylabel('Effective Data Rate [Mb/s]')
+        plt.ylabel('Effective data rate [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.legend(loc='upper left')
         plt.grid()
@@ -98,7 +97,7 @@ def plot_cumulative():
     plt.xscale('log')
     plt.ylim(0, 150)
     plt.xlabel('Distance gap [m]')
-    plt.ylabel('Effective Data Rate [Mb/s]')
+    plt.ylabel('Effective data rate [Mb/s]')
     plt.title(f'MCS {mcs}')
     plt.legend(loc='upper left')
     plt.grid()

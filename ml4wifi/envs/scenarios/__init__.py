@@ -10,6 +10,7 @@ import numpy as np
 from chex import Array, Scalar, PRNGKey
 
 from ml4wifi.envs.sim import network_data_rate, path_loss
+from ml4wifi.plots.config import get_cmap
 
 
 CCA_THRESHOLD = -82.0  # IEEE Std 802.11-2020 (Revision of IEEE Std 802.11-2016), 17.3.10.6: CCA requirements
@@ -43,7 +44,7 @@ class Scenario(ABC):
         return self.associations
 
     def plot(self, pos: Array, filename: str = None) -> None:
-        colors = plt.colormaps['viridis'](np.linspace(0, 1, len(self.associations)))
+        colors = get_cmap(len(self.associations))
         ap_labels = string.ascii_uppercase
 
         _, ax = plt.subplots()

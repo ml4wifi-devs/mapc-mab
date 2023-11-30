@@ -71,7 +71,7 @@ class ScenarioClassTestCase(unittest.TestCase):
         plt.xlim(0, 150)
         plt.ylim(0, 100)
         plt.xlabel('Timestep')
-        plt.ylabel('Effective Data Rate [Mb/s]')
+        plt.ylabel('Effective data rate [Mb/s]')
         plt.title('Simulation of MAPC')
         plt.legend()
         plt.grid()

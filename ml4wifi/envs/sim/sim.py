@@ -24,9 +24,8 @@ DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 11
 AMPDU_SIZES = jnp.array([3, 6, 9, 12, 18, 25, 28, 31, 37, 41, 41, 41], dtype=jnp.float32)
 
 # Agent application interval.
-# ref https://ieeexplore.ieee.org/document/8930559
-TAU=5.484*1e-3 # s
-FRAME_LEN = jnp.asarray(1500*8)
+TAU = 5.484 * 1e-3  # (s) https://ieeexplore.ieee.org/document/8930559
+FRAME_LEN = jnp.asarray(1500 * 8)
 
 # Based on ns-3 simulations with LogDistance channel model
 MEAN_SNRS = jnp.array([
@@ -92,10 +91,9 @@ def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power:
     sinr = sinr + tfd.Normal(loc=jnp.zeros_like(signal_power), scale=sigma).sample(seed=normal_key)
     sinr = (sinr * tx).sum(axis=0)
 
-    n = jnp.round(DATA_RATES[mcs]*1e6*TAU/FRAME_LEN)
-
     success_probability = tfd.Normal(loc=MEAN_SNRS[mcs], scale=2.).cdf(sinr) * (sinr > 0)
+    n = jnp.round(DATA_RATES[mcs] * 1e6 * TAU / FRAME_LEN)
     frames_transmitted = tfd.Binomial(total_count=n, probs=success_probability).sample(seed=binomial_key)
-    average_data_rate = FRAME_LEN*(frames_transmitted / TAU)
 
-    return average_data_rate.sum()/float(1e6) # Mbps
+    average_data_rate = FRAME_LEN * (frames_transmitted / TAU)
+    return average_data_rate.sum() / float(1e6)  # (Mbps)
