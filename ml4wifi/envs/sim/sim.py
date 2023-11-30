@@ -37,7 +37,7 @@ MEAN_SNRS = jnp.array([
 
 
 def path_loss(distance: Array, walls: Array) -> Array:
-    return (40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 5.25) +
+    return (40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 2.4) +
             (distance > BREAKING_POINT) * 35 * jnp.log10(distance / BREAKING_POINT) + WALL_LOSS * walls)
 
 

@@ -80,7 +80,7 @@ class ScenarioClassTestCase(unittest.TestCase):
         plt.clf()
 
     def test_cca_threshold(self):
-        assert simple_scenario_1(d=40.).is_cca_single_tx()
+        assert simple_scenario_1(d=25.).is_cca_single_tx()
         assert simple_scenario_2(d_ap=50.).is_cca_single_tx()
         assert not simple_scenario_1(d=100.).is_cca_single_tx()
         assert not simple_scenario_2(d_ap=100.).is_cca_single_tx()
