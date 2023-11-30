@@ -8,6 +8,7 @@ from ml4wifi.plots.config import get_cmap
 
 COLORS = get_cmap(3)
 plt.rcParams.update({'figure.figsize': (4, 3)})
+plt.rcParams.update({'lines.linewidth': 0.8})
 
 
 def run(distance: int, mcs: int = 4, seed: int = 42, plot: bool = False):
@@ -111,7 +112,7 @@ def plot_cumulative():
     plt.ylabel('Effective data rate [Mb/s]')
     plt.title(f'MCS {mcs}')
     plt.legend(loc='upper left')
-    plt.grid()
+    plt.grid(which='major')
     plt.tight_layout()
     plt.savefig(f'scenario_1_cum_mcs{mcs}.pdf', bbox_inches='tight')
     plt.clf()

@@ -8,6 +8,7 @@ from ml4wifi.plots.config import get_cmap
 
 COLORS = get_cmap(5)
 plt.rcParams.update({'figure.figsize': (4, 3)})
+plt.rcParams.update({'lines.linewidth': 0.8})
 
 
 def run(distance_ap: int, distance_sta: int, mcs: int = 11, seed: int = 42, plot: bool = False):
@@ -104,25 +105,24 @@ def run(distance_ap: int, distance_sta: int, mcs: int = 11, seed: int = 42, plot
 
 
 def plot_cumulative():
-    plt.plot(distances_ap, mean_external_4, label='external 4', color=COLORS[0])
-    # plt.plot(distances_ap, mean_internal_4, label='internal 4', color=COLORS[1])
-    plt.plot(distances_ap, mean_external_2, label='external 2 (diagonal)', color=COLORS[2])
-    # plt.plot(distances_ap, mean_internal_2, label='internal 2 (diagonal)', color=COLORS[3])
-    plt.plot(distances_ap, mean_external_3, label='external 3', color=COLORS[4])
-    plt.plot(distances_ap, mean_single, label='single transmission', color='black', linestyle='--')
+    plt.plot(distances_ap, mean_external_4, label='Four APs', color=COLORS[0])
+    plt.plot(distances_ap, mean_external_3, label='Three APs', color=COLORS[2])
+    plt.plot(distances_ap, mean_external_2, label='Two APs (diagonal)', color=COLORS[4])
+    plt.plot(distances_ap, mean_single, label='One AP', color='black', linestyle='--')
 
-    # Plot red vertical line at distance 20 m and 25m
-    plt.axvline(x=25, color='red', linestyle='--')
-    plt.axvline(x=20, color='red', linestyle='--')
+    # Plot red vertical line at distance 10m, 20 m and 25m
+    plt.axvline(x=10, color='red', linestyle='--', linewidth=0.5)
+    plt.axvline(x=20, color='red', linestyle='--', linewidth=0.5)
+    plt.axvline(x=25, color='red', linestyle='--', linewidth=0.5)
 
     plt.xscale('log')
     plt.xticks([10, 20, 25, 100], [10, 20, 25, 100])
-    plt.xlabel('AP-AP distance [m]')
+    plt.xlabel('Inter-AP distance [m]')
     plt.ylim(0, 600)
     plt.ylabel('Effective data rate [Mb/s]')
-    plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
+    # plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
     plt.legend(loc='upper left')
-    plt.grid()
+    plt.grid(which='major')
     plt.tight_layout()
     plt.savefig(f'scenario_5_cum_mcs{mcs}_dsta{distance_sta}.pdf', bbox_inches='tight')
     plt.clf()
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     # Run the simulation
     print(f"=== MCS {mcs}, d_sta {distance_sta} m ===")
     mean_external_4, mean_internal_4, mean_external_2, mean_internal_2, mean_external_3, mean_single = [], [], [], [], [], []
-    distances_ap = jnp.logspace(1, 2.0, res, base=10)
+    distances_ap = jnp.logspace(jnp.log10(5), jnp.log10(100), res, base=10)
 
     for d in distances_ap:
         rate_external_4, rate_internal_4, rate_external_2, rate_internal_2, rate_external_3, rate_single = run(
