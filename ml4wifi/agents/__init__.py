@@ -197,7 +197,7 @@ class MapcAgentFactory:
         """
 
         s = sorted(list(iterable))
-        return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
+        return chain.from_iterable(combinations(s, r) for r in range(len(s), -1, -1))
 
     def _ap_group_action_to_ap_group(self, ap_group_action: int, sharing_ap: int) -> Tuple[int]:
         """
