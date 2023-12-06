@@ -3,26 +3,29 @@
   "seed": 42,
   "scenarios": [
     {
-      "name": "simple_scenario_2",
-      "n_steps": 510,
-      "params": {
-        "d_ap": 50.0,
-        "d_sta": 1.0,
-        "mcs": 11
-      }
-    },
-    {
-      "name": "simple_scenario_4",
-      "n_steps": 510,
+      "scenario": "simple_scenario_5",
+      "name": "scenario_10m",
+      "n_steps": 600,
       "params": {
         "d_ap": 10.0,
-        "d_sta": 1.0,
+        "d_sta": 2.0,
         "mcs": 11
       }
     },
     {
-      "name": "simple_scenario_5",
-      "n_steps": 510,
+      "scenario": "simple_scenario_5",
+      "name": "scenario_20m",
+      "n_steps": 600,
+      "params": {
+        "d_ap": 20.0,
+        "d_sta": 2.0,
+        "mcs": 11
+      }
+    },
+    {
+      "scenario": "simple_scenario_5",
+      "name": "scenario_25m_long",
+      "n_steps": 3000,
       "params": {
         "d_ap": 25.0,
         "d_sta": 2.0,
@@ -34,16 +37,16 @@
     {
       "name": "EGreedy",
       "params": {
-        "e": 0.0000259311727655703,
-        "optimistic_start": 4285.075911130752
+        "e": 8.974340621936476e-05,
+        "optimistic_start": 556.224773955627
       }
     },
     {
       "name": "Softmax",
       "params": {
-        "lr": 25.343051104422628,
-        "tau": 0.0538548204433829,
-        "multiplier": 0.16591935458438412
+        "lr": 0.10785100246638235,
+        "tau": 0.04945024740295143,
+        "multiplier": 0.007279596507396117
       }
     },
     {
@@ -55,10 +58,10 @@
     {
       "name": "NormalThompsonSampling",
       "params": {
-        "alpha": 0.0053060073566330536,
-        "beta": 0.7951820353529595,
-        "lam": 0.023229996380157884,
-        "mu": 8332.296208260148
+        "alpha": 0.019516320124044913,
+        "beta": 0.16564396108473348,
+        "lam": 0.0229072861070796,
+        "mu": 431.30471566429713
       }
     }
   ]

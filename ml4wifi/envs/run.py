@@ -8,7 +8,7 @@ from reinforced_lib.agents.mab import *
 from tqdm import tqdm
 
 from ml4wifi.agents import MapcAgentFactory
-from ml4wifi.agents.thompson_sampling import NormalThompsonSampling, LogNormalThompsonSampling
+from ml4wifi.agents.thompson_sampling import NormalThompsonSampling
 from ml4wifi.envs.scenarios.static import *
 
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     all_results = []
 
     for scenario_config in tqdm(config['scenarios'], desc='Scenarios'):
-        scenario = globals()[scenario_config['name']](**scenario_config['params'])
+        scenario = globals()[scenario_config['scenario']](**scenario_config['params'])
 
         associations = scenario.get_associations()
         scenario_results = []
