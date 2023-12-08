@@ -117,7 +117,7 @@ def plot_cumulative():
 
     plt.xscale('log')
     plt.xticks([10, 20, 25, 100], [10, 20, 25, 100])
-    plt.xlabel('Inter-AP distance [m]')
+    plt.xlabel(r'$d$ [m]')
     plt.ylim(0, 600)
     plt.ylabel('Effective data rate [Mb/s]')
     # plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
