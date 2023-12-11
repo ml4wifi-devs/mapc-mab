@@ -4,9 +4,9 @@ import jax
 import numpy as np
 import tensorflow_probability.substrates.jax as tfp
 from reinforced_lib import RLib
+from reinforced_lib.exts import BasicMab
 
 from ml4wifi.agents.thompson_sampling import NormalThompsonSampling, LogNormalThompsonSampling
-from ml4wifi.envs.sim import MapcSimExt
 
 tfd = tfp.distributions
 
@@ -49,7 +49,7 @@ class TSTestCase(unittest.TestCase):
         rl = RLib(
             agent_type=NormalThompsonSampling,
             agent_params={'alpha': 1., 'beta': 1., 'lam': 2., 'mu': 0.},
-            ext_type=MapcSimExt,
+            ext_type=BasicMab,
             ext_params={'n_arms': 4}
         )
         a = rl.sample(reward=1.0)
@@ -59,7 +59,7 @@ class TSTestCase(unittest.TestCase):
         rl = RLib(
             agent_type=LogNormalThompsonSampling,
             agent_params={'alpha': 1., 'beta': 1., 'lam': 2., 'mu': 0.},
-            ext_type=MapcSimExt,
+            ext_type=BasicMab,
             ext_params={'n_arms': 4}
         )
         a = rl.sample(reward=1.0)

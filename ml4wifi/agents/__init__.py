@@ -4,8 +4,7 @@ from typing import Dict, List, Callable, Iterable, Tuple
 import numpy as np
 from chex import Array, Scalar, Shape
 from reinforced_lib import RLib
-
-from ml4wifi.envs.sim import MapcSimExt
+from reinforced_lib.exts import BasicMab
 
 
 class MapcAgent:
@@ -153,7 +152,7 @@ class MapcAgentFactory:
             sta: RLib(
                 agent_type=self.agent_type,
                 agent_params=self.agent_params.copy(),
-                ext_type=MapcSimExt,
+                ext_type=BasicMab,
                 ext_params={'n_arms': 2 ** (self.n_ap - 1)}
             ) for sta in self.stations
         }
@@ -164,7 +163,7 @@ class MapcAgentFactory:
                 ap: RLib(
                     agent_type=self.agent_type,
                     agent_params=self.agent_params.copy(),
-                    ext_type=MapcSimExt,
+                    ext_type=BasicMab,
                     ext_params={'n_arms': len(self.associations[ap])}
                 ) for ap in group
             } for group in self._powerset(self.access_points)
