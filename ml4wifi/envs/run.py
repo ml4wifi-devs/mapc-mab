@@ -8,7 +8,6 @@ from reinforced_lib.agents.mab import *
 from tqdm import tqdm
 
 from ml4wifi.agents import MapcAgentFactory
-from ml4wifi.agents.thompson_sampling import NormalThompsonSampling
 from ml4wifi.envs.scenarios.static import *
 
 
