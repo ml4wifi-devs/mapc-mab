@@ -26,29 +26,6 @@ TITLES = {
 }
 
 
-def plot(names: List, data_rate: List, scenario_config: dict) -> None:
-    colors = get_cmap(len(names))
-    xs = np.linspace(0, scenario['scenario']['n_steps'], data_rate[0].shape[-1]) * TAU
-
-    if 'mcs' in scenario_config['params']:
-        plt.axhline(DATA_RATES[scenario_config['params']['mcs']], linestyle='--', color='gray', label='Single TX')
-
-    for i, (name, rate) in enumerate(zip(names, data_rate)):
-        mean, ci_low, ci_high = confidence_interval(rate)
-        plt.plot(xs, mean, marker='o', label=AGENT_NAMES.get(name, name), c=colors[i])
-        plt.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
-
-    plt.xlabel('Time [s]')
-    plt.ylabel('Effective data rate [Mb/s]')
-    plt.xlim((xs[0], xs[-1]))
-    plt.ylim(bottom=0)
-    plt.grid()
-    plt.legend(ncol=2, loc='lower right')
-    plt.tight_layout()
-    plt.savefig(f'rate-{scenario_config["name"]}.pdf', bbox_inches='tight')
-    plt.clf()
-
-
 if __name__ == '__main__':
     args = ArgumentParser()
     args.add_argument('-f', '--file', type=str, required=True)
