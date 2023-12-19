@@ -1,3 +1,6 @@
+import os
+os.environ['JAX_ENABLE_X64'] = 'True'
+
 import json
 from argparse import ArgumentParser
 from typing import List

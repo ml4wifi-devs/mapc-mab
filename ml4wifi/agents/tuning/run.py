@@ -1,3 +1,6 @@
+import os
+os.environ['JAX_ENABLE_X64'] = 'True'
+
 from argparse import ArgumentParser
 from functools import partial
 
