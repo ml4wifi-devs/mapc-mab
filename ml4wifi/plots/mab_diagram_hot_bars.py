@@ -21,6 +21,7 @@ def get_hot_bar(value, fontsize=22):
 
 
 if __name__ == "__main__":
+    plt.rcParams["font.family"] = "serif"
     get_hot_bar(0.2)
     get_hot_bar(0.9)
     get_hot_bar(0.5)
