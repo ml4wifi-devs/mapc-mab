@@ -1,3 +1,6 @@
+import os
+os.environ['JAX_ENABLE_X64'] = 'True'
+
 from argparse import ArgumentParser
 from functools import partial
 
@@ -6,7 +9,6 @@ import optuna
 from reinforced_lib.agents.mab import *
 
 from ml4wifi.agents import MapcAgentFactory
-from ml4wifi.agents.thompson_sampling import NormalThompsonSampling
 from ml4wifi.envs.run import run_scenario
 from ml4wifi.envs.scenarios.static import random_scenario
 
@@ -46,9 +48,9 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int) -> float:
         agent_type = NormalThompsonSampling
         agent_params = {
             'alpha': trial.suggest_float('alpha', 1e-2, 1e3, log=True),
-            'beta': trial.suggest_float('beta', 1e-2, 1e4, log=True),
-            'lam': trial.suggest_float('lam', 1e-3, 1e3, log=True),
-            'mu': trial.suggest_float('mu', 1e-2, 5e4, log=True)
+            'beta': trial.suggest_float('beta', 1e-3, 1e3, log=True),
+            'lam': trial.suggest_float('lam', 1e-4, 1e2, log=True),
+            'mu': trial.suggest_float('mu', 1e-1, 5e4, log=True)
         }
     else:
         raise ValueError(f'Unknown agent {agent}')

@@ -20,9 +20,6 @@ WALL_LOSS = 7.
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
 
-# Based on ns-3 static simulations with 1 station, ideal channel, and constant MCS
-AMPDU_SIZES = jnp.array([3, 6, 9, 12, 18, 25, 28, 31, 37, 41, 41, 41], dtype=jnp.float32)
-
 # Agent application interval.
 TAU = 5.484 * 1e-3  # (s) https://ieeexplore.ieee.org/document/8930559
 FRAME_LEN = jnp.asarray(1500 * 8)
@@ -39,8 +36,9 @@ def path_loss(distance: Array, walls: Array) -> Array:
     return (40.05 + 20 * jnp.log10((jnp.minimum(distance, BREAKING_POINT) * CENTRAL_FREQUENCY) / 2.4) +
             (distance > BREAKING_POINT) * 35 * jnp.log10(distance / BREAKING_POINT) + WALL_LOSS * walls)
 
+
 def _logsumexp_db(a:Array, b:Array)->Array:
-    """
+    r"""
     Computes :ref:`jax.nn.logsumexp` for dB i.e. :math:`10log_10(\sum_i b_i 10^{a_i/10})`
 
     This function is equivalent to
@@ -62,11 +60,12 @@ def _logsumexp_db(a:Array, b:Array)->Array:
     Returns
     -------
     Array
-
-
+        `logsumexp` for dB
     """
+
     LOG10DIV10 = jnp.log(10.) / 10.
-    return jax.nn.logsumexp(a=LOG10DIV10*a, b=b)/LOG10DIV10
+    return jax.nn.logsumexp(a=LOG10DIV10 * a, b=b) / LOG10DIV10
+
 
 def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
     """
@@ -111,14 +110,9 @@ def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power:
     signal_power = jnp.where(jnp.isinf(signal_power), 0., signal_power)
 
     interference_matrix = jnp.ones_like(tx) * tx.sum(axis=0) * tx.sum(axis=-1, keepdims=True) * (1 - tx)
-    a = jnp.concatenate([signal_power, jnp.full((1, signal_power.shape[1]),
-                                                fill_value=NOISE_FLOOR)],
-                        axis=0)
-    b = jnp.concatenate(
-        [interference_matrix, jnp.ones((1, interference_matrix.shape[1]))],
-        axis=0)
+    a = jnp.concatenate([signal_power, jnp.full((1, signal_power.shape[1]), fill_value=NOISE_FLOOR)], axis=0)
+    b = jnp.concatenate([interference_matrix, jnp.ones((1, interference_matrix.shape[1]))], axis=0)
     interference = jax.vmap(_logsumexp_db, in_axes=(1, 1))(a, b)
-
 
     sinr = signal_power - interference
     sinr = sinr + tfd.Normal(loc=jnp.zeros_like(signal_power), scale=sigma).sample(seed=normal_key)
