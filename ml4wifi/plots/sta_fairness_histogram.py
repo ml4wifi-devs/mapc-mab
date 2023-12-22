@@ -41,8 +41,8 @@ if __name__ == '__main__':
     with open(args.file, 'r') as file:
         results = json.load(file)
     
-    scenario = filter(lambda x: x['scenario']['name'] == args.scenario, results)[0] if args.scenario else results[0]
-    agent = filter(lambda x: x['agent']['name'] == args.agent, scenario['agents'])[0] if args.agent else scenario['agents'][0]
+    scenario = list(filter(lambda x: x['scenario']['name'] == args.scenario, results))[0] if args.scenario else results[0]
+    agent = list(filter(lambda x: x['agent']['name'] == args.agent, scenario['agents']))[0] if args.agent else scenario['agents'][0]
     n_runs = len(agent['runs'])
     txops_slots = scenario['scenario']['n_steps'] - args.warmup
 
