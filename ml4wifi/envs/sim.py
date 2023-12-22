@@ -20,11 +20,12 @@ WALL_LOSS = 7.
 # Data rates for IEEE 802.11ax standard, 20 MHz channel width, 1 spatial stream, and 800 ns GI
 DATA_RATES = jnp.array([8.6, 17.2, 25.8, 34.4, 51.6, 68.8, 77.4, 86.0, 103.2, 114.7, 129.0, 143.2])
 
-# Agent application interval.
-TAU = 5.484 * 1e-3  # (s) https://ieeexplore.ieee.org/document/8930559
+# Tx slot duration
+TAU = 5.484 * 1e-3          # (s) https://ieeexplore.ieee.org/document/8930559
 FRAME_LEN = jnp.asarray(1500 * 8)
 
-# Based on ns-3 simulations with LogDistance channel model
+# Parameters of the success probability curves - mean of the normal distribution with standard deviation of 2
+# (derived from ns-3 simulations)
 MEAN_SNRS = jnp.array([
     10.613624240405125, 10.647249582547907, 10.660723984151614, 10.682584060100158,
     11.151267538857537, 15.413200906170632, 16.735812667249125, 18.091175930406580,
@@ -70,12 +71,13 @@ def _logsumexp_db(a:Array, b:Array)->Array:
 def network_data_rate(key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array, sigma: Scalar, walls: Array) -> Scalar:
     """
     Calculates the aggregated effective data rate based on the nodes' positions, MCS, and tx power.
-    Channel is modeled using log-distance path loss model with additive white Gaussian noise. Effective
+    Channel is modeled using TGax channel model with additive white Gaussian noise. Effective
     data rate is calculated as the sum of data rates of all successful transmissions. Success of
-    a transmission is  Bernoulli random variable with success probability depending on the SINR. SINR is
-    calculated as the difference between the signal power and the interference level which is calculated
-    as the sum of the signal powers of all interfering nodes and the noise floor. **Attention:** This
-    simulation does not support multiple simultaneous transmissions to the same node.
+    a transmission is a Binomial random variable with success probability depending on the SINR and
+    number of trials equal to the number of frames in the slot. SINR is calculated as the difference
+    between the signal power and the interference level. Interference level is calculated as the sum
+    of the signal powers of all interfering nodes and the noise floor in the linear scale. **Attention:**
+    This simulation does not support multiple simultaneous transmissions to the same node.
 
     Parameters
     ----------
