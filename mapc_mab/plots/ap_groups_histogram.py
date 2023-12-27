@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from typing import List
 
-from ml4wifi import plots
+from mapc_mab import plots
 
 APS_NAMES = string.ascii_uppercase
 

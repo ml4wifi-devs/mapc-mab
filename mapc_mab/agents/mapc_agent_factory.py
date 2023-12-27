@@ -4,7 +4,7 @@ from typing import Dict, List, Iterable, Tuple
 from reinforced_lib import RLib
 from reinforced_lib.exts import BasicMab
 
-from ml4wifi.agents.mapc_agent import MapcAgent
+from mapc_mab.agents.mapc_agent import MapcAgent
 
 
 class MapcAgentFactory:

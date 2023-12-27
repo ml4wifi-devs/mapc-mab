@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_data_rate, _logsumexp_db
+from mapc_mab.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_data_rate, _logsumexp_db
 
 
 class SimTestCase(unittest.TestCase):

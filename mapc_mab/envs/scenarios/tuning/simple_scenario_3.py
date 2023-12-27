@@ -2,8 +2,8 @@ import jax
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 
-from ml4wifi.envs.scenarios.static import *
-from ml4wifi.plots.config import get_cmap
+from mapc_mab.envs.scenarios.static import *
+from mapc_mab.plots.config import get_cmap
 
 
 COLORS = get_cmap(4)

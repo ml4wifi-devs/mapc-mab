@@ -4,7 +4,7 @@ import unittest
 import jax
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.scenarios.static import *
+from mapc_mab.envs.scenarios.static import *
 
 
 class ScenarioClassTestCase(unittest.TestCase):

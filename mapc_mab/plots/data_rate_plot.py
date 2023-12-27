@@ -5,9 +5,9 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.sim import DATA_RATES, TAU
-from ml4wifi.plots.config import AGENT_NAMES, get_cmap
-from ml4wifi.plots.utils import confidence_interval
+from mapc_mab.envs.sim import DATA_RATES, TAU
+from mapc_mab.plots.config import AGENT_NAMES, get_cmap
+from mapc_mab.plots.utils import confidence_interval
 
 
 def plot(names: List, data_rate: List, scenario_config: dict) -> None:

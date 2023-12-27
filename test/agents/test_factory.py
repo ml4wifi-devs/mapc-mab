@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from reinforced_lib.agents.mab import UCB
 
-from ml4wifi.envs.scenarios.static import simple_scenario_2
-from ml4wifi.agents import MapcAgentFactory
+from mapc_mab.envs.scenarios.static import simple_scenario_2
+from mapc_mab.agents import MapcAgentFactory
 
 
 class ScenarioClassTestCase(unittest.TestCase):

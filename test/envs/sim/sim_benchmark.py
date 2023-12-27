@@ -2,7 +2,7 @@ import timeit
 
 import jax
 import jax.numpy as jnp
-from ml4wifi.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_data_rate
+from mapc_mab.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA, network_data_rate
 import numpy as np
 
 

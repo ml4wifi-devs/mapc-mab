@@ -8,9 +8,9 @@ import numpy as np
 import optuna
 from reinforced_lib.agents.mab import *
 
-from ml4wifi.agents import MapcAgentFactory
-from ml4wifi.envs.run import run_scenario
-from ml4wifi.envs.scenarios.static import random_scenario
+from mapc_mab.agents import MapcAgentFactory
+from mapc_mab.envs.run import run_scenario
+from mapc_mab.envs.scenarios.static import random_scenario
 
 
 TRAINING_SCENARIOS = [

@@ -10,8 +10,8 @@ import numpy as np
 from reinforced_lib.agents.mab import *
 from tqdm import tqdm
 
-from ml4wifi.agents import MapcAgentFactory
-from ml4wifi.envs.scenarios.static import *
+from mapc_mab.agents import MapcAgentFactory
+from mapc_mab.envs.scenarios.static import *
 
 
 def run_scenario(
