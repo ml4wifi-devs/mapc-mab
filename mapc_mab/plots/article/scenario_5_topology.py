@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.scenarios import StaticScenario
-from ml4wifi.envs.scenarios.static import simple_scenario_5
-from ml4wifi.plots.config import get_cmap
+from mapc_mab.envs.scenarios import StaticScenario
+from mapc_mab.envs.scenarios.static import simple_scenario_5
+from mapc_mab.plots.config import get_cmap
 
 
 def plot(scenario: StaticScenario, filename: str) -> None:
