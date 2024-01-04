@@ -10,9 +10,11 @@ keywords = ["802.11", "multi-access point coordination", "machine learning", "mu
 authors = [
   {name = "Maksymilian Wojnar", email = "maksymilian.wojnar@agh.edu.pl"},
   {name = "Wojciech Ciężobka", email = "wojciech.ciezobka@agh.edu.pl"},
-  {name = "Szymon Szott", email = "szymon.szott@agh.edu.pl"},
   {name = "Katarzyna Kosek-Szott", email = "katarzyna.kosek-szott@agh.edu.pl"},
-  {name = "Krzysztof Rusek", email = "krzysztof.rusek@agh.edu.pl"}
+  {name = "Krzysztof Rusek", email = "krzysztof.rusek@agh.edu.pl"},
+  {name = "Szymon Szott", email = "szymon.szott@agh.edu.pl"},
+  {name = "David Nunez", email = "david.nunez@upf.edu"},
+  {name = "Boris Bellalta", email = "boris.bellalta@upf.edu"}
 ]
 
 requires-python = ">=3.9"

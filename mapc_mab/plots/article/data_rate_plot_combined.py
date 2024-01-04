@@ -1,6 +1,5 @@
 import json
 from argparse import ArgumentParser
-from typing import List
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +7,7 @@ import matplotlib.pyplot as plt
 from mapc_mab.envs.sim import DATA_RATES, TAU
 from mapc_mab.plots.config import AGENT_NAMES, COLUMN_WIDTH, COLUMN_HIGHT, get_cmap
 from mapc_mab.plots.utils import confidence_interval
+
 
 plt.rcParams.update({
     'figure.figsize': (3 * COLUMN_WIDTH, COLUMN_HIGHT + 0.7),
@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
     fig, axes = plt.subplots(1, 3, sharey=True)
     fig.subplots_adjust(wspace=0.)
-
 
     for ax, scenario in zip(axes, results):
         names, data_rate = [], []
@@ -67,7 +66,6 @@ if __name__ == '__main__':
         if scenario_name == 'scenario_10m':
             ax.set_ylabel('Effective data rate [Mb/s]')
             ax.legend(ncols=2, loc='upper left')
-
 
     plt.tight_layout()
     plt.savefig(f'data-rates.pdf', bbox_inches='tight')
