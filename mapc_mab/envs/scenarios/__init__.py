@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from chex import Array, Scalar, PRNGKey
 
-from ml4wifi.envs.sim import network_data_rate, path_loss
-from ml4wifi.plots.config import get_cmap
+from mapc_mab.envs.sim import network_data_rate, path_loss
+from mapc_mab.plots.config import get_cmap
 
 
 CCA_THRESHOLD = -82.0  # IEEE Std 802.11-2020 (Revision of IEEE Std 802.11-2016), 17.3.10.6: CCA requirements

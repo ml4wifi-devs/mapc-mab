@@ -161,4 +161,4 @@ cython_debug/
 
 # Results
 results*
-ml4wifi/plots/debug_agent_notebook.ipynb
+mapc_mab/plots/debug_agent_notebook.ipynb

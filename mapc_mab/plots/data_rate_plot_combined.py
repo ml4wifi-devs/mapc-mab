@@ -5,9 +5,9 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ml4wifi.envs.sim import DATA_RATES, TAU
-from ml4wifi.plots.config import AGENT_NAMES, COLUMN_WIDTH, COLUMN_HIGHT, get_cmap
-from ml4wifi.plots.utils import confidence_interval
+from mapc_mab.envs.sim import DATA_RATES, TAU
+from mapc_mab.plots.config import AGENT_NAMES, COLUMN_WIDTH, COLUMN_HIGHT, get_cmap
+from mapc_mab.plots.utils import confidence_interval
 
 plt.rcParams.update({
     'figure.figsize': (3 * COLUMN_WIDTH, COLUMN_HIGHT + 0.7),

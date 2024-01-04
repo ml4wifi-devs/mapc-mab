@@ -1,5 +1,5 @@
 [project]
-name = "ml4wifi"
+name = "mapc_mab"
 version = "0.1.0"
 description = "MAPC (c-SR) for IEEE 802.11 networks using MAB"
 
