@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from reinforced_lib.agents.mab import UCB
 
-from mapc_mab.envs.scenarios.static import simple_scenario_2
+from mapc_mab.envs.static_scenarios import simple_scenario_2
 from mapc_mab.agents import MapcAgentFactory
 
 

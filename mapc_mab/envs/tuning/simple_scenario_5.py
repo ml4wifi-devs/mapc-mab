@@ -2,7 +2,7 @@ import jax
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 
-from mapc_mab.envs.scenarios.static import *
+from mapc_mab.envs.static_scenarios import simple_scenario_5
 from mapc_mab.plots.config import get_cmap
 
 

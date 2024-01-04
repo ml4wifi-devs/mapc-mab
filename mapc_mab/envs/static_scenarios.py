@@ -1,12 +1,74 @@
-import jax.numpy as jnp
-import jax.random
-from chex import Scalar
+from functools import partial
+from typing import Dict, Optional
 
-from mapc_mab.envs.scenarios import StaticScenario
-from mapc_mab.envs.sim import DEFAULT_TX_POWER, DEFAULT_SIGMA
+import jax
+import jax.numpy as jnp
+from chex import Array, Scalar, PRNGKey
+from mapc_sim.constants import DEFAULT_TX_POWER, DEFAULT_SIGMA
+from mapc_sim.sim import network_data_rate
+
+from mapc_mab.envs.scenario import Scenario
 
 
 DEFAULT_MCS = 11
+
+
+class StaticScenario(Scenario):
+    """
+    Static scenario with fixed node positions, MCS, tx power, and noise standard deviation.
+    The configuration of parallel transmissions is variable.
+
+    Parameters
+    ----------
+    pos: Array
+        Two dimensional array of node positions. Each row corresponds to X and Y coordinates of a node.
+    mcs: int
+        Modulation and coding scheme of the nodes. Each entry corresponds to a node.
+    tx_power: Scalar
+        Transmission power of the nodes. Each entry corresponds to a node.
+    sigma: Scalar
+        Standard deviation of the additive white Gaussian noise.
+    associations: Dict
+        Dictionary of associations between access points and stations.
+    walls: Optional[Array]
+        Adjacency matrix of walls. Each entry corresponds to a node.
+    walls_pos: Optional[Array]
+        Two dimensional array of wall positions. Each row corresponds to X and Y coordinates of a wall.
+    """
+
+    def __init__(
+            self,
+            pos: Array,
+            mcs: int,
+            tx_power: Scalar,
+            sigma: Scalar,
+            associations: Dict,
+            walls: Optional[Array] = None,
+            walls_pos: Optional[Array] = None
+    ) -> None:
+        super().__init__(associations, walls, walls_pos)
+
+        self.pos = pos
+        self.mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
+        self.tx_power = jnp.ones(pos.shape[0]) * tx_power
+
+        self.data_rate_fn = jax.jit(partial(
+            network_data_rate,
+            pos=self.pos,
+            mcs=self.mcs,
+            tx_power=self.tx_power,
+            sigma=sigma,
+            walls=self.walls
+        ))
+
+    def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
+        return self.data_rate_fn(key, tx)
+
+    def plot(self, filename: str = None) -> None:
+        super().plot(self.pos, filename)
+
+    def is_cca_single_tx(self) -> bool:
+        return super().is_cca_single_tx(self.pos, self.tx_power)
 
 
 def simple_scenario_1(
@@ -166,25 +228,25 @@ def simple_scenario_4(
             # If both are APs
             if i in aps and j in aps:
                 walls = walls.at[i, j].set(i != j)
-            
+
             # If i is an AP
             elif i in aps:
                 for ap_j in set(aps) - {i}:
                     for sta in associations[ap_j]:
                         walls = walls.at[i, sta].set(True)
-            
+
             # If j is an AP
             elif j in aps:
                 for ap_i in set(aps) - {j}:
                     for sta in associations[ap_i]:
                         walls = walls.at[sta, j].set(True)
-            
+
             # If both are STAs
             else:
                 for ap in aps:
                     if i in associations[ap] and j in associations[ap]:
                         walls = walls.at[i, j].set(False)
-    
+
     # Walls positions
     walls_pos = jnp.array([
         [-d_ap / 2, d_ap / 2, d_ap + d_ap / 2, d_ap / 2],
@@ -209,11 +271,11 @@ def simple_scenario_5(
     STA 13   STA 14         |         STA 9    STA 10
                             |
     ------------------------+------------------------
-                             
+
     STA 4    STA 3                    STA 8    STA 7
-                             
+
          AP A                              AP B
-                             
+
     STA 1    STA 2                    STA 5    STA 6
     """
 
@@ -248,25 +310,25 @@ def simple_scenario_5(
             # If both are APs
             if i in aps and j in aps:
                 walls = walls.at[i, j].set(i != j)
-            
+
             # If i is an AP
             elif i in aps:
                 for ap_j in set(aps) - {i}:
                     for sta in associations[ap_j]:
                         walls = walls.at[i, sta].set(True)
-            
+
             # If j is an AP
             elif j in aps:
                 for ap_i in set(aps) - {j}:
                     for sta in associations[ap_i]:
                         walls = walls.at[sta, j].set(True)
-            
+
             # If both are STAs
             else:
                 for ap in aps:
                     if i in associations[ap] and j in associations[ap]:
                         walls = walls.at[i, j].set(False)
-    
+
     # - Remove wall between AP A and AP B
     walls = walls.at[:2, :2].set(False)
     walls = walls.at[1, 4:8].set(False)
@@ -274,7 +336,7 @@ def simple_scenario_5(
     walls = walls.at[0, 8:12].set(False)
     walls = walls.at[8:12, 0].set(False)
     walls = walls.at[4:12, 4:12].set(False)
-    
+
     # Walls positions
     walls_pos = jnp.array([
         [-d_ap / 2, d_ap / 2, d_ap + d_ap / 2, d_ap / 2],

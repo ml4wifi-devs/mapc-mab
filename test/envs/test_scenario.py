@@ -2,9 +2,10 @@ import os
 import unittest
 
 import jax
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from mapc_mab.envs.scenarios.static import *
+from mapc_mab.envs.static_scenarios import simple_scenario_1, simple_scenario_2, simple_scenario_3, random_scenario
 
 
 class ScenarioClassTestCase(unittest.TestCase):

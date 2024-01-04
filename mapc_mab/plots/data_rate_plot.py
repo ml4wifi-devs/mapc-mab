@@ -4,8 +4,8 @@ from typing import List
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mapc_sim.constants import DATA_RATES, TAU
 
-from mapc_mab.envs.sim import DATA_RATES, TAU
 from mapc_mab.plots.config import AGENT_NAMES, get_cmap
 from mapc_mab.plots.utils import confidence_interval
 
