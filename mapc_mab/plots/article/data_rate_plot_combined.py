@@ -11,7 +11,7 @@ from mapc_mab.plots.utils import confidence_interval
 
 plt.rcParams.update({
     'figure.figsize': (3 * COLUMN_WIDTH, COLUMN_HIGHT + 0.7),
-    'legend.fontsize': 9
+    'legend.fontsize': 10
 })
 
 AGGREGATE_STEPS = {
@@ -57,14 +57,15 @@ if __name__ == '__main__':
             ax.plot(xs, mean, marker='o', label=AGENT_NAMES.get(name, name), c=colors[i])
             ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
 
-        ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=15)
-        ax.set_xlabel('Time [s]')
+        ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
+        ax.set_xlabel('Time [s]', fontsize=12)
         ax.set_xlim((xs[0], xs[-1]))
         ax.set_ylim(bottom=0, top=325)
+        ax.tick_params(axis='both', which='both', labelsize=10)
         ax.grid()
 
         if scenario_name == 'scenario_10m':
-            ax.set_ylabel('Effective data rate [Mb/s]')
+            ax.set_ylabel('Effective data rate [Mb/s]', fontsize=12)
             ax.legend(ncols=2, loc='upper left')
 
     plt.tight_layout()
