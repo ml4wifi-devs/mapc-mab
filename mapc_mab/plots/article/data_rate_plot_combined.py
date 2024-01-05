@@ -3,8 +3,8 @@ from argparse import ArgumentParser
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mapc_sim.constants import DATA_RATES, TAU
 
-from mapc_mab.envs.sim import DATA_RATES, TAU
 from mapc_mab.plots.config import AGENT_NAMES, COLUMN_WIDTH, COLUMN_HIGHT, get_cmap
 from mapc_mab.plots.utils import confidence_interval
 

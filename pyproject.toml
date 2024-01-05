@@ -1,11 +1,11 @@
 [project]
 name = "mapc_mab"
-version = "0.1.0"
-description = "MAPC (c-SR) for IEEE 802.11 networks using MAB"
+version = "1.0.0"
+description = "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchical Multi-Armed Bandits"
 
 readme = "README.md"
 license = {file = "LICENSE"}
-keywords = ["802.11", "multi-access point coordination", "machine learning", "multi-armed bandits"]
+keywords = ["coordinated spatial reuse", "multi-armed bandits", "machine learning", "reinforcement learning"]
 
 authors = [
   {name = "Maksymilian Wojnar", email = "maksymilian.wojnar@agh.edu.pl"},
@@ -20,14 +20,14 @@ authors = [
 requires-python = ">=3.9"
 dependencies = [
   "chex~=0.1.85",
-  "jax~=0.4.21",
-  "jaxlib~=0.4.21",
+  "jax~=0.4.23",
+  "jaxlib~=0.4.23",
+  "mapc-sim~=0.1.1",
+  "matplotlib~=3.8.2",
   "optuna~=3.5.0",
   "optuna-dashboard~=0.14.0",
-  "seaborn~=0.13.0",
   "reinforced-lib==1.0.4",
-  "tqdm~=4.66.1",
-  "tensorflow-probability[jax]~=0.22.1"
+  "tqdm~=4.66.1"
 ]
 
 [build-system]

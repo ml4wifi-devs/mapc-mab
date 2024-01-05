@@ -10,7 +10,7 @@ from reinforced_lib.agents.mab import *
 
 from mapc_mab.agents import MapcAgentFactory
 from mapc_mab.envs.run import run_scenario
-from mapc_mab.envs.scenarios.static import random_scenario
+from mapc_mab.envs.static_scenarios import random_scenario
 
 
 TRAINING_SCENARIOS = [

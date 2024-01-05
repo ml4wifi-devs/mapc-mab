@@ -11,7 +11,7 @@ from reinforced_lib.agents.mab import *
 from tqdm import tqdm
 
 from mapc_mab.agents import MapcAgentFactory
-from mapc_mab.envs.scenarios.static import *
+from mapc_mab.envs.static_scenarios import *
 
 
 def run_scenario(

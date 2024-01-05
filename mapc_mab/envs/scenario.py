@@ -1,15 +1,13 @@
 import string
 from abc import ABC, abstractmethod
-from functools import partial
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 
-import jax
-import jax.numpy as jnp
-import matplotlib.pyplot as plt
 import numpy as np
-from chex import Array, Scalar, PRNGKey
+from chex import Array, Scalar
+from jax import numpy as jnp
+from mapc_sim.utils import tgax_path_loss
+from matplotlib import pyplot as plt
 
-from mapc_mab.envs.sim import network_data_rate, path_loss
 from mapc_mab.plots.config import get_cmap
 
 
@@ -103,11 +101,11 @@ class Scenario(ABC):
         ap_walls = self.walls[ap_ids][:, ap_ids]
 
         distance = np.sqrt(np.sum((ap_pos[:, None, :] - ap_pos[None, ...]) ** 2, axis=-1))
-        signal_power = ap_tx_power - path_loss(distance, ap_walls)
+        signal_power = ap_tx_power - tgax_path_loss(distance, ap_walls)
         signal_power = np.where(np.isnan(signal_power), np.inf, signal_power)
 
         return np.all(signal_power > CCA_THRESHOLD)
-    
+
     def tx_matrix_to_action(self, tx_matrix: Array) -> Array:
         """
         Convert a transmission matrix to a list of transmissions. Assumes downlink.
@@ -133,95 +131,3 @@ class Scenario(ABC):
                     action[ap].append(sta)
 
         return action
-
-
-class StaticScenario(Scenario):
-    """
-    Static scenario with fixed node positions, MCS, tx power, and noise standard deviation.
-    The configuration of parallel transmissions is variable.
-
-    Parameters
-    ----------
-    pos: Array
-        Two dimensional array of node positions. Each row corresponds to X and Y coordinates of a node.
-    mcs: int
-        Modulation and coding scheme of the nodes. Each entry corresponds to a node.
-    tx_power: Scalar
-        Transmission power of the nodes. Each entry corresponds to a node.
-    sigma: Scalar
-        Standard deviation of the additive white Gaussian noise.
-    associations: Dict
-        Dictionary of associations between access points and stations.
-    walls: Optional[Array]
-        Adjacency matrix of walls. Each entry corresponds to a node.
-    walls_pos: Optional[Array]
-        Two dimensional array of wall positions. Each row corresponds to X and Y coordinates of a wall.
-    """
-
-    def __init__(
-            self,
-            pos: Array,
-            mcs: int,
-            tx_power: Scalar,
-            sigma: Scalar,
-            associations: Dict,
-            walls: Optional[Array] = None,
-            walls_pos: Optional[Array] = None
-    ) -> None:
-        super().__init__(associations, walls, walls_pos)
-
-        self.pos = pos
-        self.mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
-        self.tx_power = jnp.ones(pos.shape[0]) * tx_power
-
-        self.data_rate_fn = jax.jit(partial(
-            network_data_rate,
-            pos=self.pos,
-            mcs=self.mcs,
-            tx_power=self.tx_power,
-            sigma=sigma,
-            walls=self.walls
-        ))
-
-    def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
-        return self.data_rate_fn(key, tx)
-
-    def plot(self, filename: str = None) -> None:
-        super().plot(self.pos, filename)
-
-    def is_cca_single_tx(self) -> bool:
-        return super().is_cca_single_tx(self.pos, self.tx_power)
-
-
-class DynamicScenario(Scenario):
-    """
-    Dynamic scenario with fixed noise standard deviation. The configuration of node positions, MCS,
-    and tx power is variable.
-
-    Parameters
-    ----------
-    sigma: Scalar
-        Standard deviation of the additive white Gaussian noise.
-    associations: Dict
-        Dictionary of associations between access points and stations.
-    walls: Optional[Array]
-        Adjacency matrix of walls. Each entry corresponds to a node.
-    walls_pos: Optional[Array]
-        Two dimensional array of wall positions. Each row corresponds to X and Y coordinates of a wall.
-    """
-
-    def __init__(
-            self,
-            sigma: Scalar,
-            associations: Dict,
-            walls: Optional[Array] = None,
-            walls_pos: Optional[Array] = None
-    ) -> None:
-        super().__init__(associations, walls, walls_pos)
-        self.data_rate_fn = jax.jit(partial(network_data_rate, sigma=sigma, walls=self.walls))
-
-    def __call__(self, key: PRNGKey, tx: Array, pos: Array, mcs: Array, tx_power: Array) -> Scalar:
-        return self.data_rate_fn(key, tx, pos, mcs, tx_power)
-
-    def plot(self, pos: Array, filename: str = None) -> None:
-        super().plot(pos, filename)
