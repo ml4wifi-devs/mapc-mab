@@ -26,8 +26,9 @@ def plot(scenario: StaticScenario, filename: str) -> None:
     ax.set_yticks([-10, 0, 10, 20, 30])
     ax.set_xticklabels(['', '0', '', r'$d$', ''])
     ax.set_yticklabels(['', '0', '', r'$d$', ''])
-    ax.set_xlabel('X [m]')
-    ax.set_ylabel('Y [m]')
+    ax.tick_params(axis='both', which='both', labelsize=10)
+    ax.set_xlabel('X [m]', fontsize=12)
+    ax.set_ylabel('Y [m]', fontsize=12)
     ax.set_aspect('equal')
     ax.grid()
 

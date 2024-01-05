@@ -106,9 +106,10 @@ def run(distance_ap: int, distance_sta: int, mcs: int = 11, seed: int = 42, plot
 
 
 def plot_cumulative():
+    plt.rcParams.update({'figure.figsize': (4.0075, 3.4)})
     plt.plot(distances_ap, mean_external_4, label='Four APs', color=COLORS[0])
     plt.plot(distances_ap, mean_external_3, label='Three APs', color=COLORS[2])
-    plt.plot(distances_ap, mean_external_2, label='Two APs (diagonal)', color=COLORS[4])
+    plt.plot(distances_ap, mean_external_2, label='Two APs', color=COLORS[4])
     plt.plot(distances_ap, mean_single, label='One AP', color='black', linestyle='--')
 
     # Plot red vertical line at distance 10m, 20 m and 25m
@@ -118,14 +119,15 @@ def plot_cumulative():
 
     plt.xscale('log')
     plt.xticks([10, 20, 25, 100], [10, 20, 25, 100])
-    plt.xlabel(r'$d$ [m]')
+    plt.tick_params(axis='both', which='both', labelsize=12)
+    plt.xlabel(r'$d$ [m]', fontsize=18)
     plt.ylim(0, 600)
-    plt.ylabel('Effective data rate [Mb/s]')
+    plt.ylabel('Effective data rate [Mb/s]', fontsize=18)
     # plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper left', handlelength=1, fontsize=14)
     plt.grid(which='major')
     plt.tight_layout()
-    plt.savefig(f'scenario_5_cum_mcs{mcs}_dsta{distance_sta}.pdf', bbox_inches='tight')
+    plt.savefig(f'scenario5-alignment.pdf', bbox_inches='tight')
     plt.clf()
 
 
