@@ -130,6 +130,21 @@ def plot_cumulative():
     plt.savefig(f'scenario5-alignment.pdf', bbox_inches='tight')
     plt.clf()
 
+def save_results(path: str):
+
+    upper_bound = jnp.max(jnp.stack([
+        jnp.asarray(mean_single),
+        jnp.asarray(mean_external_2),
+        jnp.asarray(mean_external_3),
+        jnp.asarray(mean_external_4)
+    ]), axis=0)
+    jnp.save(f"{path}/alignment-distances.npy", distances_ap)
+    jnp.save(f"{path}/alignment-upper-bound.npy", upper_bound)
+    jnp.save(f"{path}/alignment-mean-single.npy", (jnp.asarray(mean_single)))
+    jnp.save(f"{path}/alignment-mean-external-2.npy", (jnp.asarray(mean_external_2)))
+    jnp.save(f"{path}/alignment-mean-external-3.npy", (jnp.asarray(mean_external_3)))
+    jnp.save(f"{path}/alignment-mean-external-4.npy", (jnp.asarray(mean_external_4)))
+
 
 if __name__ == "__main__":
 
@@ -139,6 +154,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--distance_sta", type=float, help="Distance between AP and STA [m]")
     parser.add_argument("-r", "--resolution", type=int, default=50, help="The distance space resolution to search")
     parser.add_argument("-p", "--plot", action="store_true", help="Plot effective data rate")
+    parser.add_argument("--save-path", type=str, default="./", help="Path to save results")
 
     # Parse arguments
     args = parser.parse_args()
@@ -146,11 +162,12 @@ if __name__ == "__main__":
     distance_sta = args.distance_sta
     res = args.resolution
     plot_flag = args.plot
+    save_path = args.save_path
 
     # Run the simulation
     print(f"=== MCS {mcs}, d_sta {distance_sta} m ===")
     mean_external_4, mean_internal_4, mean_external_2, mean_internal_2, mean_external_3, mean_single = [], [], [], [], [], []
-    distances_ap = jnp.logspace(jnp.log10(5), jnp.log10(100), res, base=10)
+    distances_ap = jnp.logspace(jnp.log10(4), jnp.log10(100), res, base=10)
 
     for d in distances_ap:
         rate_external_4, rate_internal_4, rate_external_2, rate_internal_2, rate_external_3, rate_single = run(
@@ -165,6 +182,9 @@ if __name__ == "__main__":
         print(f"Distance {d:.3f}m: ", end="")
         print(f"{rate_external_4:.2f} > {rate_internal_4:.2f} > {rate_external_2:.2f} > {rate_internal_2:.2f} > {rate_external_3:.2f} > {rate_single:.2f}")
     
+    # Save results
+    save_results(path=save_path)
+
     # Plot effective data rate
     plot_cumulative()
 
