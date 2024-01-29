@@ -5,7 +5,7 @@ description = "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchica
 
 readme = "README.md"
 license = {file = "LICENSE"}
-keywords = ["coordinated spatial reuse", "multi-armed bandits", "machine learning", "reinforcement learning"]
+keywords = ["802.11", "coordinated spatial reuse", "multi-armed bandits", "machine learning", "reinforcement learning"]
 
 authors = [
   {name = "Maksymilian Wojnar", email = "maksymilian.wojnar@agh.edu.pl"},
@@ -22,7 +22,7 @@ dependencies = [
   "chex~=0.1.85",
   "jax~=0.4.23",
   "jaxlib~=0.4.23",
-  "mapc-sim~=0.1.1",
+  "mapc-sim~=0.1.5",
   "matplotlib~=3.8.2",
   "optuna~=3.5.0",
   "optuna-dashboard~=0.14.0",
