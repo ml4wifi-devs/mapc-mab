@@ -13,31 +13,15 @@ cd mapc-mab   # Project root where the .toml file is located
 pip install .
 ```
 
-A complete list of dependencies, provided also in [pyproject.toml](https://github.com/ml4wifi-devs/mapc-mab/blob/main/pyproject.toml):
-```
-chex~=0.1.85
-jax~=0.4.23
-jaxlib~=0.4.23
-mapc-sim~=0.1.5
-matplotlib~=3.8.2
-optuna~=3.5.0
-optuna-dashboard~=0.14.0
-reinforced-lib==1.0.4
-tqdm~=4.66.1
-```
+A complete list of dependencies is also provided in [pyproject.toml](https://github.com/ml4wifi-devs/mapc-mab/blob/main/pyproject.toml).
 
-### Installation of the Simulator
+### MAPC Simulator
 
-`mapc-mab` uses a dedicated network simulator for evaluation of the agents. The simulator `mapc-sim` is published as a [pip package](https://pypi.org/project/mapc-sim/) and can be installed with the following command:
+`mapc-mab` uses a dedicated network simulator for the evaluation of the agents. [The simulator](https://github.com/ml4wifi-devs/mapc-sim) is published as a [pip package](https://pypi.org/project/mapc-sim/) and is installed automatically with `mapc-mab`. 
+
+However, you can also install the simulator from the source code to allow for changes without the need to reinstall the package. To do so, follow these steps:
 
 ```bash
-pip install mapc-sim
-```
-
-You can also install the simulator from the source code to allow for modifications:
-
-```bash
-cd $WORKING_DIR
 git clone git@github.com:ml4wifi-devs/mapc-sim.git
 cd $PATH_TO_MAPC_MAB
 pip install -e $PATH_TO_MAPC_SIM
