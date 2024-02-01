@@ -1,31 +1,49 @@
-## MAPC-MAB Repository
+# MAPC-MAB Repository
 
 This repository contains the implementation of a Multi-Armed Bandit (MAB) algorithm for Multi-Access Point Coordination (MAPC). The MAB algorithm aims to solve the scheduling problem in coordinated spatial reuse (C-SR) by suggesting valid and fair AP-station pairs for simultanous transmissions. Its detailed operation and performance analysis can be found in:
 
 - Maksymilian Wojnar, Wojciech Ciezobka, Katarzyna Kosek-Szott, Krzysztof Rusek, Szymon Szott, David Nunez, and Boris Bellalta. "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchical Multi-Armed Bandits", $JOURNAL_NAME_TODO, 2024. [[TODO_PREPRINT_INSERT](https://github.com/ml4wifi-devs/mapc-mab/tree/main), [TODO_PUBLICATION_INSERT](https://github.com/ml4wifi-devs/mapc-mab/tree/main)]
-### Repository Structure
 
-The repository is organized into three main directories:
+## Installation
 
--   **envs:** This directory contains the environment part, namely the simulation scenarios, JSON configuration files and the running script.
+All the requirements can be installed automatically with the following commands:
 
-    -   `scenarios.py` contains an abstract class for simulation scenario definition and `static_scenarios.py` contains example scenarios with different network topologies (including non-line-of-sight topologies)
-    -   `default_config.json`: Example configuration file
-    -   `run.py`: Starts the simulation with the configuration given in a JSON file.
-    
--   **agents:** This directory contains the implementation of a MAB algorithm.
-    
-    -   `mapc_agent_factory.py`: Factory pattern for creating a hierarchical MAPC agent with freedom of choosing the base bandit.
-    -   `mapc_agent.py`: Base class for MAPC agents responsible for the selection of AP-stations pairs.
-    -   `tuning`: Directory with code for optimizing agent hyperparameters.
-    
--   **plots:** This directory contains scripts for plotting simulation results.
+```bash
+cd mapc-mab   # Project root where the .toml file is located
+pip install .
+```
 
-    - `article`: Scripts for generating figures used in the published article.
-    -   `article/data_rate_plot_combined.py`: It is the most important plotting feature that plots the combined results of an experiment.
-    
+A complete list of dependencies, provided also in [pyproject.toml](https://github.com/ml4wifi-devs/mapc-mab/blob/main/pyproject.toml):
+```
+chex~=0.1.85
+jax~=0.4.23
+jaxlib~=0.4.23
+mapc-sim~=0.1.5
+matplotlib~=3.8.2
+optuna~=3.5.0
+optuna-dashboard~=0.14.0
+reinforced-lib==1.0.4
+tqdm~=4.66.1
+```
 
-### Usage
+### Installation of the Simulator
+
+`mapc-mab` uses a dedicated network simulator for evaluation of the agents. The simulator `mapc-sim` is published as a [pip package](https://pypi.org/project/mapc-sim/) and can be installed with the following command:
+
+```bash
+pip install mapc-sim
+```
+
+You can also install the simulator from the source code to allow for modifications:
+
+```bash
+cd $WORKING_DIR
+git clone git@github.com:ml4wifi-devs/mapc-sim.git
+cd $PATH_TO_MAPC_MAB
+pip install -e $PATH_TO_MAPC_SIM
+```
+
+## Usage
 
 The standard workflow for running the simulation is as follows:
 
@@ -71,34 +89,31 @@ python mapc_mab/envs/run.py -c $PATH_TO_CONFIG_FILE
 
 ```bash
 python mapc_mab/plots/article/data_rate_plot_combined.py -f all_results.json
-
 ```
 
-### Requirements
-All the requirements are specified in [pyproject.toml](https://github.com/ml4wifi-devs/mapc-mab/blob/main/pyproject.toml) and can be installed automatically with the following commands:
+## Repository Structure
 
-```bash
-cd mapc-mab   # Project root where the .toml file is located
-pip install .
-```
+The repository is organized into three main directories:
 
-A complete list of dependencies, provided also in [pyproject.toml](https://github.com/ml4wifi-devs/mapc-mab/blob/main/pyproject.toml):
-```
-chex~=0.1.85
-jax~=0.4.23
-jaxlib~=0.4.23
-mapc-sim~=0.1.1
-matplotlib~=3.8.2
-optuna~=3.5.0
-optuna-dashboard~=0.14.0
-reinforced-lib==1.0.4
-tqdm~=4.66.1
-```
+-   **envs:** This directory contains the environment part, namely the simulation scenarios, JSON configuration files and the running script.
+
+    -   `scenarios.py` contains an abstract class for simulation scenario definition and `static_scenarios.py` contains example scenarios with different network topologies (including non-line-of-sight topologies)
+    -   `default_config.json`: Example configuration file
+    -   `run.py`: Starts the simulation with the configuration given in a JSON file.
+    
+-   **agents:** This directory contains the implementation of a MAB algorithm.
+    
+    -   `mapc_agent_factory.py`: Factory pattern for creating a hierarchical MAPC agent with freedom of choosing the base bandit.
+    -   `mapc_agent.py`: Base class for MAPC agents responsible for the selection of AP-stations pairs.
+    -   `tuning`: Directory with code for optimizing agent hyperparameters.
+    
+-   **plots:** This directory contains scripts for plotting simulation results.
+
+    - `article`: Scripts for generating figures used in the published article.
+    -   `article/data_rate_plot_combined.py`: It is the most important plotting feature that plots the combined results of an experiment.
 
 
-### Additional Notes
-
--   The training and evaluation of the MAPC agent is performed using a dedicated network simulator. We implemented this simulator in Python and published it as a [pip package](https://pypi.org/project/mapc-sim/) to enable other MAPC-oriented research projects.
+## Additional Notes
 
 -   The code and the simulator are written in JAX, which is an autodiff library similar to PyTorch or TensorFlow. This means that it may require additional dependencies or configurations to run properly, especially with GPU acceleration. For more information on JAX, please refer to the official [JAX repository](https://jax.readthedocs.io/en/latest/).
 
