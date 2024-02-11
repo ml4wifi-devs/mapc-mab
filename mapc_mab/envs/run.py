@@ -3,7 +3,6 @@ os.environ['JAX_ENABLE_X64'] = 'True'
 
 import json
 from argparse import ArgumentParser
-from typing import List
 
 import jax
 import numpy as np
@@ -20,9 +19,8 @@ def run_scenario(
         n_reps: int,
         n_steps: int,
         seed: int
-) -> List:
+) -> tuple[list, list]:
     key = jax.random.PRNGKey(seed)
-    np.random.seed(seed)
 
     runs = []
     actions = []
@@ -61,7 +59,9 @@ if __name__ == '__main__':
         scenario_results = []
 
         for agent_config in tqdm(config['agents'], desc='Agents', leave=False):
-            agent_factory = MapcAgentFactory(associations, globals()[agent_config['name']], agent_config['params'])
+            agent_factory = MapcAgentFactory(
+                associations, globals()[agent_config['name']], agent_config['params'], agent_config['hierarchical'], config['seed']
+            )
 
             runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], config['seed'])
             scenario_results.append({

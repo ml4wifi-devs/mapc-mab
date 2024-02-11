@@ -1,10 +1,8 @@
-from typing import Tuple
-
 import numpy as np
 from scipy.stats import t, ttest_ind
 
 
-def confidence_interval(data: np.ndarray, ci: float = 0.99) -> Tuple:
+def confidence_interval(data: np.ndarray, ci: float = 0.99) -> tuple:
     measurements = data.shape[0]
     mean = data.mean(axis=0)
     std = data.std(axis=0)

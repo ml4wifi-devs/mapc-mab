@@ -4,14 +4,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 from argparse import ArgumentParser
 from collections import defaultdict
-from typing import List
 
 from mapc_mab import plots
 
 APS_NAMES = string.ascii_uppercase
 
 
-def plot_histogram(actions: List, txops_slots: int, fairness: float, save_name: str) -> None:
+def plot_histogram(actions: list, txops_slots: int, fairness: float, save_name: str) -> None:
     n_stas = len(actions)
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.bar([x[0] for x in actions], [x[1] for x in actions])

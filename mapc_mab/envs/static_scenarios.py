@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Dict, Optional
+from typing import Optional
 
 import jax
 import jax.numpy as jnp
@@ -28,7 +28,7 @@ class StaticScenario(Scenario):
         Transmission power of the nodes. Each entry corresponds to a node.
     sigma: Scalar
         Standard deviation of the additive white Gaussian noise.
-    associations: Dict
+    associations: dict
         Dictionary of associations between access points and stations.
     walls: Optional[Array]
         Adjacency matrix of walls. Each entry corresponds to a node.
@@ -42,7 +42,7 @@ class StaticScenario(Scenario):
             mcs: int,
             tx_power: Scalar,
             sigma: Scalar,
-            associations: Dict,
+            associations: dict,
             walls: Optional[Array] = None,
             walls_pos: Optional[Array] = None
     ) -> None:

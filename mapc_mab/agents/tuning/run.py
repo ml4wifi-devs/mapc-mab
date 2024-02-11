@@ -25,7 +25,7 @@ TRAINING_SCENARIOS = [
 ]
 
 
-def objective(trial: optuna.Trial, agent: str, n_steps: int) -> float:
+def objective(trial: optuna.Trial, agent: str, n_steps: int, hierarchical: bool) -> float:
     if agent == 'EGreedy':
         agent_type = EGreedy
         agent_params = {
@@ -59,9 +59,9 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int) -> float:
 
     for step, scenario in enumerate(TRAINING_SCENARIOS):
         associations = scenario.get_associations()
-        agent_factory = MapcAgentFactory(associations, agent_type, agent_params)
+        agent_factory = MapcAgentFactory(associations, agent_type, agent_params, hierarchical, seed=42)
 
-        results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, seed=42))
+        results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, seed=42)[0])
         runs.append(results)
 
         trial.report(results, step)
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     args = ArgumentParser()
     args.add_argument('-a', '--agent', type=str, required=True)
     args.add_argument('-d', '--database', type=str, default='optuna.db')
+    args.add_argument('-f', '--flat', action='store_true', default=False)
     args.add_argument('-p', '--plot', action='store_true', default=False)
     args.add_argument('-s', '--n_steps', type=int, default=700)
     args.add_argument('-n', '--n_trials', type=int, required=True)
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     )
 
     study.optimize(
-        partial(objective, agent=args.agent, n_steps=args.n_steps),
+        partial(objective, agent=args.agent, n_steps=args.n_steps, hierarchical=not args.flat),
         n_trials=args.n_trials,
         n_jobs=-1,
         show_progress_bar=True

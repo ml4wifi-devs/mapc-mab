@@ -1,6 +1,6 @@
 import string
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Optional
 
 import numpy as np
 from chex import Array, Scalar
@@ -20,7 +20,7 @@ class Scenario(ABC):
 
     Parameters
     ----------
-    associations: Dict
+    associations: dict
         Dictionary of associations between access points and stations.
     walls: Optional[Array]
         Adjacency matrix of walls. Each entry corresponds to a node.
@@ -28,7 +28,7 @@ class Scenario(ABC):
         Two dimensional array of wall positions. Each row corresponds to X and Y coordinates of a wall.
     """
 
-    def __init__(self, associations: Dict, walls: Optional[Array] = None, walls_pos: Optional[Array] = None) -> None:
+    def __init__(self, associations: dict, walls: Optional[Array] = None, walls_pos: Optional[Array] = None) -> None:
         n_nodes = len(associations) + sum([len(n) for n in associations.values()])
         self.associations = associations
         self.walls = walls if walls is not None else jnp.zeros((n_nodes, n_nodes))
@@ -38,7 +38,7 @@ class Scenario(ABC):
     def __call__(self, *args, **kwargs) -> Scalar:
         pass
 
-    def get_associations(self) -> Dict:
+    def get_associations(self) -> dict:
         return self.associations
 
     def plot(self, pos: Array, filename: str = None) -> None:

@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from reinforced_lib.agents.mab import UCB
 
-from mapc_mab.envs.static_scenarios import simple_scenario_2
+from mapc_mab.envs.static_scenarios import simple_scenario_2, simple_scenario_5
 from mapc_mab.agents import MapcAgentFactory
 
 
-class ScenarioClassTestCase(unittest.TestCase):
+class MapcAgentFactoryTestCase(unittest.TestCase):
     def test_simple_sim(self):
         # Define test-case key and scenario
         key = jax.random.PRNGKey(42)
@@ -51,3 +51,31 @@ class ScenarioClassTestCase(unittest.TestCase):
         plt.tight_layout()
         plt.savefig('scenario_2_data_rate.pdf', bbox_inches='tight')
         plt.clf()
+
+    def test_hierarchical_agent(self):
+        scenario = simple_scenario_5()
+
+        agent_factory = MapcAgentFactory(
+            scenario.associations,
+            agent_type=UCB,
+            agent_params={'c': 500.0},
+            hierarchical=True
+        )
+        agent = agent_factory.create_mapc_agent()
+
+        for _ in range(200):
+            agent.sample(0.)
+
+    def test_flat_agent(self):
+        scenario = simple_scenario_5()
+
+        agent_factory = MapcAgentFactory(
+            scenario.associations,
+            agent_type=UCB,
+            agent_params={'c': 500.0},
+            hierarchical=False
+        )
+        agent = agent_factory.create_mapc_agent()
+
+        for _ in range(200):
+            agent.sample(0.)

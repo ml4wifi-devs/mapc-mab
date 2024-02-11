@@ -20,13 +20,13 @@ authors = [
 requires-python = ">=3.9"
 dependencies = [
   "chex~=0.1.85",
-  "jax~=0.4.23",
-  "jaxlib~=0.4.23",
+  "jax~=0.4.24",
+  "jaxlib~=0.4.24",
   "mapc-sim~=0.1.5",
   "matplotlib~=3.8.2",
   "optuna~=3.5.0",
   "optuna-dashboard~=0.14.0",
-  "reinforced-lib==1.0.4",
+  "reinforced-lib==1.1.0",
   "tqdm~=4.66.1"
 ]
 

@@ -1,6 +1,5 @@
 import json
 from argparse import ArgumentParser
-from typing import List
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +9,7 @@ from mapc_mab.plots.config import AGENT_NAMES, get_cmap
 from mapc_mab.plots.utils import confidence_interval
 
 
-def plot(names: List, data_rate: List, scenario_config: dict) -> None:
+def plot(names: list, data_rate: list, scenario_config: dict) -> None:
     colors = get_cmap(len(names))
     xs = np.linspace(0, scenario['scenario']['n_steps'], data_rate[0].shape[-1]) * TAU
 

@@ -39,7 +39,8 @@
       "params": {
         "e": 8.974340621936476e-05,
         "optimistic_start": 556.224773955627
-      }
+      },
+      "hierarchical": false
     },
     {
       "name": "Softmax",
@@ -47,13 +48,15 @@
         "lr": 0.10785100246638235,
         "tau": 0.04945024740295143,
         "multiplier": 0.007279596507396117
-      }
+      },
+      "hierarchical": false
     },
     {
       "name": "UCB",
       "params": {
         "c": 36.06720325138354
-      }
+      },
+      "hierarchical": false
     },
     {
       "name": "NormalThompsonSampling",
@@ -62,7 +65,8 @@
         "beta": 308.35636094889753,
         "lam": 0.0002314863115510709,
         "mu": 263.8448112411686
-      }
+      },
+      "hierarchical": false
     }
   ]
 }
