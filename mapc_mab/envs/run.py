@@ -67,7 +67,8 @@ if __name__ == '__main__':
             scenario_results.append({
                 'agent': {
                     'name': agent_config['name'],
-                    'params': agent_config['params']
+                    'params': agent_config['params'],
+                    'hierarchical': agent_config['hierarchical']
                 },
                 'runs': runs,
                 'actions': actions

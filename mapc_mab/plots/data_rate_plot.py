@@ -1,5 +1,6 @@
 import json
 from argparse import ArgumentParser
+from collections import defaultdict
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,24 +10,31 @@ from mapc_mab.plots.config import AGENT_NAMES, get_cmap
 from mapc_mab.plots.utils import confidence_interval
 
 
-def plot(names: list, data_rate: list, scenario_config: dict) -> None:
-    colors = get_cmap(len(names))
-    xs = np.linspace(0, scenario['scenario']['n_steps'], data_rate[0].shape[-1]) * TAU
+def plot(scenario_results: dict, scenario_config: dict, aggregate_steps: int) -> None:
+    colors = get_cmap(len(scenario_results))
+    n_points = scenario['scenario']['n_steps'] // aggregate_steps
+    xs = np.linspace(0, scenario['scenario']['n_steps'], n_points) * TAU
 
     if 'mcs' in scenario_config['params']:
         plt.axhline(DATA_RATES[scenario_config['params']['mcs']], linestyle='--', color='gray', label='Single TX')
 
-    for i, (name, rate) in enumerate(zip(names, data_rate)):
-        mean, ci_low, ci_high = confidence_interval(rate)
-        plt.plot(xs, mean, marker='o', label=AGENT_NAMES.get(name, name), c=colors[i])
-        plt.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
+    for c, (name, data) in zip(colors, scenario_results.items()):
+        for run, hierarchical in data:
+            mean, ci_low, ci_high = confidence_interval(np.asarray(run))
+
+            if hierarchical:
+                plt.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c)
+            else:
+                plt.plot(xs, mean, linestyle='--', c=c)
+
+            plt.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
 
     plt.xlabel('Time [s]')
     plt.ylabel('Effective data rate [Mb/s]')
     plt.xlim((xs[0], xs[-1]))
     plt.ylim(bottom=0)
     plt.grid()
-    plt.legend(ncol=2, loc='lower right')
+    plt.legend(ncol=2)
     plt.tight_layout()
     plt.savefig(f'rate-{scenario_config["name"]}.pdf', bbox_inches='tight')
     plt.clf()
@@ -42,11 +50,10 @@ if __name__ == '__main__':
         results = json.load(file)
 
     for scenario in results:
-        names, data_rate = [], []
+        scenario_results = defaultdict(list)
 
         for agent in scenario['agents']:
-            names.append(agent['agent']['name'])
             runs = [np.array(run).reshape((-1, args.aggregate_steps)).mean(axis=-1) for run in agent['runs']]
-            data_rate.append(np.array(runs))
+            scenario_results[agent['agent']['name']].append((runs, agent['agent']['hierarchical']))
 
-        plot(names, data_rate, scenario['scenario'])
+        plot(scenario_results, scenario['scenario'], args.aggregate_steps)

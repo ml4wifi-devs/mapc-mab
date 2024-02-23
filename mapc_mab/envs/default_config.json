@@ -40,6 +40,14 @@
         "e": 8.974340621936476e-05,
         "optimistic_start": 556.224773955627
       },
+      "hierarchical": true
+    },
+    {
+      "name": "EGreedy",
+      "params": {
+        "e": 2.6577105995944474e-05,
+        "optimistic_start": 216.7343672476142
+      },
       "hierarchical": false
     },
     {
@@ -49,12 +57,28 @@
         "tau": 0.04945024740295143,
         "multiplier": 0.007279596507396117
       },
+      "hierarchical": true
+    },
+    {
+      "name": "Softmax",
+      "params": {
+        "lr": 0.10909465696982362,
+        "tau": 0.5928110953055781,
+        "multiplier": 0.1715497044516204
+      },
       "hierarchical": false
     },
     {
       "name": "UCB",
       "params": {
         "c": 36.06720325138354
+      },
+      "hierarchical": true
+    },
+    {
+      "name": "UCB",
+      "params": {
+        "c": 42.23806770442727
       },
       "hierarchical": false
     },
@@ -65,6 +89,16 @@
         "beta": 308.35636094889753,
         "lam": 0.0002314863115510709,
         "mu": 263.8448112411686
+      },
+      "hierarchical": true
+    },
+    {
+      "name": "NormalThompsonSampling",
+      "params": {
+        "alpha": 439.0920583947018,
+        "beta": 4.072735614150807,
+        "lam": 0.010374143429161483,
+        "mu": 213.24224214055275
       },
       "hierarchical": false
     }

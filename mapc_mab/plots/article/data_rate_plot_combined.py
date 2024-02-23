@@ -1,5 +1,6 @@
 import json
 from argparse import ArgumentParser
+from collections import defaultdict
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,24 +39,30 @@ if __name__ == '__main__':
     fig.subplots_adjust(wspace=0.)
 
     for ax, scenario in zip(axes, results):
-        names, data_rate = [], []
         scenario_name = scenario['scenario']['name']
-        scenario_config = scenario['scenario']
+        scenario_results = defaultdict(list)
 
         for agent in scenario['agents']:
-            names.append(agent['agent']['name'])
             runs = [np.array(run).reshape((-1, AGGREGATE_STEPS[scenario_name])).mean(axis=-1) for run in agent['runs']]
-            data_rate.append(np.array(runs))
-        
-        colors = get_cmap(len(names))
-        xs = np.linspace(0, scenario['scenario']['n_steps'], data_rate[0].shape[-1]) * TAU
+            scenario_results[agent['agent']['name']].append((runs, agent['agent']['hierarchical']))
 
-        for i, (name, rate) in enumerate(zip(names, data_rate)):
-            if i == 2 and 'mcs' in scenario_config['params']:
-                ax.axhline(DATA_RATES[scenario_config['params']['mcs']], linestyle='--', color='gray', label='Single TX')
-            mean, ci_low, ci_high = confidence_interval(rate)
-            ax.plot(xs, mean, marker='o', label=AGENT_NAMES.get(name, name), c=colors[i])
-            ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=colors[i], linewidth=0.0)
+        colors = get_cmap(len(scenario_results))
+        n_points = scenario['scenario']['n_steps'] // AGGREGATE_STEPS[scenario_name]
+        xs = np.linspace(0, scenario['scenario']['n_steps'], n_points) * TAU
+
+        if 'mcs' in scenario['scenario']['params']:
+            ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray', label='Single TX')
+
+        for c, (name, data) in zip(colors, scenario_results.items()):
+            for run, hierarchical in data:
+                mean, ci_low, ci_high = confidence_interval(np.asarray(run))
+
+                if hierarchical:
+                    ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c)
+                else:
+                    ax.plot(xs, mean, linestyle='--', c=c)
+
+                ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
 
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
         ax.set_xlabel('Time [s]', fontsize=12)

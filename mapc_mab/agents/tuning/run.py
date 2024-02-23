@@ -75,11 +75,11 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int, hierarchical: bool)
 if __name__ == '__main__':
     args = ArgumentParser()
     args.add_argument('-a', '--agent', type=str, required=True)
-    args.add_argument('-d', '--database', type=str, default='optuna.db')
+    args.add_argument('-d', '--database', type=str, required=True)
     args.add_argument('-f', '--flat', action='store_true', default=False)
     args.add_argument('-p', '--plot', action='store_true', default=False)
     args.add_argument('-s', '--n_steps', type=int, default=700)
-    args.add_argument('-n', '--n_trials', type=int, required=True)
+    args.add_argument('-n', '--n_trials', type=int, default=200)
     args = args.parse_args()
 
     if args.plot:
