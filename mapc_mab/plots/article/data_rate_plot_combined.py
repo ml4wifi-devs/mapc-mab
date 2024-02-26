@@ -16,14 +16,19 @@ plt.rcParams.update({
 })
 
 AGGREGATE_STEPS = {
-    "scenario_10m": 15,
-    "scenario_20m": 15,
-    "scenario_25m_long": 75,
+    "scenario_4m": 15,
+    "scenario_12m": 15,
+    "scenario_20m_long": 75,
 }
 TITLES = {
-    "scenario_10m": r"(a) $d=10$ m",
-    "scenario_20m": r"(b) $d=20$ m",
-    "scenario_25m_long": r"(c) $d=25$ m",
+    "scenario_4m": r"(a) $d=4$ m",
+    "scenario_12m": r"(b) $d=12$ m",
+    "scenario_20m_long": r"(c) $d=20$ m",
+}
+CLASSIC_MAB = {
+    "scenario_4m": "Softmax",
+    "scenario_12m": "EGreedy",
+    "scenario_20m_long": "Softmax",
 }
 
 
@@ -50,28 +55,27 @@ if __name__ == '__main__':
         n_points = scenario['scenario']['n_steps'] // AGGREGATE_STEPS[scenario_name]
         xs = np.linspace(0, scenario['scenario']['n_steps'], n_points) * TAU
 
-        if 'mcs' in scenario['scenario']['params']:
-            ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray', label='Single TX')
+        ax.axhline(DATA_RATES[11], linestyle='--', color='gray', label='Single TX')
 
         for c, (name, data) in zip(colors, scenario_results.items()):
             for run, hierarchical in data:
                 mean, ci_low, ci_high = confidence_interval(np.asarray(run))
 
                 if hierarchical:
-                    ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c)
-                else:
-                    ax.plot(xs, mean, linestyle='--', c=c)
-
-                ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
+                    ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c, marker='o')
+                    ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
+                elif name == CLASSIC_MAB[scenario_name]:
+                    ax.plot(xs, mean, linestyle='-.', c=c, marker='^', alpha=0.5, markersize=2)
+                    ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
 
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
         ax.set_xlabel('Time [s]', fontsize=12)
         ax.set_xlim((xs[0], xs[-1]))
-        ax.set_ylim(bottom=0, top=325)
+        ax.set_ylim(bottom=0, top=400)
         ax.tick_params(axis='both', which='both', labelsize=10)
         ax.grid()
 
-        if scenario_name == 'scenario_10m':
+        if scenario_name == 'scenario_4m':
             ax.set_ylabel('Effective data rate [Mb/s]', fontsize=12)
             ax.legend(ncols=2, loc='upper left')
 

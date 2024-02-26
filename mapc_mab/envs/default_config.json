@@ -4,32 +4,32 @@
   "scenarios": [
     {
       "scenario": "simple_scenario_5",
-      "name": "scenario_10m",
+      "name": "scenario_4m",
       "n_steps": 600,
       "params": {
-        "d_ap": 10.0,
+        "d_ap": 4.0,
         "d_sta": 2.0,
         "mcs": 11
       }
     },
     {
       "scenario": "simple_scenario_5",
-      "name": "scenario_20m",
+      "name": "scenario_12m",
       "n_steps": 600,
+      "params": {
+        "d_ap": 12.0,
+        "d_sta": 2.0,
+        "mcs": [5, 5, 7, 7, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
+      }
+    },
+    {
+      "scenario": "simple_scenario_5",
+      "name": "scenario_20m_long",
+      "n_steps": 3000,
       "params": {
         "d_ap": 20.0,
         "d_sta": 2.0,
-        "mcs": 11
-      }
-    },
-    {
-      "scenario": "simple_scenario_5",
-      "name": "scenario_25m_long",
-      "n_steps": 3000,
-      "params": {
-        "d_ap": 25.0,
-        "d_sta": 2.0,
-        "mcs": 11
+        "mcs": [8, 8, 9, 9, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
       }
     }
   ],
