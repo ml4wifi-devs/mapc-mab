@@ -12,22 +12,22 @@ from mapc_mab.plots.utils import confidence_interval
 
 plt.rcParams.update({
     'figure.figsize': (3 * COLUMN_WIDTH, COLUMN_HIGHT + 0.7),
-    'legend.fontsize': 10
+    'legend.fontsize': 9
 })
 
 AGGREGATE_STEPS = {
     "scenario_4m": 15,
-    "scenario_12m": 15,
+    "scenario_9m": 15,
     "scenario_20m_long": 75,
 }
 TITLES = {
     "scenario_4m": r"(a) $d=4$ m",
-    "scenario_12m": r"(b) $d=12$ m",
+    "scenario_9m": r"(b) $d=9$ m",
     "scenario_20m_long": r"(c) $d=20$ m",
 }
 CLASSIC_MAB = {
     "scenario_4m": "Softmax",
-    "scenario_12m": "EGreedy",
+    "scenario_9m": "Softmax",
     "scenario_20m_long": "Softmax",
 }
 
@@ -65,8 +65,8 @@ if __name__ == '__main__':
                     ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c, marker='o')
                     ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
                 elif name == CLASSIC_MAB[scenario_name]:
-                    ax.plot(xs, mean, linestyle='-.', c=c, marker='^', alpha=0.5, markersize=2)
-                    ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
+                    ax.plot(xs, mean, linestyle='--', marker='^', c='gray', markersize=2, label='Best classical MAB')
+                    ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color='gray', linewidth=0.0)
 
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
         ax.set_xlabel('Time [s]', fontsize=12)
