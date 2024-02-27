@@ -37,68 +37,68 @@
     {
       "name": "EGreedy",
       "params": {
-        "e": 8.974340621936476e-05,
-        "optimistic_start": 556.224773955627
+        "e": 0.00042714319037625935,
+        "optimistic_start": 5963.685811711598
       },
       "hierarchical": true
     },
     {
       "name": "EGreedy",
       "params": {
-        "e": 2.6577105995944474e-05,
-        "optimistic_start": 216.7343672476142
+        "e": 6.858693042786104e-07,
+        "optimistic_start": 316.72892698097485
       },
       "hierarchical": false
     },
     {
       "name": "Softmax",
       "params": {
-        "lr": 0.10785100246638235,
-        "tau": 0.04945024740295143,
-        "multiplier": 0.007279596507396117
+        "lr": 0.6812265700717242,
+        "tau": 8.869541102873155,
+        "multiplier": 0.10291994345531662
       },
       "hierarchical": true
     },
     {
       "name": "Softmax",
       "params": {
-        "lr": 0.10909465696982362,
-        "tau": 0.5928110953055781,
-        "multiplier": 0.1715497044516204
+        "lr": 0.5381704861354826,
+        "tau": 5.842635867570456,
+        "multiplier": 0.40013555605238366
       },
       "hierarchical": false
     },
     {
       "name": "UCB",
       "params": {
-        "c": 36.06720325138354
+        "c": 51.657241824524625
       },
       "hierarchical": true
     },
     {
       "name": "UCB",
       "params": {
-        "c": 42.23806770442727
+        "c": 22.523844613777065
       },
       "hierarchical": false
     },
     {
       "name": "NormalThompsonSampling",
       "params": {
-        "alpha": 1.6849910402998838,
-        "beta": 308.35636094889753,
-        "lam": 0.0002314863115510709,
-        "mu": 263.8448112411686
+        "alpha": 1.0778968829541544,
+        "beta": 32.310524722768704,
+        "lam": 0.00546827026976318,
+        "mu": 441.2707084213206
       },
       "hierarchical": true
     },
     {
       "name": "NormalThompsonSampling",
       "params": {
-        "alpha": 439.0920583947018,
-        "beta": 4.072735614150807,
-        "lam": 0.010374143429161483,
-        "mu": 213.24224214055275
+        "alpha": 76.18465397411349,
+        "beta": 314.55764940121315,
+        "lam": 0.0023689865152560544,
+        "mu": 171.1010207845521
       },
       "hierarchical": false
     }

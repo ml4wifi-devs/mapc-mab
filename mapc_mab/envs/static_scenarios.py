@@ -356,7 +356,7 @@ def random_scenario(
         n_ap: int = 4,
         d_sta: Scalar = 1.,
         n_sta_per_ap: int = 4,
-        mcs: int = DEFAULT_MCS,
+        mcs: int = None,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -372,5 +372,10 @@ def random_scenario(
 
     pos = jnp.array(ap_pos.tolist() + sta_pos)
     associations = {i: list(range(n_ap + i * n_sta_per_ap, n_ap + (i + 1) * n_sta_per_ap)) for i in range(n_ap)}
+
+    if mcs is None:
+        from mapc_mab.envs.mcs_tuning import ideal_tx
+        _, mcs, _ = ideal_tx(StaticScenario(pos, 0, tx_power, sigma, associations))
+        mcs = mcs.tolist()
 
     return StaticScenario(pos, mcs, tx_power, sigma, associations)
