@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Optional
+from typing import Optional, Union
 
 import jax
 import jax.numpy as jnp
@@ -22,7 +22,7 @@ class StaticScenario(Scenario):
     ----------
     pos: Array
         Two dimensional array of node positions. Each row corresponds to X and Y coordinates of a node.
-    mcs: int
+    mcs: int or list
         Modulation and coding scheme of the nodes. Each entry corresponds to a node.
     tx_power: Scalar
         Transmission power of the nodes. Each entry corresponds to a node.
@@ -39,7 +39,7 @@ class StaticScenario(Scenario):
     def __init__(
             self,
             pos: Array,
-            mcs: int,
+            mcs: Union[int, list],
             tx_power: Scalar,
             sigma: Scalar,
             associations: dict,
@@ -48,8 +48,12 @@ class StaticScenario(Scenario):
     ) -> None:
         super().__init__(associations, walls, walls_pos)
 
+        if isinstance(mcs, list):
+            self.mcs = jnp.array(mcs)
+        else:
+            self.mcs = jnp.full(pos.shape[0], mcs, dtype=jnp.int32)
+
         self.pos = pos
-        self.mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
         self.tx_power = jnp.ones(pos.shape[0]) * tx_power
 
         self.data_rate_fn = jax.jit(partial(
@@ -352,7 +356,7 @@ def random_scenario(
         n_ap: int = 4,
         d_sta: Scalar = 1.,
         n_sta_per_ap: int = 4,
-        mcs: int = DEFAULT_MCS,
+        mcs: int = None,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
 ) -> StaticScenario:
@@ -368,5 +372,10 @@ def random_scenario(
 
     pos = jnp.array(ap_pos.tolist() + sta_pos)
     associations = {i: list(range(n_ap + i * n_sta_per_ap, n_ap + (i + 1) * n_sta_per_ap)) for i in range(n_ap)}
+
+    if mcs is None:
+        from mapc_mab.envs.mcs_tuning import ideal_tx
+        _, mcs, _ = ideal_tx(StaticScenario(pos, 0, tx_power, sigma, associations))
+        mcs = mcs.tolist()
 
     return StaticScenario(pos, mcs, tx_power, sigma, associations)

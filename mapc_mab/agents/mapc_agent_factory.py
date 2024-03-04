@@ -81,7 +81,7 @@ class MapcAgentFactory:
         find_groups: dict = {
             sta: RLib(
                 agent_type=self.agent_type,
-                agent_params=self.agent_params.copy(),
+                agent_params=self.agent_params['first'].copy(),
                 ext_type=BasicMab,
                 ext_params={'n_arms': 2 ** (self.n_ap - 1)}
             ) for sta in self.stations
@@ -92,7 +92,7 @@ class MapcAgentFactory:
             group: {
                 ap: RLib(
                     agent_type=self.agent_type,
-                    agent_params=self.agent_params.copy(),
+                    agent_params=self.agent_params['second'].copy(),
                     ext_type=BasicMab,
                     ext_params={'n_arms': len(self.associations[ap])}
                 ) for ap in group
