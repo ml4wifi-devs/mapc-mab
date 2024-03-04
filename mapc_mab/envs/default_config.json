@@ -6,6 +6,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_10m",
       "n_steps": 600,
+      "insert_wall": true,
       "params": {
         "d_ap": 10.0,
         "d_sta": 2.0,
@@ -16,6 +17,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_20m",
       "n_steps": 600,
+      "insert_wall": true,
       "params": {
         "d_ap": 20.0,
         "d_sta": 2.0,
@@ -26,6 +28,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_25m_long",
       "n_steps": 3000,
+      "insert_wall": true,
       "params": {
         "d_ap": 25.0,
         "d_sta": 2.0,
@@ -37,68 +40,74 @@
     {
       "name": "EGreedy",
       "params": {
-        "e": 8.974340621936476e-05,
-        "optimistic_start": 556.224773955627
+        "e": 0.00013847346399986388,
+        "optimistic_start": 289.1450832838158,
+        "alpha": 0.6763035997860292
       },
       "hierarchical": true
     },
     {
       "name": "EGreedy",
       "params": {
-        "e": 2.6577105995944474e-05,
-        "optimistic_start": 216.7343672476142
+        "e": 0.015844275984501437,
+        "optimistic_start": 119.11824716752773,
+        "alpha": 0.7494804899342024
       },
       "hierarchical": false
     },
     {
       "name": "Softmax",
       "params": {
-        "lr": 0.10785100246638235,
-        "tau": 0.04945024740295143,
-        "multiplier": 0.007279596507396117
+        "lr": 2.6227863842391286,
+        "tau": 0.35813416245763313,
+        "multiplier": 0.0015097406606020868,
+        "alpha": 0.31120431480922034
       },
       "hierarchical": true
     },
     {
       "name": "Softmax",
       "params": {
-        "lr": 0.10909465696982362,
-        "tau": 0.5928110953055781,
-        "multiplier": 0.1715497044516204
+        "lr": 1.9986574795114747,
+        "tau": 1.141605184101341,
+        "multiplier": 0.027332032670820405,
+        "alpha": 0.7096906476367081
       },
       "hierarchical": false
     },
     {
       "name": "UCB",
       "params": {
-        "c": 36.06720325138354
+        "c": 32.50674436895126,
+        "gamma": 0.5628635701348924
       },
       "hierarchical": true
     },
     {
       "name": "UCB",
       "params": {
-        "c": 42.23806770442727
+        "c": 19.858026194064188,
+        "gamma": 0.7855894453392855
       },
       "hierarchical": false
     },
     {
       "name": "NormalThompsonSampling",
       "params": {
-        "alpha": 1.6849910402998838,
-        "beta": 308.35636094889753,
-        "lam": 0.0002314863115510709,
-        "mu": 263.8448112411686
+        "alpha": 2.019373482475661,
+        "beta": 11.286180608855835,
+        "lam": 0.0029761406615853602,
+        "mu": 554.8811680499894
       },
       "hierarchical": true
     },
     {
       "name": "NormalThompsonSampling",
       "params": {
-        "alpha": 439.0920583947018,
-        "beta": 4.072735614150807,
-        "lam": 0.010374143429161483,
-        "mu": 213.24224214055275
+        "alpha": 1.244150006035851,
+        "beta": 0.053248857890882656,
+        "lam": 0.00017854990853092358,
+        "mu": 3.0671736431171457
       },
       "hierarchical": false
     }

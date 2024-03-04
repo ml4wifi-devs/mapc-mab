@@ -27,8 +27,8 @@ TITLES = {
 }
 CLASSIC_MAB = {
     "scenario_10m": "Softmax",
-    "scenario_20m": "NormalThompsonSampling",
-    "scenario_25m_long": "EGreedy",
+    "scenario_20m": "Softmax",
+    "scenario_25m_long": "NormalThompsonSampling",
 }
 
 
@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
         if 'mcs' in scenario['scenario']['params']:
             ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray', label='Single TX')
+            ax.axvline(xs[-1] / 2, linestyle='--', color='red')
 
         for c, (name, data) in zip(colors, scenario_results.items()):
             for run, hierarchical in data:

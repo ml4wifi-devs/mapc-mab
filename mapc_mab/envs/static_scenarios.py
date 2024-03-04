@@ -46,18 +46,21 @@ class StaticScenario(Scenario):
             walls: Optional[Array] = None,
             walls_pos: Optional[Array] = None
     ) -> None:
-        super().__init__(associations, walls, walls_pos)
+        super().__init__(associations)
 
         self.pos = pos
-        self.mcs = jnp.ones(pos.shape[0], dtype=jnp.int32) * mcs
-        self.tx_power = jnp.ones(pos.shape[0]) * tx_power
+        self.mcs = jnp.full(pos.shape[0], mcs, dtype=jnp.int32)
+        self.tx_power = jnp.full(pos.shape[0], tx_power)
+        self.sigma = sigma
+        self.walls = walls if walls is not None else jnp.zeros((pos.shape[0], pos.shape[0]))
+        self.walls_pos = walls_pos
 
         self.data_rate_fn = jax.jit(partial(
             network_data_rate,
             pos=self.pos,
             mcs=self.mcs,
             tx_power=self.tx_power,
-            sigma=sigma,
+            sigma=self.sigma,
             walls=self.walls
         ))
 
@@ -65,10 +68,10 @@ class StaticScenario(Scenario):
         return self.data_rate_fn(key, tx)
 
     def plot(self, filename: str = None) -> None:
-        super().plot(self.pos, filename)
+        super().plot(self.pos, filename, self.walls_pos)
 
     def is_cca_single_tx(self) -> bool:
-        return super().is_cca_single_tx(self.pos, self.tx_power)
+        return super().is_cca_single_tx(self.pos, self.tx_power, self.walls)
 
 
 def simple_scenario_1(
@@ -344,29 +347,3 @@ def simple_scenario_5(
     ])
 
     return StaticScenario(pos, mcs, tx_power, sigma, associations, walls, walls_pos)
-
-
-def random_scenario(
-        seed: int,
-        d_ap: Scalar = 100.,
-        n_ap: int = 4,
-        d_sta: Scalar = 1.,
-        n_sta_per_ap: int = 4,
-        mcs: int = DEFAULT_MCS,
-        tx_power: Scalar = DEFAULT_TX_POWER,
-        sigma: Scalar = DEFAULT_SIGMA
-) -> StaticScenario:
-    ap_key, key = jax.random.split(jax.random.PRNGKey(seed))
-    ap_pos = jax.random.uniform(ap_key, (n_ap, 2)) * d_ap
-    sta_pos = []
-
-    for pos in ap_pos:
-        sta_key, key = jax.random.split(key)
-        center = jnp.repeat(pos[None, :], n_sta_per_ap, axis=0)
-        stations = center + jax.random.normal(sta_key, (n_sta_per_ap, 2)) * d_sta
-        sta_pos += stations.tolist()
-
-    pos = jnp.array(ap_pos.tolist() + sta_pos)
-    associations = {i: list(range(n_ap + i * n_sta_per_ap, n_ap + (i + 1) * n_sta_per_ap)) for i in range(n_ap)}
-
-    return StaticScenario(pos, mcs, tx_power, sigma, associations)
