@@ -10,7 +10,7 @@ from reinforced_lib.agents.mab import *
 
 from mapc_mab.agents import MapcAgentFactory
 from mapc_mab.envs.run import run_scenario
-from mapc_mab.envs.static_scenarios import random_scenario
+from mapc_mab.envs.dynamic_scenarios import random_scenario
 
 
 TRAINING_SCENARIOS = [
@@ -30,19 +30,22 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int, hierarchical: bool)
         agent_type = EGreedy
         agent_params = {
             'e': trial.suggest_float('e', 1e-7, 1e-1, log=True),
-            'optimistic_start': trial.suggest_float('optimistic_start', 1., 1e5, log=True)
+            'optimistic_start': trial.suggest_float('optimistic_start', 1., 1e5, log=True),
+            'alpha': trial.suggest_float('alpha', 0., 1.)
         }
     elif agent == 'Softmax':
         agent_type = Softmax
         agent_params = {
             'lr': trial.suggest_float('lr', 1e-2, 1e2, log=True),
             'tau': trial.suggest_float('tau', 1e-3, 1e2, log=True),
-            'multiplier': trial.suggest_float('multiplier', 1e-4, 10., log=True)
+            'multiplier': trial.suggest_float('multiplier', 1e-4, 10., log=True),
+            'alpha': trial.suggest_float('alpha', 0., 1.)
         }
     elif agent == 'UCB':
         agent_type = UCB
         agent_params = {
-            'c': trial.suggest_float('c', 0., 1e3)
+            'c': trial.suggest_float('c', 0., 1e3),
+            'gamma': trial.suggest_float('gamma', 0., 1.)
         }
     elif agent == 'NormalThompsonSampling':
         agent_type = NormalThompsonSampling
@@ -58,9 +61,7 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int, hierarchical: bool)
     runs = []
 
     for step, scenario in enumerate(TRAINING_SCENARIOS):
-        associations = scenario.get_associations()
-        agent_factory = MapcAgentFactory(associations, agent_type, agent_params, hierarchical, seed=42)
-
+        agent_factory = MapcAgentFactory(scenario.associations, agent_type, agent_params, hierarchical, seed=42)
         results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, seed=42)[0])
         runs.append(results)
 
@@ -77,14 +78,9 @@ if __name__ == '__main__':
     args.add_argument('-a', '--agent', type=str, required=True)
     args.add_argument('-d', '--database', type=str, required=True)
     args.add_argument('-f', '--flat', action='store_true', default=False)
-    args.add_argument('-p', '--plot', action='store_true', default=False)
     args.add_argument('-s', '--n_steps', type=int, default=700)
     args.add_argument('-n', '--n_trials', type=int, default=200)
     args = args.parse_args()
-
-    if args.plot:
-        for i, scenario in enumerate(TRAINING_SCENARIOS, start=1):
-            scenario.plot(f'training_scenario_{i}.pdf')
 
     study = optuna.create_study(
         storage=f'sqlite:///{args.database}',

@@ -22,26 +22,32 @@ class Scenario(ABC):
     ----------
     associations: dict
         Dictionary of associations between access points and stations.
-    walls: Optional[Array]
-        Adjacency matrix of walls. Each entry corresponds to a node.
-    walls_pos: Optional[Array]
-        Two dimensional array of wall positions. Each row corresponds to X and Y coordinates of a wall.
     """
 
-    def __init__(self, associations: dict, walls: Optional[Array] = None, walls_pos: Optional[Array] = None) -> None:
-        n_nodes = len(associations) + sum([len(n) for n in associations.values()])
+    def __init__(self, associations: dict) -> None:
         self.associations = associations
-        self.walls = walls if walls is not None else jnp.zeros((n_nodes, n_nodes))
-        self.walls_pos = walls_pos
 
     @abstractmethod
     def __call__(self, *args, **kwargs) -> Scalar:
         pass
 
-    def get_associations(self) -> dict:
-        return self.associations
+    def reset(self) -> None:
+        pass
 
-    def plot(self, pos: Array, filename: str = None) -> None:
+    def plot(self, pos: Array, filename: str = None, walls_pos: Optional[Array] = None) -> None:
+        """
+        Plot the current state of the scenario.
+
+        Parameters
+        ----------
+        pos : Array
+            Two dimensional array of node positions.
+        filename : str
+            Name of the file to save the plot. If None, the plot is shown.
+        walls_pos : Optional[Array]
+            Two dimensional array of wall positions.
+        """
+
         colors = get_cmap(len(self.associations))
         ap_labels = string.ascii_uppercase
 
@@ -56,9 +62,8 @@ class Scenario(ABC):
             circle = plt.Circle((pos[ap, 0], pos[ap, 1]), radius * 1.2, fill=False, linewidth=0.5)
             ax.add_patch(circle)
 
-        # Plot walls
-        if self.walls_pos is not None:
-            for wall in self.walls_pos:
+        if walls_pos is not None:
+            for wall in walls_pos:
                 ax.plot([wall[0], wall[2]], [wall[1], wall[3]], color='black', linewidth=1)
 
         ax.set_axisbelow(True)
@@ -75,7 +80,7 @@ class Scenario(ABC):
         else:
             plt.show()
 
-    def is_cca_single_tx(self, pos: Array, tx_power: Array) -> bool:
+    def is_cca_single_tx(self, pos: Array, tx_power: Array, walls: Array) -> bool:
         """
         Check if the scenario is a CSMA single transmission scenario, i.e., if there is only one transmission
         possible at a time due to the CCA threshold. **Note**: This function assumes that the scenario
@@ -87,6 +92,8 @@ class Scenario(ABC):
             Two dimensional array of node positions. Each row corresponds to X and Y coordinates of a node.
         tx_power : Array
             Transmission power of the nodes. Each entry corresponds to a node.
+        walls: Optional[Array]
+            Adjacency matrix of walls. Each entry indicates if there is a wall between two nodes.
 
         Returns
         -------
@@ -98,7 +105,7 @@ class Scenario(ABC):
 
         ap_pos = pos[ap_ids]
         ap_tx_power = tx_power[ap_ids]
-        ap_walls = self.walls[ap_ids][:, ap_ids]
+        ap_walls = walls[ap_ids][:, ap_ids]
 
         distance = np.sqrt(np.sum((ap_pos[:, None, :] - ap_pos[None, ...]) ** 2, axis=-1))
         signal_power = ap_tx_power - tgax_path_loss(distance, ap_walls)
@@ -106,7 +113,7 @@ class Scenario(ABC):
 
         return np.all(signal_power > CCA_THRESHOLD)
 
-    def tx_matrix_to_action(self, tx_matrix: Array) -> Array:
+    def tx_matrix_to_action(self, tx_matrix: Array) -> list:
         """
         Convert a transmission matrix to a list of transmissions. Assumes downlink.
 
@@ -117,7 +124,7 @@ class Scenario(ABC):
 
         Returns
         -------
-        Array
+        list
             A list, where each entry is either one element list of the AP->STA transmission or an empty one.
         """
 

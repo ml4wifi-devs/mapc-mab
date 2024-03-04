@@ -5,7 +5,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-from mapc_mab.envs.static_scenarios import simple_scenario_1, simple_scenario_2, simple_scenario_3, random_scenario
+from mapc_mab.envs.static_scenarios import simple_scenario_1, simple_scenario_2, simple_scenario_3
 
 
 class ScenarioClassTestCase(unittest.TestCase):
@@ -13,11 +13,6 @@ class ScenarioClassTestCase(unittest.TestCase):
         scenario = simple_scenario_3()
         scenario.plot("test_simple_scenario.pdf")
         assert os.path.exists("test_simple_scenario.pdf")
-
-    def test_random_plotting(self):
-        scenario = random_scenario(seed=88)
-        scenario.plot("test_random_scenario.png")
-        assert os.path.exists("test_random_scenario.png")
 
     def test_simple_sim(self):
         # Define test-case key and scenario
