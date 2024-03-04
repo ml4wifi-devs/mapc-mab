@@ -27,33 +27,47 @@ TRAINING_SCENARIOS = [
 
 def objective(trial: optuna.Trial, agent: str, n_steps: int, hierarchical: bool) -> float:
     if agent == 'EGreedy':
+        def generate_params(suffix: str) -> dict:
+            return {
+                'e': trial.suggest_float(f'e{suffix}', 1e-7, 1e-1, log=True),
+                'optimistic_start': trial.suggest_float(f'optimistic_start{suffix}', 1., 1e5, log=True)
+            }
+
         agent_type = EGreedy
-        agent_params = {
-            'e': trial.suggest_float('e', 1e-7, 1e-1, log=True),
-            'optimistic_start': trial.suggest_float('optimistic_start', 1., 1e5, log=True)
-        }
     elif agent == 'Softmax':
+        def generate_params(suffix: str) -> dict:
+            return {
+                'lr': trial.suggest_float(f'lr{suffix}', 1e-2, 1e2, log=True),
+                'tau': trial.suggest_float(f'tau{suffix}', 1e-3, 1e2, log=True),
+                'multiplier': trial.suggest_float(f'multiplier{suffix}', 1e-4, 10., log=True)
+            }
+
         agent_type = Softmax
-        agent_params = {
-            'lr': trial.suggest_float('lr', 1e-2, 1e2, log=True),
-            'tau': trial.suggest_float('tau', 1e-3, 1e2, log=True),
-            'multiplier': trial.suggest_float('multiplier', 1e-4, 10., log=True)
-        }
     elif agent == 'UCB':
+        def generate_params(suffix: str) -> dict:
+            return {'c': trial.suggest_float(f'c{suffix}', 0., 1e3)}
+
         agent_type = UCB
-        agent_params = {
-            'c': trial.suggest_float('c', 0., 1e3)
-        }
     elif agent == 'NormalThompsonSampling':
+        def generate_params(suffix: str) -> dict:
+            return {
+                'alpha': trial.suggest_float(f'alpha{suffix}', 1e-2, 1e3, log=True),
+                'beta': trial.suggest_float(f'beta{suffix}', 1e-3, 1e3, log=True),
+                'lam': trial.suggest_float(f'lam{suffix}', 1e-4, 1e2, log=True),
+                'mu': trial.suggest_float(f'mu{suffix}', 1e-1, 5e4, log=True)
+            }
+
         agent_type = NormalThompsonSampling
-        agent_params = {
-            'alpha': trial.suggest_float('alpha', 1e-2, 1e3, log=True),
-            'beta': trial.suggest_float('beta', 1e-3, 1e3, log=True),
-            'lam': trial.suggest_float('lam', 1e-4, 1e2, log=True),
-            'mu': trial.suggest_float('mu', 1e-1, 5e4, log=True)
-        }
     else:
         raise ValueError(f'Unknown agent {agent}')
+
+    if hierarchical:
+        agent_params = {
+            'first': generate_params('_first'),
+            'second': generate_params('_second')
+        }
+    else:
+        agent_params = generate_params('')
 
     runs = []
 
