@@ -12,7 +12,7 @@ from mapc_mab.plots.utils import confidence_interval
 
 plt.rcParams.update({
     'figure.figsize': (3 * COLUMN_WIDTH, COLUMN_HIGHT + 0.7),
-    'legend.fontsize': 10
+    'legend.fontsize': 9
 })
 
 AGGREGATE_STEPS = {
@@ -24,6 +24,11 @@ TITLES = {
     "scenario_10m": r"(a) $d=10$ m",
     "scenario_20m": r"(b) $d=20$ m",
     "scenario_25m_long": r"(c) $d=25$ m",
+}
+CLASSIC_MAB = {
+    "scenario_10m": "Softmax",
+    "scenario_20m": "NormalThompsonSampling",
+    "scenario_25m_long": "EGreedy",
 }
 
 
@@ -58,11 +63,11 @@ if __name__ == '__main__':
                 mean, ci_low, ci_high = confidence_interval(np.asarray(run))
 
                 if hierarchical:
-                    ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c)
-                else:
-                    ax.plot(xs, mean, linestyle='--', c=c)
-
-                ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
+                    ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c, marker='o')
+                    ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
+                elif name == CLASSIC_MAB[scenario_name]:
+                    ax.plot(xs, mean, linestyle='--', marker='^', c='gray', markersize=2, label='Best classical MAB')
+                    ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color='gray', linewidth=0.0)
 
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
         ax.set_xlabel('Time [s]', fontsize=12)

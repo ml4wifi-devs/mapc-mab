@@ -2,10 +2,10 @@ import os
 os.environ['JAX_ENABLE_X64'] = 'True'
 
 import json
+from copy import deepcopy
 from argparse import ArgumentParser
 
 import jax
-import numpy as np
 from reinforced_lib.agents.mab import *
 from tqdm import tqdm
 
@@ -21,12 +21,13 @@ def run_scenario(
         seed: int
 ) -> tuple[list, list]:
     key = jax.random.PRNGKey(seed)
+    agent_copy = agent_factory.create_mapc_agent()
 
     runs = []
     actions = []
 
     for i in range(n_reps):
-        agent = agent_factory.create_mapc_agent()
+        agent = deepcopy(agent_copy)
         runs.append([])
         actions.append([])
         data_rate = 0.
