@@ -59,10 +59,11 @@ if __name__ == '__main__':
     for scenario_config in tqdm(config['scenarios'], desc='Scenarios'):
         scenario = globals()[scenario_config['scenario']](**scenario_config['params'])
 
-        if scenario_config['insert_wall']:
-            n_nodes = len(scenario.associations) + sum(len(stas) for stas in scenario.associations.values())
-            switch_steps = [0, scenario_config['n_steps'] // 2]
-            scenario = DynamicScenario.from_static(scenario, walls_sec=jnp.zeros((n_nodes, n_nodes)), switch_steps=switch_steps)
+        if 'sec' in scenario_config:
+            scenario_params_sec = deepcopy(scenario_config['params'])
+            scenario_params_sec.update(scenario_config['sec'])
+            scenario_sec = globals()[scenario_config['scenario']](**scenario_params_sec)
+            scenario = DynamicScenario.from_static_scenarios(scenario, scenario_sec, scenario_config['switch_steps'])
 
         scenario_results = []
 

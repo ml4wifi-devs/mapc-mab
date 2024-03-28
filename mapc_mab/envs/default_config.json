@@ -6,7 +6,6 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_10m",
       "n_steps": 600,
-      "insert_wall": true,
       "params": {
         "d_ap": 10.0,
         "d_sta": 2.0,
@@ -17,23 +16,29 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_20m",
       "n_steps": 600,
-      "insert_wall": true,
       "params": {
         "d_ap": 20.0,
         "d_sta": 2.0,
         "mcs": 11
-      }
+      },
+      "sec": {
+        "d_sta": 3.0
+      },
+      "switch_steps": [300]
     },
     {
       "scenario": "simple_scenario_5",
       "name": "scenario_25m_long",
       "n_steps": 3000,
-      "insert_wall": true,
       "params": {
         "d_ap": 25.0,
         "d_sta": 2.0,
         "mcs": 11
-      }
+      },
+      "sec": {
+        "d_sta": 4.0
+      },
+      "switch_steps": [1500]
     }
   ],
   "agents": [

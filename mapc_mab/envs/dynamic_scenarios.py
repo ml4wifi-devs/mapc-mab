@@ -122,7 +122,7 @@ class DynamicScenario(Scenario):
             self.data_rate_fn = self.data_rate_fn_first
 
     @staticmethod
-    def from_static(
+    def from_static_params(
             scenario: StaticScenario,
             pos_sec: Optional[Array] = None,
             mcs_sec: Optional[int] = None,
@@ -146,6 +146,29 @@ class DynamicScenario(Scenario):
             sigma_sec,
             walls_sec,
             walls_pos_sec,
+            switch_steps
+        )
+
+    @staticmethod
+    def from_static_scenarios(
+            scenario: StaticScenario,
+            scenario_sec: StaticScenario,
+            switch_steps: list
+    ) -> 'DynamicScenario':
+        return DynamicScenario(
+            scenario.associations,
+            scenario.pos,
+            scenario.mcs,
+            scenario.tx_power,
+            scenario.sigma,
+            scenario.walls,
+            scenario.walls_pos,
+            scenario_sec.pos,
+            scenario_sec.mcs,
+            scenario_sec.tx_power,
+            scenario_sec.sigma,
+            scenario_sec.walls,
+            scenario_sec.walls_pos,
             switch_steps
         )
 
