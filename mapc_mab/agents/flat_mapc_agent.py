@@ -31,6 +31,7 @@ class FlatMapcAgent(MapcAgent):
             agent_action_to_pairs: Callable,
             tx_matrix_shape: Shape
     ) -> None:
+        self.hierarchical = False
         self.associations = {ap: np.array(stations) for ap, stations in associations.items()}
         self.access_points = np.array(list(associations.keys()))
 

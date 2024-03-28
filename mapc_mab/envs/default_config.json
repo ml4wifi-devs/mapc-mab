@@ -6,7 +6,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_10m",
       "n_steps": 600,
-      "insert_wall": true,
+      "move_stations": true,
       "params": {
         "d_ap": 10.0,
         "d_sta": 2.0,
@@ -17,7 +17,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_20m",
       "n_steps": 600,
-      "insert_wall": true,
+      "move_stations": true,
       "params": {
         "d_ap": 20.0,
         "d_sta": 2.0,
@@ -28,7 +28,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_25m_long",
       "n_steps": 3000,
-      "insert_wall": true,
+      "move_stations": true,
       "params": {
         "d_ap": 25.0,
         "d_sta": 2.0,
@@ -47,15 +47,6 @@
       "hierarchical": true
     },
     {
-      "name": "EGreedy",
-      "params": {
-        "e": 0.015844275984501437,
-        "optimistic_start": 119.11824716752773,
-        "alpha": 0.7494804899342024
-      },
-      "hierarchical": false
-    },
-    {
       "name": "Softmax",
       "params": {
         "lr": 2.6227863842391286,
@@ -66,30 +57,12 @@
       "hierarchical": true
     },
     {
-      "name": "Softmax",
-      "params": {
-        "lr": 1.9986574795114747,
-        "tau": 1.141605184101341,
-        "multiplier": 0.027332032670820405,
-        "alpha": 0.7096906476367081
-      },
-      "hierarchical": false
-    },
-    {
       "name": "UCB",
       "params": {
         "c": 32.50674436895126,
         "gamma": 0.5628635701348924
       },
       "hierarchical": true
-    },
-    {
-      "name": "UCB",
-      "params": {
-        "c": 19.858026194064188,
-        "gamma": 0.7855894453392855
-      },
-      "hierarchical": false
     },
     {
       "name": "NormalThompsonSampling",
@@ -100,16 +73,6 @@
         "mu": 554.8811680499894
       },
       "hierarchical": true
-    },
-    {
-      "name": "NormalThompsonSampling",
-      "params": {
-        "alpha": 1.244150006035851,
-        "beta": 0.053248857890882656,
-        "lam": 0.00017854990853092358,
-        "mu": 3.0671736431171457
-      },
-      "hierarchical": false
     }
   ]
 }

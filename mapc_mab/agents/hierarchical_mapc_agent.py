@@ -41,6 +41,7 @@ class HierarchicalMapcAgent(MapcAgent):
             sta_group_action_to_sta_group: Callable,
             tx_matrix_shape: Shape
     ) -> None:
+        self.hierarchical = True
         self.associations = {ap: np.array(stations) for ap, stations in associations.items()}
         self.access_points = np.array(list(associations.keys()))
 
