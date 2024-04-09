@@ -18,6 +18,7 @@ def run_scenario(
         scenario: StaticScenario,
         n_reps: int,
         n_steps: int,
+        slots_ahead: int,
         seed: int
 ) -> tuple[list, list]:
     key = jax.random.PRNGKey(seed)
@@ -34,7 +35,7 @@ def run_scenario(
 
         for j in range(n_steps):
             key, scenario_key = jax.random.split(key)
-            tx = agent.sample(data_rate)
+            tx = agent.sample(data_rate) if j % slots_ahead == slots_ahead - 1 else agent.sample_offline(data_rate)
             data_rate = scenario(scenario_key, tx)
             runs[-1].append(data_rate)
             actions[-1].append(scenario.tx_matrix_to_action(tx))
@@ -64,7 +65,7 @@ if __name__ == '__main__':
                 associations, globals()[agent_config['name']], agent_config['params'], agent_config['hierarchical'], config['seed']
             )
 
-            runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], config['seed'])
+            runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], scenario_config['slots_ahead'], config['seed'])
             scenario_results.append({
                 'agent': {
                     'name': agent_config['name'],
