@@ -3,7 +3,7 @@ from typing import Callable
 
 import numpy as np
 from chex import Array, Scalar, Shape
-from reinforced_lib import RLib
+from mapc_mab.agents.offline_wrapper import OfflineWrapper as RLib
 
 from mapc_mab.agents.mapc_agent import MapcAgent
 

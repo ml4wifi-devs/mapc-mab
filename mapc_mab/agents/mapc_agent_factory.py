@@ -2,7 +2,7 @@ from itertools import chain, combinations
 from typing import Iterable, Iterator
 
 import numpy as np
-from reinforced_lib import RLib
+from mapc_mab.agents.offline_wrapper import OfflineWrapper as RLib
 from reinforced_lib.exts import BasicMab
 
 from mapc_mab.agents.flat_mapc_agent import FlatMapcAgent
