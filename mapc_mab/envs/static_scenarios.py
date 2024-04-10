@@ -44,13 +44,15 @@ class StaticScenario(Scenario):
             sigma: Scalar,
             associations: dict,
             walls: Optional[Array] = None,
-            walls_pos: Optional[Array] = None
+            walls_pos: Optional[Array] = None,
+            tx_power_delta: Scalar = 6.0
     ) -> None:
         super().__init__(associations)
 
         self.pos = pos
         self.mcs = jnp.full(pos.shape[0], mcs, dtype=jnp.int32)
         self.tx_power = jnp.full(pos.shape[0], tx_power)
+        self.tx_power_delta = tx_power_delta
         self.sigma = sigma
         self.walls = walls if walls is not None else jnp.zeros((pos.shape[0], pos.shape[0]))
         self.walls_pos = walls_pos
@@ -59,13 +61,12 @@ class StaticScenario(Scenario):
             network_data_rate,
             pos=self.pos,
             mcs=self.mcs,
-            tx_power=self.tx_power,
             sigma=self.sigma,
             walls=self.walls
         ))
 
-    def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
-        return self.data_rate_fn(key, tx)
+    def __call__(self, key: PRNGKey, tx: Array, tx_power: Array) -> Scalar:
+        return self.data_rate_fn(key, tx, tx_power=self.tx_power - self.tx_power_delta * tx_power)
 
     def plot(self, filename: str = None) -> None:
         super().plot(self.pos, filename, self.walls_pos)

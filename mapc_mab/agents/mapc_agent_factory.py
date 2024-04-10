@@ -8,6 +8,7 @@ from reinforced_lib.exts import BasicMab
 from mapc_mab.agents.flat_mapc_agent import FlatMapcAgent
 from mapc_mab.agents.hierarchical_mapc_agent import HierarchicalMapcAgent
 from mapc_mab.agents.mapc_agent import MapcAgent
+from mapc_mab.agents.utils import iter_tx
 
 
 class MapcAgentFactory:
@@ -34,12 +35,14 @@ class MapcAgentFactory:
             agent_type: type,
             agent_params: dict,
             hierarchical: bool = True,
+            tx_power_levels: int = 4,
             seed: int = 42
     ) -> None:
         self.associations = associations
         self.agent_type = agent_type
         self.agent_params = agent_params
         self.hierarchical = hierarchical
+        self.tx_power_levels = tx_power_levels
         self.seed = seed
 
         np.random.seed(seed)
@@ -99,7 +102,27 @@ class MapcAgentFactory:
             } for group in self._powerset(self.access_points)
         }
 
-        for agent in chain(find_groups.values(), (ap for group in assign_stations.values() for ap in group.values())):
+        # Define dictionary of agents selecting tx power
+        select_tx_power = {}
+
+        for bcoo in iter_tx(self.associations):
+            mask, conf, *_ = bcoo.tree_flatten()[0]
+            conf = tuple(tuple(c.tolist()) for m, c in zip(mask, conf) if m)
+
+            select_tx_power[conf] = {
+                sta: RLib(
+                    agent_type=self.agent_type,
+                    agent_params=self.agent_params.copy(),
+                    ext_type=BasicMab,
+                    ext_params={'n_arms': self.tx_power_levels}
+                ) for _, sta in conf
+            }
+
+        for agent in chain(
+                find_groups.values(),
+                (ap for group in assign_stations.values() for ap in group.values()),
+                (sta for conf in select_tx_power.values() for sta in conf.values())
+        ):
             agent.init(self.seed)
             self.seed += 1
 
@@ -107,6 +130,7 @@ class MapcAgentFactory:
             associations=self.associations,
             find_groups_dict=find_groups,
             assign_stations_dict=assign_stations,
+            select_tx_power_dict=select_tx_power,
             ap_group_action_to_ap_group=self._ap_group_action_to_ap_group,
             sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
             tx_matrix_shape=(self.n_nodes, self.n_nodes)
@@ -217,7 +241,7 @@ class MapcAgentFactory:
         """
 
         for aps in self._powerset(set(self.access_points).difference({self.inv_associations[designated_station]})):
-            yield aps, np.prod([len(self.associations[ap]) for ap in aps]).astype(int).item()
+            yield aps, np.prod([self.tx_power_levels * len(self.associations[ap]) for ap in aps]).astype(int).item()
 
     def _agent_action_to_pairs(self, designated_station: int, action: int) -> list[tuple[int, int]]:
         """
@@ -232,8 +256,8 @@ class MapcAgentFactory:
 
         Returns
         -------
-        list[tuple[int, int]]
-            The list of AP-station pairs.
+        tuple[list, list]
+            The list of AP-station pairs and tx power levels.
         """
 
         sharing_aps = tuple()
@@ -245,10 +269,7 @@ class MapcAgentFactory:
             action -= n
 
         pairs = []
+        tx_power = []
 
-        for ap in sharing_aps:
-            sta = self.associations[ap][action % len(self.associations[ap])]
-            action //= len(self.associations[ap])
-            pairs.append((ap, sta))
-
-        return pairs
+        # TODO
+        raise NotImplementedError

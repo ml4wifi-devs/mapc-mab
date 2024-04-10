@@ -6,7 +6,7 @@ class MapcAgent:
     Base class for the MAPC agent.
     """
 
-    def sample(self, reward: Scalar) -> Array:
+    def sample(self, reward: Scalar) -> tuple:
         """
         Samples the agent to get the transmission matrix.
 
@@ -17,8 +17,8 @@ class MapcAgent:
 
         Returns
         -------
-        Array
-            The transmission matrix.
+        tuple
+            The transmission matrix and the tx power vector.
         """
 
         raise NotImplementedError

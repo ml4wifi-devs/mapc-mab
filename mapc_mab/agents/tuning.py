@@ -61,7 +61,13 @@ def objective(trial: optuna.Trial, agent: str, n_steps: int, hierarchical: bool)
     runs = []
 
     for step, scenario in enumerate(TRAINING_SCENARIOS):
-        agent_factory = MapcAgentFactory(scenario.associations, agent_type, agent_params, hierarchical, seed=42)
+        agent_factory = MapcAgentFactory(
+            associations=scenario.associations,
+            agent_type=agent_type,
+            agent_params=agent_params,
+            hierarchical=hierarchical,
+            seed=42
+        )
         results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, seed=42)[0])
         runs.append(results)
 

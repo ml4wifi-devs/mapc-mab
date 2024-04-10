@@ -62,7 +62,8 @@ class DynamicScenario(Scenario):
             sigma_sec: Optional[Scalar] = None,
             walls_sec: Optional[Array] = None,
             walls_pos_sec: Optional[Array] = None,
-            switch_steps: Optional[list] = None
+            switch_steps: Optional[list] = None,
+            tx_power_delta: Scalar = 6.0
     ) -> None:
         super().__init__(associations)
 
@@ -75,10 +76,10 @@ class DynamicScenario(Scenario):
             network_data_rate,
             pos=pos,
             mcs=jnp.full(pos.shape[0], mcs, dtype=jnp.int32),
-            tx_power=jnp.full(pos.shape[0], tx_power),
             sigma=sigma,
             walls=walls
         ))
+        self.tx_power_first = jnp.full(pos.shape[0], tx_power)
 
         if pos_sec is None:
             pos_sec = pos.copy()
@@ -95,21 +96,23 @@ class DynamicScenario(Scenario):
             network_data_rate,
             pos=pos_sec,
             mcs=jnp.full(pos_sec.shape[0], mcs_sec, dtype=jnp.int32),
-            tx_power=jnp.full(pos_sec.shape[0], tx_power_sec),
             sigma=sigma_sec,
             walls=walls_sec
         ))
+        self.tx_power_sec = jnp.full(pos_sec.shape[0], tx_power_sec)
 
         self.data_rate_fn = self.data_rate_fn_first
+        self.tx_power = self.tx_power_first
         self.switch_steps = switch_steps
         self.step = 0
+        self.tx_power_delta = tx_power_delta
 
-    def __call__(self, key: PRNGKey, tx: Array) -> Scalar:
+    def __call__(self, key: PRNGKey, tx: Array, tx_power: Array) -> Scalar:
         if self.step in self.switch_steps:
             self.switch()
 
         self.step += 1
-        return self.data_rate_fn(key, tx)
+        return self.data_rate_fn(key, tx, tx_power=self.tx_power - self.tx_power_delta * tx_power)
 
     def reset(self) -> None:
         self.data_rate_fn = self.data_rate_fn_first
@@ -118,8 +121,10 @@ class DynamicScenario(Scenario):
     def switch(self) -> None:
         if self.data_rate_fn is self.data_rate_fn_first:
             self.data_rate_fn = self.data_rate_fn_sec
+            self.tx_power = self.tx_power_sec
         else:
             self.data_rate_fn = self.data_rate_fn_first
+            self.tx_power = self.tx_power_first
 
     @staticmethod
     def from_static_params(

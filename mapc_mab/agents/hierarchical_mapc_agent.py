@@ -1,8 +1,9 @@
 from collections import defaultdict
+from itertools import chain
 from typing import Callable
 
 import numpy as np
-from chex import Array, Scalar, Shape
+from chex import Scalar, Shape
 from reinforced_lib import RLib
 
 from mapc_mab.agents.mapc_agent import MapcAgent
@@ -37,15 +38,18 @@ class HierarchicalMapcAgent(MapcAgent):
             associations: dict[int, list[int]],
             find_groups_dict: dict[int, RLib],
             assign_stations_dict: dict[tuple[int], dict[int, RLib]],
+            select_tx_power_dict: dict[tuple[tuple], dict[int, RLib]],
             ap_group_action_to_ap_group: Callable,
             sta_group_action_to_sta_group: Callable,
             tx_matrix_shape: Shape
     ) -> None:
         self.associations = {ap: np.array(stations) for ap, stations in associations.items()}
         self.access_points = np.array(list(associations.keys()))
+        self.n_nodes = len(self.access_points) + len(list(chain.from_iterable(associations.values())))
 
         self.find_groups_dict = find_groups_dict
         self.assign_stations_dict = assign_stations_dict
+        self.select_tx_power_dict = select_tx_power_dict
         self.ap_group_action_to_ap_group = ap_group_action_to_ap_group
         self.sta_group_action_to_sta_group = sta_group_action_to_sta_group
         self.tx_matrix_shape = tx_matrix_shape
@@ -55,8 +59,9 @@ class HierarchicalMapcAgent(MapcAgent):
 
         self.find_groups_last_step = defaultdict(int)
         self.assign_stations_last_step = defaultdict(lambda: defaultdict(int))
+        self.select_tx_power_last_step = defaultdict(lambda: defaultdict(int))
 
-    def sample(self, reward: Scalar) -> Array:
+    def sample(self, reward: Scalar) -> tuple:
         """
         Samples the agent to get the transmission matrix.
 
@@ -67,8 +72,8 @@ class HierarchicalMapcAgent(MapcAgent):
 
         Returns
         -------
-        Array
-            The transmission matrix.
+        tuple
+            The transmission matrix and the tx power vector.
         """
 
         self.step += 1
@@ -97,6 +102,7 @@ class HierarchicalMapcAgent(MapcAgent):
             sta_group_action[ap] = self.assign_stations_dict[all_aps][ap].sample(self.rewards[sta_reward_id])
 
         sta_group = self.sta_group_action_to_sta_group(sta_group_action)
+        all_pairs = tuple(sorted(zip(ap_group + (sharing_ap,), sta_group + [designated_station])))
 
         # Create the transmission matrix based on the sampled pairs
         tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
@@ -105,4 +111,12 @@ class HierarchicalMapcAgent(MapcAgent):
         for ap, sta in zip(ap_group, sta_group):
             tx_matrix[ap, sta] = 1
 
-        return tx_matrix
+        # Create the tx power matrix
+        tx_power = np.zeros(self.n_nodes, dtype=np.int32)
+
+        for ap, sta in all_pairs:
+            tx_power_reward_id = self.select_tx_power_last_step[all_pairs][sta]
+            self.select_tx_power_last_step[all_pairs][sta] = self.step
+            tx_power[ap] = self.select_tx_power_dict[all_pairs][sta].sample(self.rewards[tx_power_reward_id])
+
+        return tx_matrix, tx_power

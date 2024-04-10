@@ -37,8 +37,8 @@ def run_scenario(
 
         for j in range(n_steps):
             key, scenario_key = jax.random.split(key)
-            tx = agent.sample(data_rate)
-            data_rate = scenario(scenario_key, tx)
+            tx, tx_power = agent.sample(data_rate)
+            data_rate = scenario(scenario_key, tx, tx_power)
             runs[-1].append(data_rate)
             actions[-1].append(scenario.tx_matrix_to_action(tx))
 
@@ -69,7 +69,11 @@ if __name__ == '__main__':
 
         for agent_config in tqdm(config['agents'], desc='Agents', leave=False):
             agent_factory = MapcAgentFactory(
-                scenario.associations, globals()[agent_config['name']], agent_config['params'], agent_config['hierarchical'], config['seed']
+                associations=scenario.associations,
+                agent_type=globals()[agent_config['name']],
+                agent_params=agent_config['params'],
+                hierarchical=agent_config['hierarchical'],
+                seed=config['seed']
             )
 
             runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], config['seed'])

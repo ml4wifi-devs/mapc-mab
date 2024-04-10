@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Callable
 
 import numpy as np
-from chex import Array, Scalar, Shape
+from chex import Scalar, Shape
 from reinforced_lib import RLib
 
 from mapc_mab.agents.mapc_agent import MapcAgent
@@ -43,7 +43,7 @@ class FlatMapcAgent(MapcAgent):
 
         self.find_last_step = defaultdict(int)
 
-    def sample(self, reward: Scalar) -> Array:
+    def sample(self, reward: Scalar) -> tuple:
         """
         Samples the agent to get the transmission matrix.
 
@@ -54,8 +54,8 @@ class FlatMapcAgent(MapcAgent):
 
         Returns
         -------
-        Array
-            The transmission matrix.
+        tuple
+            The transmission matrix and the tx power vector.
         """
 
         self.step += 1
@@ -70,7 +70,7 @@ class FlatMapcAgent(MapcAgent):
         self.find_last_step[designated_station] = self.step
 
         action = self.agent_dict[designated_station].sample(self.rewards[reward_id])
-        pairs = self.agent_action_to_pairs(designated_station, action)
+        pairs, tx_power = self.agent_action_to_pairs(designated_station, action)
 
         # Create the transmission matrix based on the sampled pairs
         tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
@@ -79,4 +79,4 @@ class FlatMapcAgent(MapcAgent):
         for ap, sta in pairs:
             tx_matrix[ap, sta] = 1
 
-        return tx_matrix
+        return tx_matrix, tx_power
