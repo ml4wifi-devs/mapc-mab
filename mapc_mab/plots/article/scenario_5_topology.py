@@ -11,7 +11,7 @@ def plot(scenario: StaticScenario, filename: str) -> None:
     c = get_cmap(4)[1]
     _, ax = plt.subplots()
 
-    for i, (ap, stations) in enumerate(scenario.get_associations().items()):
+    for i, (ap, stations) in enumerate(scenario.associations.items()):
         ax.scatter(scenario.pos[ap, 0], scenario.pos[ap, 1], marker='x', color=c, s=15)
         ax.scatter(scenario.pos[stations, 0], scenario.pos[stations, 1], marker='.', color=c)
         ax.annotate(r'AP$_{0}$'.format(i + 1), (scenario.pos[ap, 0], scenario.pos[ap, 1] + 3), va='bottom', ha='center')
