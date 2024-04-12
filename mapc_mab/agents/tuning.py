@@ -14,14 +14,14 @@ from mapc_mab.envs.dynamic_scenarios import random_scenario
 
 
 TRAINING_SCENARIOS = [
-    random_scenario(seed=7, d_ap=100., n_ap=2, d_sta=5., n_sta_per_ap=5),
-    random_scenario(seed=18, d_ap=100., n_ap=3, d_sta=3., n_sta_per_ap=3),
-    random_scenario(seed=16, d_ap=100., n_ap=4, d_sta=3., n_sta_per_ap=4),
-    random_scenario(seed=19, d_ap=100., n_ap=5, d_sta=5., n_sta_per_ap=4),
-    random_scenario(seed=6, d_ap=100., n_ap=2, d_sta=1., n_sta_per_ap=3),
-    random_scenario(seed=9, d_ap=100., n_ap=3, d_sta=3., n_sta_per_ap=5),
-    random_scenario(seed=3, d_ap=100., n_ap=4, d_sta=1., n_sta_per_ap=5),
-    random_scenario(seed=19, d_ap=100., n_ap=5, d_sta=1., n_sta_per_ap=4)
+    random_scenario(seed=7, d_ap=50., n_ap=2, d_sta=5., n_sta_per_ap=5),
+    random_scenario(seed=18, d_ap=50., n_ap=3, d_sta=3., n_sta_per_ap=3),
+    random_scenario(seed=16, d_ap=50., n_ap=4, d_sta=3., n_sta_per_ap=4),
+    random_scenario(seed=19, d_ap=50., n_ap=5, d_sta=5., n_sta_per_ap=4),
+    random_scenario(seed=6, d_ap=50., n_ap=2, d_sta=1., n_sta_per_ap=3),
+    random_scenario(seed=9, d_ap=50., n_ap=3, d_sta=3., n_sta_per_ap=5),
+    random_scenario(seed=3, d_ap=50., n_ap=4, d_sta=1., n_sta_per_ap=5),
+    random_scenario(seed=19, d_ap=50., n_ap=5, d_sta=1., n_sta_per_ap=4)
 ]
 
 
