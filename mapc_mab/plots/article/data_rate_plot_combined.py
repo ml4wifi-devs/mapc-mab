@@ -18,17 +18,17 @@ plt.rcParams.update({
 AGGREGATE_STEPS = {
     "scenario_10m": 15,
     "scenario_20m": 15,
-    "scenario_25m_long": 75,
+    "scenario_30m_long": 75,
 }
 TITLES = {
     "scenario_10m": r"(a) $d=10$ m",
     "scenario_20m": r"(b) $d=20$ m",
-    "scenario_25m_long": r"(c) $d=25$ m",
+    "scenario_30m_long": r"(c) $d=30$ m",
 }
 CLASSIC_MAB = {
     "scenario_10m": "Softmax",
     "scenario_20m": "EGreedy",
-    "scenario_25m_long": "EGreedy",
+    "scenario_30m_long": "Softmax",
 }
 
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
         ax.set_xlabel('Time [s]', fontsize=12)
         ax.set_xlim((xs[0], xs[-1]))
-        ax.set_ylim(bottom=0, top=325)
+        ax.set_ylim(bottom=0, top=425)
         ax.tick_params(axis='both', which='both', labelsize=10)
         ax.grid()
 

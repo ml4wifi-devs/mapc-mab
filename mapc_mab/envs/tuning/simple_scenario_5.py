@@ -112,19 +112,19 @@ def plot_cumulative():
     plt.plot(distances_ap, mean_external_2, label='Two APs', color=COLORS[4])
     plt.plot(distances_ap, mean_single, label='One AP', color='black', linestyle='--')
 
-    # Plot red vertical line at distance 10m, 20 m and 25m
+    # Plot red vertical line at distance 10m, 20 m and 30m
     plt.axvline(x=10, color='red', linestyle='--', linewidth=0.5)
     plt.axvline(x=20, color='red', linestyle='--', linewidth=0.5)
-    plt.axvline(x=25, color='red', linestyle='--', linewidth=0.5)
+    plt.axvline(x=30, color='red', linestyle='--', linewidth=0.5)
 
     plt.xscale('log')
-    plt.xticks([10, 20, 25, 100], [10, 20, 25, 100])
+    plt.xticks([10, 20, 30, 100], [10, 20, 30, 100])
     plt.tick_params(axis='both', which='both', labelsize=12)
     plt.xlabel(r'$d$ [m]', fontsize=18)
     plt.ylim(0, 600)
     plt.ylabel('Effective data rate [Mb/s]', fontsize=18)
     # plt.title(f'MCS {mcs}, AP-STA distance {distance_sta} m')
-    plt.legend(loc='upper left', handlelength=1, fontsize=14)
+    plt.legend(loc='upper left', handlelength=1, fontsize=11)
     plt.grid(which='major')
     plt.tight_layout()
     plt.savefig(f'scenario5-alignment.pdf', bbox_inches='tight')
