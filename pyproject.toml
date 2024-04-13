@@ -19,13 +19,13 @@ authors = [
 
 requires-python = ">=3.9"
 dependencies = [
-  "chex~=0.1.85",
-  "jax~=0.4.24",
-  "jaxlib~=0.4.24",
+  "chex~=0.1.86",
+  "jax~=0.4.26",
+  "jaxlib~=0.4.26",
   "mapc-sim~=0.1.5",
-  "matplotlib~=3.8.2",
+  "matplotlib~=3.8.4",
   "optuna~=3.5.0",
-  "reinforced-lib==1.1.0",
+  "reinforced-lib==1.1.1",
   "tqdm~=4.66.1"
 ]
 
