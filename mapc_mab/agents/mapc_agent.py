@@ -6,7 +6,7 @@ class MapcAgent:
     Base class for the MAPC agent.
     """
 
-    def sample(self, reward: Scalar) -> Array:
+    def sample(self) -> Array:
         """
         Samples the agent to get the transmission matrix.
 
@@ -23,14 +23,14 @@ class MapcAgent:
 
         raise NotImplementedError
     
-    def sample_offline(self, reward: Scalar) -> Array:
+    def batch_update(self, rewards: Array) -> None:
         """
-        Samples the agent to get the transmission matrix in offline mode, meaning that the internal agent state is not updated.
+        Updates the agent with the rewards obtained in the previous step.
 
-        Returns
-        -------
-        Array
-            The transmission matrix.
+        Parameters
+        ----------
+        rewards: Array
+            The rewards obtained in the previous step.
         """
 
         raise NotImplementedError

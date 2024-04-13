@@ -27,18 +27,30 @@ def run_scenario(
     runs = []
     actions = []
 
-    for i in range(n_reps):
+    for _ in range(n_reps):
         agent = deepcopy(agent_copy)
         runs.append([])
         actions.append([])
         data_rate = 0.
 
-        for j in range(n_steps):
-            key, scenario_key = jax.random.split(key)
-            tx = agent.sample(data_rate) if j % slots_ahead == slots_ahead - 1 else agent.sample_offline(data_rate)
-            data_rate = scenario(scenario_key, tx)
-            runs[-1].append(data_rate)
-            actions[-1].append(scenario.tx_matrix_to_action(tx))
+        step = 0
+        while step < n_steps:
+
+            # Sample n-steps ahead
+            tx_accum = []
+            for _ in range(slots_ahead):
+                tx_accum.append(agent.sample())
+                step += 1
+
+            # Schedule transmissions and wait for the results
+            for tx in tx_accum:
+                key, scenario_key = jax.random.split(key)
+                data_rate = scenario(scenario_key, tx)
+                runs[-1].append(data_rate)
+                actions[-1].append(scenario.tx_matrix_to_action(tx))
+            
+            # Update the agent according to the results
+            agent.batch_update(runs[-1][-slots_ahead:])
 
     return jax.tree_map(lambda x: x.tolist(), runs), actions
 

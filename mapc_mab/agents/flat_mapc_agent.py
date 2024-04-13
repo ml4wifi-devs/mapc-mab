@@ -39,37 +39,61 @@ class FlatMapcAgent(MapcAgent):
         self.tx_matrix_shape = tx_matrix_shape
 
         self.step = 0
-        self.rewards = []
+        # self.rewards = []
+        self.designated_stations_buffer = []
+        self.actions_buffer = []
 
         self.find_last_step = defaultdict(int)
 
-    def sample(self, reward: Scalar) -> Array:
-        """
-        Samples the agent to get the transmission matrix.
+    # def sample(self, reward: Scalar) -> Array:
+    #     """
+    #     Samples the agent to get the transmission matrix.
 
-        Parameters
-        ----------
-        reward: float
-            The reward obtained in the previous step.
+    #     Parameters
+    #     ----------
+    #     reward: float
+    #         The reward obtained in the previous step.
 
-        Returns
-        -------
-        Array
-            The transmission matrix.
-        """
+    #     Returns
+    #     -------
+    #     Array
+    #         The transmission matrix.
+    #     """
+
+    #     self.step += 1
+    #     self.rewards.append(reward)
+
+    #     # Sample sharing AP and designated station
+    #     sharing_ap = np.random.choice(self.access_points)
+    #     designated_station = np.random.choice(self.associations[sharing_ap])
+
+    #     # Sample the appropriate agent
+    #     reward_id = self.find_last_step[designated_station]
+    #     self.find_last_step[designated_station] = self.step
+
+    #     action = self.agent_dict[designated_station].sample(self.rewards[reward_id])
+    #     pairs = self.agent_action_to_pairs(designated_station, action)
+
+    #     # Create the transmission matrix based on the sampled pairs
+    #     tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
+    #     tx_matrix[sharing_ap, designated_station] = 1
+
+    #     for ap, sta in pairs:
+    #         tx_matrix[ap, sta] = 1
+
+    #     return tx_matrix
+    
+    def sample(self) -> Array:
 
         self.step += 1
-        self.rewards.append(reward)
 
         # Sample sharing AP and designated station
         sharing_ap = np.random.choice(self.access_points)
         designated_station = np.random.choice(self.associations[sharing_ap])
+        self.designated_stations_buffer.append(designated_station)
 
         # Sample the appropriate agent
-        reward_id = self.find_last_step[designated_station]
-        self.find_last_step[designated_station] = self.step
-
-        action = self.agent_dict[designated_station].sample(self.rewards[reward_id])
+        action = self.agent_dict[designated_station].sample()
         pairs = self.agent_action_to_pairs(designated_station, action)
 
         # Create the transmission matrix based on the sampled pairs
@@ -81,40 +105,12 @@ class FlatMapcAgent(MapcAgent):
 
         return tx_matrix
     
-    def sample_offline(self, reward: Scalar) -> Array:
-        """
-        Samples the agent to get the transmission matrix in offline mode, meaning that the internal agent state is not updated.
-
-        Parameters
-        ----------
-        reward: float
-            The reward obtained in the previous step.
-
-        Returns
-        -------
-        Array
-            The transmission matrix.
-        """
-
-        self.step += 1
-        self.rewards.append(reward)
-
-        # Sample sharing AP and designated station
-        sharing_ap = np.random.choice(self.access_points)
-        designated_station = np.random.choice(self.associations[sharing_ap])
-
-        # Sample the appropriate agent
-        reward_id = self.find_last_step[designated_station]
-        self.find_last_step[designated_station] = self.step
-
-        action = self.agent_dict[designated_station].sample_offline()
-        pairs = self.agent_action_to_pairs(designated_station, action)
-
-        # Create the transmission matrix based on the sampled pairs
-        tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
-        tx_matrix[sharing_ap, designated_station] = 1
-
-        for ap, sta in pairs:
-            tx_matrix[ap, sta] = 1
-
-        return tx_matrix
+    def batch_update(self, rewards: Array) -> None:
+        
+        # Update the agents according to the offline buffers
+        for station, action, reward in zip(self.designated_stations_buffer, self.actions_buffer, rewards):
+            self.agent_dict[station].update(action, reward)
+        
+        # Reset the buffers
+        self.designated_stations_buffer = []
+        self.actions_buffer = []
