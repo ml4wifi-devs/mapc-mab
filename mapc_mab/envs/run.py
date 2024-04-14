@@ -31,14 +31,25 @@ def run_scenario(
         agent = deepcopy(agent_copy)
         runs.append([])
         actions.append([])
-        data_rate = 0.
 
-        for j in range(n_steps):
+        step = 0
+        while step < n_steps:
             key, scenario_key = jax.random.split(key)
-            tx = agent.sample(data_rate) if j % slots_ahead == slots_ahead - 1 else agent.sample_offline(data_rate)
-            data_rate = scenario(scenario_key, tx)
-            runs[-1].append(data_rate)
-            actions[-1].append(scenario.tx_matrix_to_action(tx))
+            scenario_schedule_keys = jax.random.split(scenario_key, slots_ahead)
+
+            # Schedule the transmissions for the next n slots ahead
+            tx_schedule = [agent.sample() for _ in range(slots_ahead)]
+
+            # Get the data rates for the scheduled transmissions
+            data_rates = [scenario(k, tx) for k, tx in zip(scenario_schedule_keys, tx_schedule)]
+
+            # Update the agent with the data rates as rewards
+            agent.update(jnp.array(data_rates))
+
+            # Save the data rates and actions, increment the step
+            runs[-1] += data_rates
+            actions[-1] += [scenario.tx_matrix_to_action(tx) for tx in tx_schedule]
+            step += slots_ahead
 
     return jax.tree_map(lambda x: x.tolist(), runs), actions
 

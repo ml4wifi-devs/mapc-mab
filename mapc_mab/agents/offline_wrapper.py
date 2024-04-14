@@ -26,18 +26,14 @@ class OfflineWrapper():
     
     def init(self, seed: int = 42):
         self.key = jax.random.PRNGKey(seed)
-        self.key, key_init, key_sample = jax.random.split(self.key, 3)
+        self.key, key_init = jax.random.split(self.key)
         self.agent_state = self.agent.init(key_init)
-        self.last_action = self.agent.sample(self.agent_state, key_sample)
     
-    def sample(self, reward: float) -> int:
-        self.key, key_update, key_sample = jax.random.split(self.key, 3)
-        self.agent_state = self.agent.update(self.agent_state, key_update, self.last_action, reward)
-        self.last_action = self.agent.sample(self.agent_state, key_sample)
-        return self.last_action
+    def updade(self, action: int, reward: float) -> None:
+        self.key, key_update = jax.random.split(self.key)
+        self.agent_state = self.agent.update(self.agent_state, key_update, action, reward)
     
-    def sample_offline(self) -> int:
+    def sample(self) -> int:
         self.key, key_sample = jax.random.split(self.key)
-        self.last_action = self.agent.sample(self.agent_state, key_sample)
-        return self.last_action
+        return self.agent.sample(self.agent_state, key_sample)
         
