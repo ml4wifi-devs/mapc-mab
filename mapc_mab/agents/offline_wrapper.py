@@ -29,7 +29,7 @@ class OfflineWrapper():
         self.key, key_init = jax.random.split(self.key)
         self.agent_state = self.agent.init(key_init)
     
-    def updade(self, action: int, reward: float) -> None:
+    def update(self, action: int, reward: float) -> None:
         self.key, key_update = jax.random.split(self.key)
         self.agent_state = self.agent.update(self.agent_state, key_update, action, reward)
     
