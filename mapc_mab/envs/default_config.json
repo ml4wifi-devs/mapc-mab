@@ -17,6 +17,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_20m",
       "n_steps": 600,
+      "slots_ahead": 1,
       "params": {
         "d_ap": 20.0,
         "d_sta": 2.0,
@@ -27,6 +28,7 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_25m_long",
       "n_steps": 3000,
+      "slots_ahead": 1,
       "params": {
         "d_ap": 25.0,
         "d_sta": 2.0,

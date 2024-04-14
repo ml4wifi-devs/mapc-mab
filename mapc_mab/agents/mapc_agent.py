@@ -6,6 +6,10 @@ class MapcAgent:
     Base class for the MAPC agent.
     """
 
+    def update(self, rewards: Array) -> None:
+
+        raise NotImplementedError
+
     def sample(self) -> Array:
         """
         Samples the agent to get the transmission matrix.
@@ -19,18 +23,6 @@ class MapcAgent:
         -------
         Array
             The transmission matrix.
-        """
-
-        raise NotImplementedError
-    
-    def batch_update(self, rewards: Array) -> None:
-        """
-        Updates the agent with the rewards obtained in the previous step.
-
-        Parameters
-        ----------
-        rewards: Array
-            The rewards obtained in the previous step.
         """
 
         raise NotImplementedError
