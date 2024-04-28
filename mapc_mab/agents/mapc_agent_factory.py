@@ -81,56 +81,71 @@ class MapcAgentFactory:
         """
 
         # Define dictionary of agents selecting groups
-        find_groups: dict = {
-            sta: RLib(
-                agent_type=self.agent_type,
-                agent_params=self.agent_params.copy(),
-                ext_type=BasicMab,
-                ext_params={'n_arms': 2 ** (self.n_ap - 1)}
-            ) for sta in self.stations
-        }
+        find_groups = dict(zip(self.stations, range(self.n_sta)))
+        groups_agent = RLib(
+            agent_type=self.agent_type,
+            agent_params=self.agent_params.copy(),
+            ext_type=BasicMab,
+            ext_params={'n_arms': 2 ** (self.n_ap - 1)}
+        )
+
+        for _ in range(self.n_sta):
+            groups_agent.init(self.seed)
+            self.seed += 1
 
         # Define dictionary of agents selecting stations
-        assign_stations: dict = {
-            group: {
-                ap: RLib(
-                    agent_type=self.agent_type,
-                    agent_params=self.agent_params.copy(),
-                    ext_type=BasicMab,
-                    ext_params={'n_arms': len(self.associations[ap])}
-                ) for ap in group
-            } for group in self._powerset(self.access_points)
-        }
+        assign_stations = dict((ap, {}) for ap in self.access_points)
+        assign_stations_counter = dict((ap, 0) for ap in self.access_points)
+
+        stations_agents = {ap: RLib(
+            agent_type=self.agent_type,
+            agent_params=self.agent_params.copy(),
+            ext_type=BasicMab,
+            ext_params={'n_arms': len(self.associations[ap])}
+        ) for ap in self.access_points}
+
+        for group in self._powerset(self.access_points):
+            for ap in group:
+                assign_stations[ap][group] = assign_stations_counter[ap]
+                assign_stations_counter[ap] += 1
+
+        for ap, rlib in stations_agents.items():
+            for _ in range(assign_stations_counter[ap]):
+                rlib.init(self.seed)
+                self.seed += 1
 
         # Define dictionary of agents selecting tx power
         select_tx_power = {}
+        tx_power_agent = RLib(
+            agent_type=self.agent_type,
+            agent_params=self.agent_params.copy(),
+            ext_type=BasicMab,
+            ext_params={'n_arms': self.tx_power_levels}
+        )
+        agent_id = 0
 
         for bcoo in iter_tx(self.associations):
             mask, conf, *_ = bcoo.tree_flatten()[0]
             conf = tuple(tuple(c.tolist()) for m, c in zip(mask, conf) if m)
 
-            select_tx_power[conf] = {
-                sta: RLib(
-                    agent_type=self.agent_type,
-                    agent_params=self.agent_params.copy(),
-                    ext_type=BasicMab,
-                    ext_params={'n_arms': self.tx_power_levels}
-                ) for _, sta in conf
-            }
+            select_tx_power[conf] = {}
 
-        for agent in chain(
-                find_groups.values(),
-                (ap for group in assign_stations.values() for ap in group.values()),
-                (sta for conf in select_tx_power.values() for sta in conf.values())
-        ):
-            agent.init(self.seed)
+            for _, sta in conf:
+                select_tx_power[conf][sta] = agent_id
+                agent_id += 1
+
+        for _ in range(agent_id):
+            tx_power_agent.init(self.seed)
             self.seed += 1
 
         return HierarchicalMapcAgent(
             associations=self.associations,
             find_groups_dict=find_groups,
+            find_groups_agent=groups_agent,
             assign_stations_dict=assign_stations,
+            assign_stations_agents=stations_agents,
             select_tx_power_dict=select_tx_power,
+            select_tx_power_agent=tx_power_agent,
             ap_group_action_to_ap_group=self._ap_group_action_to_ap_group,
             sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
             tx_matrix_shape=(self.n_nodes, self.n_nodes)
