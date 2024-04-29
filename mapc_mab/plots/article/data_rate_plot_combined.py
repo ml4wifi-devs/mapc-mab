@@ -26,9 +26,9 @@ TITLES = {
     "scenario_25m_long": r"(c) $d=25$ m",
 }
 CLASSIC_MAB = {
-    "scenario_10m": "Softmax",
+    "scenario_10m": "EGreedy",
     "scenario_20m": "EGreedy",
-    "scenario_25m_long": "EGreedy",
+    "scenario_25m_long": "Softmax",
 }
 
 

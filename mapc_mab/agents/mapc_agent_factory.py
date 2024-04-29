@@ -1,4 +1,5 @@
-from itertools import chain, combinations
+from copy import deepcopy
+from itertools import chain, combinations, product
 from typing import Iterable, Iterator
 
 import numpy as np
@@ -8,7 +9,6 @@ from reinforced_lib.exts import BasicMab
 from mapc_mab.agents.flat_mapc_agent import FlatMapcAgent
 from mapc_mab.agents.hierarchical_mapc_agent import HierarchicalMapcAgent
 from mapc_mab.agents.mapc_agent import MapcAgent
-from mapc_mab.agents.utils import iter_tx
 
 
 class MapcAgentFactory:
@@ -124,10 +124,7 @@ class MapcAgentFactory:
         )
         agent_id = 0
 
-        for bcoo in iter_tx(self.associations):
-            mask, conf, *_ = bcoo.tree_flatten()[0]
-            conf = tuple(tuple(c.tolist()) for m, c in zip(mask, conf) if m)
-
+        for conf in self._iter_tx(self.associations):
             select_tx_power[conf] = {}
 
             for _, sta in conf:
@@ -180,6 +177,28 @@ class MapcAgentFactory:
             agent_action_to_pairs=self._agent_action_to_pairs,
             tx_matrix_shape=(self.n_nodes, self.n_nodes)
         )
+
+    @staticmethod
+    def _iter_tx(associations: dict) -> iter:
+        """
+        Iterate through all possible actions: combinations of active APs and associated stations.
+
+        Parameters
+        ----------
+        associations : dict
+            A dictionary mapping APs to a list of stations associated with each AP.
+
+        Returns
+        -------
+        iter
+            An iterator over all possible actions.
+        """
+
+        aps = set(associations)
+
+        for active in chain.from_iterable(combinations(aps, r) for r in range(1, len(aps) + 1)):
+            for stations in product(*((s for s in associations[a]) for a in active)):
+                yield tuple(zip(active, stations))
 
     @staticmethod
     def _powerset(iterable: Iterable) -> Iterable:
@@ -240,9 +259,8 @@ class MapcAgentFactory:
 
     def _list_pairs_num(self, designated_station: int) -> Iterator[tuple[tuple, int]]:
         """
-        Iteratively return the number of possible AP-station pairs for parallel transmission alongside the designated
-        station. The number of possible pairs is computed as the product of the number of associated stations for each
-        group of sharing APs.
+        Iteratively return the number of possible configurations (AP-station pairs and tx power levels) for parallel
+        transmission alongside the designated station.
 
         Parameters
         ----------
@@ -252,15 +270,19 @@ class MapcAgentFactory:
         Returns
         -------
         Iterator[tuple[tuple, int]]
-            The group of sharing APs and the number of possible pairs within the group.
+            The transmission pairs and the number of possible configurations.
         """
 
-        for aps in self._powerset(set(self.access_points).difference({self.inv_associations[designated_station]})):
-            yield aps, np.prod([self.tx_power_levels * len(self.associations[ap]) for ap in aps]).astype(int).item()
+        associations = deepcopy(self.associations)
+        associations.pop(self.inv_associations[designated_station])
 
-    def _agent_action_to_pairs(self, designated_station: int, action: int) -> list[tuple[int, int]]:
+        for conf in self._iter_tx(associations):
+            yield conf, self.tx_power_levels ** (len(conf) + 1)
+
+    def _agent_action_to_pairs(self, designated_station: int, action: int) -> tuple[tuple, list]:
         """
-        Translates the action of the flat agent to the list of AP-station pairs which are served simultaneously.
+        Translates the action of the flat agent to the list of AP-station pairs and tx power levels
+        which are served simultaneously.
 
         Parameters
         ----------
@@ -275,16 +297,22 @@ class MapcAgentFactory:
             The list of AP-station pairs and tx power levels.
         """
 
-        sharing_aps = tuple()
+        conf = tuple()
 
-        for aps, n in self._list_pairs_num(designated_station):
+        for c, n in self._list_pairs_num(designated_station):
             if action < n:
-                sharing_aps = aps
+                conf = c
                 break
             action -= n
 
-        pairs = []
-        tx_power = []
+        tx_power = np.zeros(self.n_nodes, dtype=int)
 
-        # TODO
-        raise NotImplementedError
+        for ap, _ in conf:
+            tx_power_len = action % self.tx_power_levels
+            tx_power[ap] = tx_power_len
+            action //= self.tx_power_levels
+
+        sharing_ap = self.inv_associations[designated_station]
+        tx_power[sharing_ap] = action
+
+        return conf, tx_power
