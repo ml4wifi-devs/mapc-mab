@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from itertools import chain, combinations, product
 from typing import Iterable, Iterator
@@ -80,7 +81,7 @@ class MapcAgentFactory:
             The hierarchical MAPC agent.
         """
 
-        # Define dictionary of agents selecting groups
+        # Define agent selecting groups
         find_groups = dict(zip(self.stations, range(self.n_sta)))
         groups_agent = RLib(
             agent_type=self.agent_type,
@@ -93,7 +94,25 @@ class MapcAgentFactory:
             groups_agent.init(self.seed)
             self.seed += 1
 
-        # Define dictionary of agents selecting stations
+        # Define agent selecting tx power
+        select_tx_power = defaultdict(dict)
+        tx_power_agent = RLib(
+            agent_type=self.agent_type,
+            agent_params=self.agent_params.copy(),
+            ext_type=BasicMab,
+            ext_params={'n_arms': self.tx_power_levels}
+        )
+        agent_id = 0
+
+        for group in self._powerset(self.access_points):
+            for ap in group:
+                select_tx_power[group][ap] = agent_id
+                agent_id += 1
+
+                tx_power_agent.init(self.seed)
+                self.seed += 1
+
+        # Define agents selecting stations
         assign_stations = dict((ap, {}) for ap in self.access_points)
         assign_stations_counter = dict((ap, 0) for ap in self.access_points)
 
@@ -105,35 +124,14 @@ class MapcAgentFactory:
         ) for ap in self.access_points}
 
         for group in self._powerset(self.access_points):
-            for ap in group:
-                assign_stations[ap][group] = assign_stations_counter[ap]
-                assign_stations_counter[ap] += 1
+            for tx_vector in product(range(self.tx_power_levels), repeat=len(group)):
+                for ap in group:
+                    agent_id = assign_stations_counter[ap]
+                    assign_stations[ap][tuple(zip(group, tx_vector))] = agent_id
+                    assign_stations_counter[ap] += 1
 
-        for ap, rlib in stations_agents.items():
-            for _ in range(assign_stations_counter[ap]):
-                rlib.init(self.seed)
-                self.seed += 1
-
-        # Define dictionary of agents selecting tx power
-        select_tx_power = {}
-        tx_power_agent = RLib(
-            agent_type=self.agent_type,
-            agent_params=self.agent_params.copy(),
-            ext_type=BasicMab,
-            ext_params={'n_arms': self.tx_power_levels}
-        )
-        agent_id = 0
-
-        for conf in self._iter_tx(self.associations):
-            select_tx_power[conf] = {}
-
-            for _, sta in conf:
-                select_tx_power[conf][sta] = agent_id
-                agent_id += 1
-
-        for _ in range(agent_id):
-            tx_power_agent.init(self.seed)
-            self.seed += 1
+                    stations_agents[ap].init(self.seed)
+                    self.seed += 1
 
         return HierarchicalMapcAgent(
             associations=self.associations,

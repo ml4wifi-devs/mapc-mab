@@ -108,17 +108,27 @@ class HierarchicalMapcAgent(MapcAgent):
         )
         all_aps = tuple(sorted(ap_group + (sharing_ap,)))
 
-        # Sample the agent which assigns stations to APs
+        # Sample the agent which assigns tx power
+        tx_power = np.zeros(self.n_nodes, dtype=np.int32)
+
+        for ap in all_aps:
+            tx_power_reward_id = self.select_tx_power_last_step[all_aps][ap]
+            self.select_tx_power_last_step[all_aps][ap] = self.step
+            agent_id = self.select_tx_power_dict[all_aps][ap]
+            tx_power[ap] = self.select_tx_power_agent.sample(self.rewards[tx_power_reward_id], agent_id=agent_id)
+
+        all_tx_power = tuple((ap, tx_power[ap]) for ap in all_aps)
+
+        # Sample the agents which assign stations to APs
         sta_group_action = {}
 
         for ap in ap_group:
-            sta_reward_id = self.assign_stations_last_step[all_aps][ap]
-            self.assign_stations_last_step[all_aps][ap] = self.step
-            agent_id = self.assign_stations_dict[ap][all_aps]
+            sta_reward_id = self.assign_stations_last_step[all_tx_power][ap]
+            self.assign_stations_last_step[all_tx_power][ap] = self.step
+            agent_id = self.assign_stations_dict[ap][all_tx_power]
             sta_group_action[ap] = self.assign_stations_agents[ap].sample(self.rewards[sta_reward_id], agent_id=agent_id)
 
         sta_group = self.sta_group_action_to_sta_group(sta_group_action)
-        all_pairs = tuple(sorted(zip(ap_group + (sharing_ap,), sta_group + [designated_station])))
 
         # Create the transmission matrix based on the sampled pairs
         tx_matrix = np.zeros(self.tx_matrix_shape, dtype=np.int32)
@@ -126,14 +136,5 @@ class HierarchicalMapcAgent(MapcAgent):
 
         for ap, sta in zip(ap_group, sta_group):
             tx_matrix[ap, sta] = 1
-
-        # Create the tx power matrix
-        tx_power = np.zeros(self.n_nodes, dtype=np.int32)
-
-        for ap, sta in all_pairs:
-            tx_power_reward_id = self.select_tx_power_last_step[all_pairs][sta]
-            self.select_tx_power_last_step[all_pairs][sta] = self.step
-            agent_id = self.select_tx_power_dict[all_pairs][sta]
-            tx_power[ap] = self.select_tx_power_agent.sample(self.rewards[tx_power_reward_id], agent_id=agent_id)
 
         return tx_matrix, tx_power
