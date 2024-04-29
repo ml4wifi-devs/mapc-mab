@@ -184,8 +184,7 @@ def random_scenario(
         n_ap: int = 4,
         d_sta: Scalar = 1.,
         n_sta_per_ap: int = 4,
-        switch_rate: float = 3.,
-        max_steps: int = 700,
+        max_steps: int = 600,
         mcs: int = DEFAULT_MCS,
         tx_power: Scalar = DEFAULT_TX_POWER,
         sigma: Scalar = DEFAULT_SIGMA
@@ -206,12 +205,8 @@ def random_scenario(
 
     associations = {i: list(range(n_ap + i * n_sta_per_ap, n_ap + (i + 1) * n_sta_per_ap)) for i in range(n_ap)}
 
-    key_first, key_sec, key = jax.random.split(jax.random.PRNGKey(seed), 3)
+    key_first, key_sec = jax.random.split(jax.random.PRNGKey(seed), 2)
     pos_first = _draw_positions(key_first)
     pos_sec = _draw_positions(key_sec)
 
-    steps_key, switch_key = jax.random.split(key)
-    steps_num = jax.random.poisson(steps_key, switch_rate).item()
-    switch_steps = jax.random.randint(switch_key, (steps_num,), minval=0, maxval=max_steps).tolist()
-
-    return DynamicScenario(associations, pos_first, mcs, tx_power, sigma, pos_sec=pos_sec, switch_steps=switch_steps)
+    return DynamicScenario(associations, pos_first, mcs, tx_power, sigma, pos_sec=pos_sec, switch_steps=[max_steps // 2])
