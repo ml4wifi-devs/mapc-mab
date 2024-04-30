@@ -28,7 +28,7 @@ TITLES = {
 CLASSIC_MAB = {
     "scenario_10m": "EGreedy",
     "scenario_20m": "EGreedy",
-    "scenario_25m_long": "Softmax",
+    "scenario_30m_long": "Softmax",
 }
 
 
