@@ -6,19 +6,10 @@ class MapcAgent:
     Base class for the MAPC agent.
     """
 
-    def sample(self, reward: Scalar) -> tuple:
-        """
-        Samples the agent to get the transmission matrix.
+    def update(self, rewards: Array) -> None:
 
-        Parameters
-        ----------
-        reward: float
-            The reward obtained in the previous step.
+        raise NotImplementedError
 
-        Returns
-        -------
-        tuple
-            The transmission matrix and the tx power vector.
-        """
+    def sample(self) -> Array:
 
         raise NotImplementedError

@@ -19,6 +19,7 @@ def run_scenario(
         scenario: Scenario,
         n_reps: int,
         n_steps: int,
+        slots_ahead: int,
         seed: int
 ) -> tuple[list, list]:
     key = jax.random.PRNGKey(seed)
@@ -27,20 +28,30 @@ def run_scenario(
     runs = []
     actions = []
 
-    for i in range(n_reps):
+    for _ in range(n_reps):
         agent = deepcopy(agent_copy)
         scenario.reset()
-
         runs.append([])
         actions.append([])
-        data_rate = 0.
 
-        for j in range(n_steps):
+        step = 0
+        while step < n_steps:
             key, scenario_key = jax.random.split(key)
-            tx, tx_power = agent.sample(data_rate)
-            data_rate = scenario(scenario_key, tx, tx_power)
-            runs[-1].append(data_rate)
-            actions[-1].append(scenario.tx_matrix_to_action(tx))
+            scenario_schedule_keys = jax.random.split(scenario_key, slots_ahead)
+
+            # Schedule the transmissions for the next n slots ahead
+            tx_schedule = [agent.sample() for _ in range(slots_ahead)]
+
+            # Get the data rates for the scheduled transmissions
+            data_rates = [scenario(k, *tx_tuple) for k, tx_tuple in zip(scenario_schedule_keys, tx_schedule)]
+
+            # Update the agent with the data rates as rewards
+            agent.update(jnp.array(data_rates))
+
+            # Save the data rates and actions, increment the step
+            runs[-1] += data_rates
+            actions[-1] += [scenario.tx_matrix_to_action(tx_tuple[0]) for tx_tuple in tx_schedule]
+            step += slots_ahead
 
     return jax.tree_map(lambda x: x.tolist(), runs), actions
 
@@ -76,7 +87,7 @@ if __name__ == '__main__':
                 seed=config['seed']
             )
 
-            runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], config['seed'])
+            runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], scenario_config['slots_ahead'], config['seed'])
             scenario_results.append({
                 'agent': {
                     'name': agent_config['name'],

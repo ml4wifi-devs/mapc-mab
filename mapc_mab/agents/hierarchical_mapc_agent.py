@@ -1,10 +1,10 @@
-from collections import defaultdict
 from itertools import chain
 from typing import Callable
+from copy import copy
 
 import numpy as np
-from chex import Scalar, Shape
-from reinforced_lib import RLib
+from chex import Shape, Array
+from mapc_mab.agents.offline_wrapper import OfflineWrapper as RLib
 
 from mapc_mab.agents.mapc_agent import MapcAgent
 
@@ -69,13 +69,47 @@ class HierarchicalMapcAgent(MapcAgent):
         self.tx_matrix_shape = tx_matrix_shape
 
         self.step = 0
-        self.rewards = []
+        self.buffer = {}
 
-        self.find_groups_last_step = defaultdict(int)
-        self.assign_stations_last_step = defaultdict(lambda: defaultdict(int))
-        self.select_tx_power_last_step = defaultdict(lambda: defaultdict(int))
+    def update(self, rewards: Array) -> None:
+        """
+        Updates the agent with the rewards obtained in the previous steps.
 
-    def sample(self, reward: Scalar) -> tuple:
+        Parameters
+        ----------
+        rewards : Array
+            The buffer of rewards obtained in the previous steps.
+        """
+        
+        for reward, (_, step_buffer) in zip(rewards, self.buffer.items()):
+            sharing_ap, designated_station, ap_group_action, tx_power, sta_group_action = step_buffer
+
+            # Recover the AP group, all APs and all tx power
+            ap_group = self.ap_group_action_to_ap_group(
+                ap_group_action,
+                sharing_ap
+            )
+            all_aps = tuple(sorted(ap_group + (sharing_ap,)))
+            all_tx_power = tuple((ap, tx_power[ap]) for ap in all_aps)
+
+            # Update the agent that finds groups of APs
+            find_groups_agent_id = self.find_groups_dict[designated_station]
+            self.find_groups_agent.update(ap_group_action, reward, find_groups_agent_id)
+
+            # Update the agent which assigns tx power
+            for ap in all_aps:
+                tx_power_agent_id = self.select_tx_power_dict[all_aps][ap]
+                self.select_tx_power_agent.update(tx_power[ap], reward, tx_power_agent_id)
+
+            # Update the agent which assigns stations to APs
+            for ap in ap_group:
+                assign_stations_agent_id = self.assign_stations_dict[ap][all_tx_power]
+                self.assign_stations_agents[ap].update(sta_group_action[ap], reward, assign_stations_agent_id)
+        
+        # Reset buffer
+        self.buffer = {}
+
+    def sample(self) -> tuple:
         """
         Samples the agent to get the transmission matrix.
 
@@ -91,42 +125,35 @@ class HierarchicalMapcAgent(MapcAgent):
         """
 
         self.step += 1
-        self.rewards.append(reward)
 
         # Sample sharing AP and designated station
-        sharing_ap = np.random.choice(self.access_points)
-        designated_station = np.random.choice(self.associations[sharing_ap])
+        sharing_ap = np.random.choice(self.access_points)                               # Save the sharing AP
+        designated_station = np.random.choice(self.associations[sharing_ap])            # Save the designated station
 
         # Sample the agent that finds groups of APs
-        ap_reward_id = self.find_groups_last_step[designated_station]
-        self.find_groups_last_step[designated_station] = self.step
-
         agent_id = self.find_groups_dict[designated_station]
+        ap_group_action = self.find_groups_agent.sample(agent_id)                       # Save the ap_group_action
         ap_group = self.ap_group_action_to_ap_group(
-            self.find_groups_agent.sample(self.rewards[ap_reward_id], agent_id=agent_id),
+            ap_group_action,
             sharing_ap
         )
         all_aps = tuple(sorted(ap_group + (sharing_ap,)))
 
         # Sample the agent which assigns tx power
-        tx_power = np.zeros(self.n_nodes, dtype=np.int32)
+        tx_power = np.zeros(self.n_nodes, dtype=np.int32)                               # Save the tx_power action
 
         for ap in all_aps:
-            tx_power_reward_id = self.select_tx_power_last_step[all_aps][ap]
-            self.select_tx_power_last_step[all_aps][ap] = self.step
             agent_id = self.select_tx_power_dict[all_aps][ap]
-            tx_power[ap] = self.select_tx_power_agent.sample(self.rewards[tx_power_reward_id], agent_id=agent_id)
+            tx_power[ap] = self.select_tx_power_agent.sample(agent_id)
 
         all_tx_power = tuple((ap, tx_power[ap]) for ap in all_aps)
 
         # Sample the agents which assign stations to APs
-        sta_group_action = {}
+        sta_group_action = {}                                                           # Save the sta_group_action
 
         for ap in ap_group:
-            sta_reward_id = self.assign_stations_last_step[all_tx_power][ap]
-            self.assign_stations_last_step[all_tx_power][ap] = self.step
             agent_id = self.assign_stations_dict[ap][all_tx_power]
-            sta_group_action[ap] = self.assign_stations_agents[ap].sample(self.rewards[sta_reward_id], agent_id=agent_id)
+            sta_group_action[ap] = self.assign_stations_agents[ap].sample(agent_id)
 
         sta_group = self.sta_group_action_to_sta_group(sta_group_action)
 
@@ -136,5 +163,8 @@ class HierarchicalMapcAgent(MapcAgent):
 
         for ap, sta in zip(ap_group, sta_group):
             tx_matrix[ap, sta] = 1
+
+        # Save step info to buffer
+        self.buffer[self.step] = (sharing_ap, designated_station, ap_group_action, copy(tx_power), copy(sta_group_action))
 
         return tx_matrix, tx_power

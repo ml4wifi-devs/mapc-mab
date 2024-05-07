@@ -1,9 +1,8 @@
-from collections import defaultdict
 from typing import Callable
 
 import numpy as np
-from chex import Scalar, Shape
-from reinforced_lib import RLib
+from chex import Shape, Array
+from mapc_mab.agents.offline_wrapper import OfflineWrapper as RLib
 
 from mapc_mab.agents.mapc_agent import MapcAgent
 
@@ -39,11 +38,28 @@ class FlatMapcAgent(MapcAgent):
         self.tx_matrix_shape = tx_matrix_shape
 
         self.step = 0
-        self.rewards = []
+        self.buffer = {}
+    
+    def update(self, rewards: Array) -> None:
+        """
+        Updates the agent with the rewards obtained in the previous steps.
 
-        self.find_last_step = defaultdict(int)
+        Parameters
+        ----------
+        rewards : Array
+            The buffer of rewards obtained in the previous steps.
+        """
+        
+        for reward, (_, step_buffer) in zip(rewards, self.buffer.items()):
+            designated_station, action = step_buffer
 
-    def sample(self, reward: Scalar) -> tuple:
+            # Update the agent
+            self.agent_dict[designated_station].update(action, reward)
+        
+        # Reset buffer
+        self.buffer = {}
+
+    def sample(self) -> tuple:
         """
         Samples the agent to get the transmission matrix.
 
@@ -59,17 +75,13 @@ class FlatMapcAgent(MapcAgent):
         """
 
         self.step += 1
-        self.rewards.append(reward)
 
         # Sample sharing AP and designated station
         sharing_ap = np.random.choice(self.access_points)
-        designated_station = np.random.choice(self.associations[sharing_ap])
+        designated_station = np.random.choice(self.associations[sharing_ap])        # Save the designated station
 
         # Sample the appropriate agent
-        reward_id = self.find_last_step[designated_station]
-        self.find_last_step[designated_station] = self.step
-
-        action = self.agent_dict[designated_station].sample(self.rewards[reward_id])
+        action = self.agent_dict[designated_station].sample()                       # Save the action
         pairs, tx_power = self.agent_action_to_pairs(designated_station, action)
 
         # Create the transmission matrix based on the sampled pairs
@@ -78,5 +90,8 @@ class FlatMapcAgent(MapcAgent):
 
         for ap, sta in pairs:
             tx_matrix[ap, sta] = 1
+
+        # Save step info to buffer
+        self.buffer[self.step] = (designated_station, action)
 
         return tx_matrix, tx_power
