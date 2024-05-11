@@ -21,6 +21,7 @@ TRAINING_SCENARIOS = [
     (random_scenario(seed=5, d_ap=75., d_sta=4., n_ap=4, n_sta_per_ap=4, max_steps=500), 500),
     (random_scenario(seed=6, d_ap=75., d_sta=4., n_ap=5, n_sta_per_ap=3, max_steps=3000), 3000)
 ]
+SLOTS_AHEAD = 1
 
 
 def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
@@ -60,7 +61,7 @@ def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
 
     for step, (scenario, n_steps) in enumerate(TRAINING_SCENARIOS):
         agent_factory = MapcAgentFactory(scenario.associations, agent_type, agent_params, hierarchical, seed=42)
-        results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, seed=42)[0])
+        results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, slots_ahead=SLOTS_AHEAD, seed=42)[0])
         runs.append(results)
 
         trial.report(results, step)

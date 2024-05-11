@@ -1,0 +1,25 @@
+{
+  "n_reps": 40,
+  "seed": 42,
+  "scenarios": [],
+  "agents": [
+    {
+      "name": "Softmax",
+      "params": {
+        "lr": 0.8863730137496654,
+        "tau": 2.3936933617003553,
+        "multiplier": 0.209454940038011,
+        "alpha": 0.05184734542598232
+      },
+      "hierarchical": false
+    },
+    {
+      "name": "UCB",
+      "params": {
+        "c": 84.65410240867813,
+        "gamma": 0.5445371852442004
+      },
+      "hierarchical": true
+    }
+  ]
+}

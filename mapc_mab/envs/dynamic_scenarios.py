@@ -26,7 +26,7 @@ class DynamicScenario(Scenario):
     mcs: int
         Modulation and coding scheme of the nodes. Each entry corresponds to a node.
     tx_power: Scalar
-        Transmission power of the nodes. Each entry corresponds to a node.
+        Default transmission power of the nodes.
     sigma: Scalar
         Standard deviation of the additive white Gaussian noise.
     walls: Optional[Array]
@@ -38,7 +38,7 @@ class DynamicScenario(Scenario):
     mcs_sec: Optional[int]
         Modulation and coding scheme of the nodes after the change.
     tx_power_sec: Optional[Scalar]
-        Transmission power of the nodes after the change.
+        Default transmission power of the nodes after the change.
     sigma_sec: Optional[Scalar]
         Standard deviation of the noise after the change.
     walls_sec: Optional[Array]
