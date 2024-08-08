@@ -48,7 +48,7 @@ if __name__ == '__main__':
     for run in agent["actions"]:
         for action in run[args.warmup:]:
             # Cast action to immutable type
-            action = tuple([tuple(tx) for tx in action])
+            action = tuple(action.keys())
             actions_dict[action] += 1
     
     # Sort actions by frequency
@@ -58,7 +58,9 @@ if __name__ == '__main__':
     actions = [(action, freq / n_runs) for action, freq in actions]
 
     # Convert actions to APs' names
-    action_to_names = lambda tx: "".join([APS_NAMES[i] for i, tx in enumerate(tx) if tx])
+    aps = tuple(set([ap for action in actions_dict.keys() for ap in action]))
+    aps = {ap: i for i, ap in enumerate(aps)}
+    action_to_names = lambda tx: "".join([APS_NAMES[aps[t]] for t in tx])
     actions_aps = [(action_to_names(tx), freq) for tx, freq in actions]
 
     # Aggregate actions by tx APs

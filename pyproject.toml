@@ -29,6 +29,9 @@ dependencies = [
   "tqdm~=4.66.1"
 ]
 
+[tool.setuptools]
+packages = ["mapc_mab"]
+
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"

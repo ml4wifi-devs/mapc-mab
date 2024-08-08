@@ -113,7 +113,7 @@ class Scenario(ABC):
 
         return np.all(signal_power > CCA_THRESHOLD)
 
-    def tx_matrix_to_action(self, tx_matrix: Array) -> list:
+    def tx_matrix_to_action(self, tx_matrix: Array) -> dict:
         """
         Convert a transmission matrix to a list of transmissions. Assumes downlink.
 
@@ -124,17 +124,17 @@ class Scenario(ABC):
 
         Returns
         -------
-        list
-            A list, where each entry is either one element list of the AP->STA transmission or an empty one.
+        dict
+            A dictionary where the keys are APs, and the values are the stations associated.
         """
 
         aps = list(self.associations.keys())
-        action = [[] for _ in aps]
+        action = {}
 
         for ap in aps:
             assert jnp.sum(tx_matrix[ap, :]) <= 1, 'Multiple transmissions at AP'
             for sta in self.associations[ap]:
                 if tx_matrix[ap, sta]:
-                    action[ap].append(sta)
+                    action[ap] = sta
 
         return action

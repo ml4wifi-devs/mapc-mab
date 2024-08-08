@@ -50,9 +50,7 @@ if __name__ == '__main__':
 
     # Count actions
     for run in agent["actions"]:
-        for action in run[args.warmup:]:
-            # Cast action to immutable type
-            action = tuple([tuple(tx) for tx in action])
+        for action in run[args.warmup:].values():
             actions_dict[action] += 1
     
     # Sort actions by frequency
@@ -64,9 +62,7 @@ if __name__ == '__main__':
     # Aggregate actions by tx APs
     actions_stas_aggregated = defaultdict(lambda: 0)
     for action, freq in actions:
-        for sta in action:
-            if sta:
-                actions_stas_aggregated[f"STA_{sta[0]}"] += freq
+        actions_stas_aggregated[f"STA_{action}"] += freq
 
     # Re-run sorting
     actions_stas_aggregated = sorted(actions_stas_aggregated.items(), key=lambda x: x[1], reverse=True)
