@@ -9,7 +9,8 @@ from mapc_mab.agents.mapc_agent import MapcAgent
 
 class FlatMapcAgent(MapcAgent):
     """
-    The classic MAB agent responsible for the selection of the AP and station pairs in one step.
+    The classic MAB agent responsible for the selection of the transmission power
+    as well as AP and station pairs in one step.
 
     Parameters
     ----------
@@ -62,11 +63,6 @@ class FlatMapcAgent(MapcAgent):
     def sample(self) -> tuple:
         """
         Samples the agent to get the transmission matrix.
-
-        Parameters
-        ----------
-        reward: float
-            The reward obtained in the previous step.
 
         Returns
         -------

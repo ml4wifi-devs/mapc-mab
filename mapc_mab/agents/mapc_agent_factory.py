@@ -31,6 +31,8 @@ class MapcAgentFactory:
         The parameters of the third level agent.
     hierarchical : bool
         The flag indicating whether the hierarchical or flat MAPC agent should be created.
+    tx_power_levels : int
+        The number of transmission power levels.
     seed : int
         The seed for the random number generator.
     """
@@ -92,7 +94,7 @@ class MapcAgentFactory:
 
         # Define agent selecting groups
         find_groups = dict(zip(self.stations, range(self.n_sta)))
-        groups_agent = RLib(
+        find_groups_agent = RLib(
             agent_type=self.agent_type,
             agent_params=self.agent_params_lvl1.copy(),
             ext_type=BasicMab,
@@ -100,32 +102,36 @@ class MapcAgentFactory:
         )
 
         for _ in range(self.n_sta):
-            groups_agent.init(self.seed)
+            find_groups_agent.init(self.seed)
             self.seed += 1
 
-        # Define agent selecting tx power
-        select_tx_power = defaultdict(dict)
-        tx_power_agent = RLib(
+        # Define agents selecting tx power
+        select_tx_power = {}
+        select_tx_power_counter = defaultdict(int)
+
+        select_tx_power_agents = {n: RLib(
             agent_type=self.agent_type,
             agent_params=self.agent_params_lvl2.copy(),
             ext_type=BasicMab,
-            ext_params={'n_arms': self.tx_power_levels}
-        )
-        agent_id = 0
+            ext_params={'n_arms': self.tx_power_levels ** n}
+        ) for n in range(1, self.n_ap + 1)}
 
         for group in self._powerset(self.access_points):
-            for ap in group:
-                select_tx_power[group][ap] = agent_id
-                agent_id += 1
+            if len(group) == 0:
+                continue
 
-                tx_power_agent.init(self.seed)
-                self.seed += 1
+            agent_id = select_tx_power_counter[len(group)]
+            select_tx_power[group] = agent_id
+            select_tx_power_counter[len(group)] += 1
+
+            select_tx_power_agents[len(group)].init(self.seed)
+            self.seed += 1
 
         # Define agents selecting stations
-        assign_stations = dict((ap, {}) for ap in self.access_points)
-        assign_stations_counter = dict((ap, 0) for ap in self.access_points)
+        assign_stations = defaultdict(dict)
+        assign_stations_counter = defaultdict(int)
 
-        stations_agents = {ap: RLib(
+        assign_stations_agents = {ap: RLib(
             agent_type=self.agent_type,
             agent_params=self.agent_params_lvl3.copy(),
             ext_type=BasicMab,
@@ -139,20 +145,21 @@ class MapcAgentFactory:
                     assign_stations[ap][tuple(zip(group, tx_vector))] = agent_id
                     assign_stations_counter[ap] += 1
 
-                    stations_agents[ap].init(self.seed)
+                    assign_stations_agents[ap].init(self.seed)
                     self.seed += 1
 
         return HierarchicalMapcAgent(
             associations=self.associations,
             find_groups_dict=find_groups,
-            find_groups_agent=groups_agent,
+            find_groups_agent=find_groups_agent,
             assign_stations_dict=assign_stations,
-            assign_stations_agents=stations_agents,
+            assign_stations_agents=assign_stations_agents,
             select_tx_power_dict=select_tx_power,
-            select_tx_power_agent=tx_power_agent,
+            select_tx_power_agents=select_tx_power_agents,
             ap_group_action_to_ap_group=self._ap_group_action_to_ap_group,
             sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
-            tx_matrix_shape=(self.n_nodes, self.n_nodes)
+            tx_matrix_shape=(self.n_nodes, self.n_nodes),
+            tx_power_levels=self.tx_power_levels
         )
 
     def create_flat_mapc_agent(self) -> MapcAgent:
