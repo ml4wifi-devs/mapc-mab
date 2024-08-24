@@ -53,7 +53,7 @@ def run_scenario(
             actions[-1] += [scenario.tx_matrix_to_action(tx_tuple[0]) for tx_tuple in tx_schedule]
             step += slots_ahead
 
-    return jax.tree_map(lambda x: x.tolist(), runs), actions
+    return jax.tree.map(lambda x: x.tolist(), runs), actions
 
 
 if __name__ == '__main__':
@@ -82,7 +82,9 @@ if __name__ == '__main__':
             agent_factory = MapcAgentFactory(
                 associations=scenario.associations,
                 agent_type=globals()[agent_config['name']],
-                agent_params=agent_config['params'],
+                agent_params_lvl1=agent_config['params1'],
+                agent_params_lvl2=agent_config['params2'] if agent_config['hierarchical'] else None,
+                agent_params_lvl3=agent_config['params3'] if agent_config['hierarchical'] else None,
                 hierarchical=agent_config['hierarchical'],
                 seed=config['seed']
             )
@@ -91,7 +93,9 @@ if __name__ == '__main__':
             scenario_results.append({
                 'agent': {
                     'name': agent_config['name'],
-                    'params': agent_config['params'],
+                    'params1': agent_config['params1'],
+                    'params2': agent_config['params2'] if agent_config['hierarchical'] else None,
+                    'params3': agent_config['params3'] if agent_config['hierarchical'] else None,
                     'hierarchical': agent_config['hierarchical']
                 },
                 'runs': runs,

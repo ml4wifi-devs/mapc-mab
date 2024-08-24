@@ -26,41 +26,73 @@ SLOTS_AHEAD = 1
 
 def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
     if agent == 'EGreedy':
+        def suggest_params(level):
+            return {
+                'e': trial.suggest_float(f'e_{level}', 0.001, 0.1, log=True),
+                'optimistic_start': trial.suggest_float(f'optimistic_start_{level}', 0., 1000.),
+                'alpha': trial.suggest_float(f'alpha_{level}', 0., 1.)
+            }
+
         agent_type = EGreedy
-        agent_params = {
-            'e': trial.suggest_float('e', 0.001, 0.1, log=True),
-            'optimistic_start': trial.suggest_float('optimistic_start', 0., 1000.),
-            'alpha': trial.suggest_float('alpha', 0., 1.)
-        }
+        agent_params_lvl1 = suggest_params(1)
+        if hierarchical:
+            agent_params_lvl2 = suggest_params(2)
+            agent_params_lvl3 = suggest_params(3)
+
     elif agent == 'Softmax':
+        def suggest_params(level):
+            return {
+                'lr': trial.suggest_float(f'lr_{level}', 0.01, 100., log=True),
+                'tau': trial.suggest_float(f'tau_{level}', 0.001, 100., log=True),
+                'multiplier': trial.suggest_float(f'multiplier_{level}', 0.0001, 1., log=True),
+                'alpha': trial.suggest_float(f'alpha_{level}', 0., 1.)
+            }
+
         agent_type = Softmax
-        agent_params = {
-            'lr': trial.suggest_float('lr', 0.01, 100., log=True),
-            'tau': trial.suggest_float('tau', 0.001, 100., log=True),
-            'multiplier': trial.suggest_float('multiplier', 0.0001, 1., log=True),
-            'alpha': trial.suggest_float('alpha', 0., 1.)
-        }
+        agent_params_lvl1 = suggest_params(1)
+        if hierarchical:
+            agent_params_lvl2 = suggest_params(2)
+            agent_params_lvl3 = suggest_params(3)
+
     elif agent == 'UCB':
+        def suggest_params(level):
+            return {
+                'c': trial.suggest_float(f'c_{level}', 0., 100.),
+                'gamma': trial.suggest_float(f'gamma_{level}', 0., 1.)
+            }
+
         agent_type = UCB
-        agent_params = {
-            'c': trial.suggest_float('c', 0., 100.),
-            'gamma': trial.suggest_float('gamma', 0., 1.)
-        }
+        agent_params_lvl1 = suggest_params(1)
+        if hierarchical:
+            agent_params_lvl2 = suggest_params(2)
+            agent_params_lvl3 = suggest_params(3)
+
     elif agent == 'NormalThompsonSampling':
+        def suggest_params(level):
+            return {
+                'alpha': trial.suggest_float(f'alpha_{level}', 0., 100.),
+                'beta': trial.suggest_float(f'beta_{level}', 0., 100.),
+                'lam': 0.,
+                'mu': trial.suggest_float(f'mu_{level}', 0., 1000.)
+            }
+
         agent_type = NormalThompsonSampling
-        agent_params = {
-            'alpha': trial.suggest_float('alpha', 0., 100.),
-            'beta': trial.suggest_float('beta', 0., 100.),
-            'lam': 0.,
-            'mu': trial.suggest_float('mu', 0., 1000.)
-        }
+        agent_params_lvl1 = suggest_params(1)
+        if hierarchical:
+            agent_params_lvl2 = suggest_params(2)
+            agent_params_lvl3 = suggest_params(3)
+
     else:
         raise ValueError(f'Unknown agent {agent}')
 
     runs = []
 
     for step, (scenario, n_steps) in enumerate(TRAINING_SCENARIOS):
-        agent_factory = MapcAgentFactory(scenario.associations, agent_type, agent_params, hierarchical, seed=42)
+        if hierarchical:
+            agent_factory = MapcAgentFactory(scenario.associations, agent_type, agent_params_lvl1, agent_params_lvl2, agent_params_lvl3, hierarchical=True, seed=42)
+        else:
+            agent_factory = MapcAgentFactory(scenario.associations, agent_type, agent_params_lvl1, hierarchical=False, seed=42)
+
         results = np.mean(run_scenario(agent_factory, scenario, n_reps=1, n_steps=n_steps, slots_ahead=SLOTS_AHEAD, seed=42)[0])
         runs.append(results)
 
@@ -77,7 +109,7 @@ if __name__ == '__main__':
     args.add_argument('-a', '--agent', type=str, required=True)
     args.add_argument('-d', '--database', type=str, required=True)
     args.add_argument('-f', '--flat', action='store_true', default=False)
-    args.add_argument('-n', '--n_trials', type=int, default=200)
+    args.add_argument('-n', '--n_trials', type=int, default=300)
     args = args.parse_args()
 
     study = optuna.create_study(
