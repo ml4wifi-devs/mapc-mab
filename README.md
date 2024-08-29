@@ -10,13 +10,9 @@ Our proposal is described in detail in the paper referenced above. Here, we prov
 
 ### Graphical Algorithm
 
-The figure below provides a graphical representation of our hierarchical MAB algorithm.
+The figure below provides a graphical representation of our hierarchical MAB algorithm. At first, the sharing AP is selected. Then, one of its associated stations is chosen for downlink C-CR transmission. After that, the 1<sup>st</sup> level agent is selected based on the <em>context</em> (i.e., the sharing AP and its selected station) and the set of the sharing APs is sampled. Additionally, the 2<sup>nd</sup> level agent is selected based on the <em>context</em> and an associated station is sampled for each of the shared APs. Finally, the chosen set of AP-station pairs is tested by running downlink C-SR transmission simulations and obtaining the reward. The resulting reward is uploaded to the 1<sup>st</sup> and 2<sup>nd</sup> level agents. The whole process is then repeated to find the best C-SR AP-station pairs.
 
 <img src="https://github.com/user-attachments/assets/ec166c78-cf1b-4a77-9b31-45732ec5d6ee" width="50%" height="50%">
-
-
-
-
 
 
 ### MAB Algorithms
