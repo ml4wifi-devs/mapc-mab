@@ -12,6 +12,13 @@ Our proposal is described in detail in the paper referenced above. Here, we prov
 
 The figure below provides a graphical representation of our hierarchical MAB algorithm.
 
+<img src="https://github.com/user-attachments/assets/ec166c78-cf1b-4a77-9b31-45732ec5d6ee" width="50%" height="50%">
+
+
+
+
+
+
 ### MAB Algorithms
 
 We assume that all MAB agents (on both levels in the hierarchy) are of the same type, i.e., use the same MAB algorithm.
