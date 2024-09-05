@@ -31,6 +31,7 @@ if __name__ == '__main__':
     args.add_argument('-w', "--warmup", type=int, required=False, default=0)
     args.add_argument('-s', '--scenario', type=str, required=False)
     args.add_argument('-a', '--agent', type=str, required=False)
+    args.add_argument('-r', '--result_path', type=str, required=False)
     args = args.parse_args()
 
     with open(args.file, 'r') as file:
@@ -70,5 +71,5 @@ if __name__ == '__main__':
     actions_aps_aggregated = sorted(actions_aps_aggregated.items(), key=lambda x: x[1], reverse=True)
 
     # Plot histogram of actions_aps_aggregated
-    save_name = f"aggregating-by-APs-{scenario['scenario']['name']}-{agent['agent']['name']}.pdf"
-    plot_histogram(actions_aps_aggregated, txops_slots, save_name)
+    save_path = f"fairness-ap.pdf" if not args.result_path else args.result_path
+    plot_histogram(actions_aps_aggregated, txops_slots, save_path)
