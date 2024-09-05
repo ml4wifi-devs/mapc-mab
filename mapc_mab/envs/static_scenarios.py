@@ -100,6 +100,23 @@ def simple_scenario_1(
 
     return StaticScenario(pos, mcs, tx_power, sigma, associations)
 
+def dense_point_scenario(
+        n_ap: int = 10,
+        n_associations: int = 1,
+        mcs: int = DEFAULT_MCS,
+        tx_power: Scalar = DEFAULT_TX_POWER,
+        sigma: Scalar = DEFAULT_SIGMA
+) -> StaticScenario:
+    """
+    There is `n_ap` APs with `n_associations` STAs each. All of the devices are placed at the same point. 
+    """
+
+    pos = jnp.array([[0., 0.] for _ in range(n_ap * (n_associations + 1))])
+
+    associations = {i: [n_ap + i * n_associations + j for j in range(n_associations)] for i in range(n_ap)}
+    
+    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+
 
 def simple_scenario_2(
         d_ap: Scalar = 50.,
