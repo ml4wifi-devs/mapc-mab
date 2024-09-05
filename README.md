@@ -4,6 +4,29 @@ This repository contains the implementation of a Multi-Armed Bandit (MAB) algori
 
 - Maksymilian Wojnar, Wojciech Ciezobka, Katarzyna Kosek-Szott, Krzysztof Rusek, Szymon Szott, David Nunez, and Boris Bellalta. "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchical Multi-Armed Bandits", $JOURNAL_NAME_TODO, 2024. [[TODO_PREPRINT_INSERT](https://github.com/ml4wifi-devs/mapc-mab/tree/main), [TODO_PUBLICATION_INSERT](https://github.com/ml4wifi-devs/mapc-mab/tree/main)]
 
+## Concept
+
+Our proposal is described in detail in the paper referenced above. Here, we provide some additional information which will hopefully facilitate understanding.
+
+### Graphical Algorithm
+
+The figure below provides a graphical representation of our hierarchical MAB algorithm. At first, the sharing AP is selected. Then, one of its associated stations is chosen for downlink C-SR transmission. After that, the 1<sup>st</sup> level agent is selected based on the <em>context</em> (i.e., the sharing AP and its selected station) and the set of the sharing APs is sampled. Additionally, the 2<sup>nd</sup> level agent is selected based on the <em>context</em> and an associated station is sampled for each of the shared APs. Finally, the chosen set of AP-station pairs is tested by running downlink C-SR transmission simulations and obtaining the reward. The resulting reward is uploaded to the 1<sup>st</sup> and 2<sup>nd</sup> level agents. The whole process is then repeated to find the best C-SR AP-station pairs.
+
+<img src="https://github.com/user-attachments/assets/ec166c78-cf1b-4a77-9b31-45732ec5d6ee" width="100%" height="100%">
+
+
+### MAB Algorithms
+
+We assume that all MAB agents (on both levels in the hierarchy) are of the same type, i.e., use the same MAB algorithm.
+The table below provides a brief description of the algorithms that we use as well as their advantages and drawbacks.
+
+| Algorithm   | Description                                                                     | Pros & cons                                                                     |
+|-------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| ε-greedy    | Selects best option with probability 1-ε otherwise explore                      | It quickly finds the best option but is not suitable for a dynamic environment  |
+| UCB         | Choose best option according to estimated average and confidence                | Asymptotically optimal and deterministic but at the expense of convergence time |
+| Softmax     | Assess options using stochastic gradient ascent                                 | Slowly convergent but the gradient can find the best option                     |
+| Thompson Sampling (normal) | Directly models the reward distribution (assuming normally-distributed rewards) | Quickly converges and models uncertainty, but is inflexible in the long run     |
+
 ## Installation
 
 All the requirements can be installed automatically with the following commands:

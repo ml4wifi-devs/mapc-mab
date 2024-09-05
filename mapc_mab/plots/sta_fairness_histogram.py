@@ -51,9 +51,7 @@ if __name__ == '__main__':
 
     # Count actions
     for run in agent["actions"]:
-        for action in run[args.warmup:]:
-            # Cast action to immutable type
-            action = tuple([tuple(tx) for tx in action])
+        for action in run[args.warmup:].values():
             actions_dict[action] += 1
     
     # Sort actions by frequency
