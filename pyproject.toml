@@ -22,7 +22,7 @@ dependencies = [
   "chex~=0.1.86",
   "jax~=0.4.30",
   "jaxlib~=0.4.30",
-  "mapc-sim~=0.1.5",
+  "mapc-sim~=0.1.6",
   "matplotlib~=3.9.2",
   "optuna~=3.6.1",
   "reinforced-lib==1.1.2",
