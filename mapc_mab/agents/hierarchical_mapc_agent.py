@@ -139,11 +139,12 @@ class HierarchicalMapcAgent(MapcAgent):
         # Sample the agent which assigns tx power
         agent_id = self.select_tx_power_dict[all_aps]
         tx_power_action = self.select_tx_power_agents[len(all_aps)].sample(agent_id)
+        tx_power_action_copy = copy(tx_power_action)
         tx_power = np.zeros(self.n_nodes, dtype=np.int32)
 
         for i, ap in enumerate(all_aps):
-            tx_power[ap] = tx_power_action % self.tx_power_levels
-            tx_power_action //= self.tx_power_levels
+            tx_power[ap] = tx_power_action_copy % self.tx_power_levels
+            tx_power_action_copy //= self.tx_power_levels
 
         all_tx_power = tuple((ap, tx_power[ap]) for ap in all_aps)
 
