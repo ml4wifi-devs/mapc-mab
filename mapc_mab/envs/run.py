@@ -1,5 +1,8 @@
 import os
 os.environ['JAX_ENABLE_X64'] = 'True'
+os.environ['JAX_COMPILATION_CACHE_DIR'] = '/tmp/jax_cache'
+os.environ['JAX_PERSISTENT_CACHE_MIN_ENTRY_SIZE_BYTES'] = '-1'
+os.environ['JAX_PERSISTENT_CACHE_MIN_COMPILE_TIME_SECS'] = '0'
 
 import json
 from copy import deepcopy
@@ -22,13 +25,11 @@ def run_scenario(
         seed: int
 ) -> tuple[list, list]:
     key = jax.random.PRNGKey(seed)
-    agent_copy = agent_factory.create_mapc_agent()
-
     runs = []
     actions = []
 
     for i in range(n_reps):
-        agent = deepcopy(agent_copy)
+        agent = agent_factory.create_mapc_agent()
         scenario.reset()
 
         runs.append([])
@@ -42,7 +43,7 @@ def run_scenario(
             runs[-1].append(data_rate)
             actions[-1].append(scenario.tx_matrix_to_action(tx))
 
-    return jax.tree_map(lambda x: x.tolist(), runs), actions
+    return jax.tree.map(lambda x: x.tolist(), runs), actions
 
 
 if __name__ == '__main__':
