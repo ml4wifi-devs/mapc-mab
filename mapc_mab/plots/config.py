@@ -14,7 +14,7 @@ PLOT_PARAMS = {
     'axes.linewidth': 0.5,
     'grid.alpha': 0.42,
     'grid.linewidth': 0.5,
-    'legend.title_fontsize': 7,
+    'legend.title_fontsize': 9,
     'legend.fontsize': 7,
     'lines.linewidth': 1.,
     'lines.markersize': 2,
@@ -26,7 +26,7 @@ PLOT_PARAMS = {
 
 AGENT_NAMES = {
     'EGreedy': r'$\varepsilon$-greedy',
-    'NormalThompsonSampling': 'Normal TS'
+    'NormalThompsonSampling': 'TS'
 }
 
 

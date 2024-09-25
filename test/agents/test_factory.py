@@ -22,7 +22,9 @@ class MapcAgentFactoryTestCase(unittest.TestCase):
         agent_factory = MapcAgentFactory(
             scenario.associations,
             agent_type=UCB,
-            agent_params={'c': 500.0}
+            agent_params_lvl1={'c': 500.0},
+            agent_params_lvl2={'c': 500.0},
+            agent_params_lvl3={'c': 500.0}
         )
         agent = agent_factory.create_mapc_agent()
 
@@ -34,11 +36,12 @@ class MapcAgentFactoryTestCase(unittest.TestCase):
         for step in range(n_steps + 1):
             # Sample the agent
             key, tx_key = jax.random.split(key, 2)
-            tx = agent.sample(reward)
+            tx, tx_power = agent.sample()
 
             # Simulate the network
-            reward = scenario(tx_key, tx)
-            data_rate.append(reward)
+            thr, reward = scenario(tx_key, tx, tx_power)
+            data_rate.append(thr)
+            agent.update([reward])
 
         # Plot the effective data rate
         plt.plot(data_rate)
@@ -58,13 +61,16 @@ class MapcAgentFactoryTestCase(unittest.TestCase):
         agent_factory = MapcAgentFactory(
             scenario.associations,
             agent_type=UCB,
-            agent_params={'c': 500.0},
+            agent_params_lvl1={'c': 500.0},
+            agent_params_lvl2={'c': 500.0},
+            agent_params_lvl3={'c': 500.0},
             hierarchical=True
         )
         agent = agent_factory.create_mapc_agent()
 
         for _ in range(200):
-            agent.sample(0.)
+            agent.sample()
+            agent.update([0.])
 
     def test_flat_agent(self):
         scenario = simple_scenario_5()
@@ -72,10 +78,11 @@ class MapcAgentFactoryTestCase(unittest.TestCase):
         agent_factory = MapcAgentFactory(
             scenario.associations,
             agent_type=UCB,
-            agent_params={'c': 500.0},
+            agent_params_lvl1={'c': 500.0},
             hierarchical=False
         )
         agent = agent_factory.create_mapc_agent()
 
         for _ in range(200):
-            agent.sample(0.)
+            agent.sample()
+            agent.update([0.])

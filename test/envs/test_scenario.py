@@ -55,9 +55,9 @@ class ScenarioClassTestCase(unittest.TestCase):
 
         for _ in range(150):
             key, k1, k2, k3 = jax.random.split(key, 4)
-            data_rate_1.append(scenario(k1, tx1))
-            data_rate_2.append(scenario(k2, tx2))
-            data_rate_3.append(scenario(k3, tx3))
+            data_rate_1.append(scenario(k1, tx1)[0])
+            data_rate_2.append(scenario(k2, tx2)[0])
+            data_rate_3.append(scenario(k3, tx3)[0])
 
         # Plot effective data rate
         xs = jnp.arange(150)
