@@ -1,5 +1,8 @@
 import os
 os.environ['JAX_ENABLE_X64'] = 'True'
+os.environ['JAX_COMPILATION_CACHE_DIR'] = '/tmp/jax_cache'
+os.environ['JAX_PERSISTENT_CACHE_MIN_ENTRY_SIZE_BYTES'] = '-1'
+os.environ['JAX_PERSISTENT_CACHE_MIN_COMPILE_TIME_SECS'] = '0'
 
 from argparse import ArgumentParser
 from functools import partial
@@ -28,9 +31,9 @@ def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
     if agent == 'EGreedy':
         def suggest_params(level):
             return {
-                'e': trial.suggest_float(f'e_{level}', 0.001, 0.1, log=True),
-                'optimistic_start': trial.suggest_float(f'optimistic_start_{level}', 0., 1000.),
-                'alpha': trial.suggest_float(f'alpha_{level}', 0., 1.)
+                'e': trial.suggest_float(f'e_{level}', 0.01, 0.1, log=True),
+                'optimistic_start': trial.suggest_float(f'optimistic_start_{level}', 0., 100.),
+                'alpha': trial.suggest_float(f'alpha_{level}', 0., 0.5)
             }
 
         agent_type = EGreedy
@@ -43,9 +46,8 @@ def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
         def suggest_params(level):
             return {
                 'lr': trial.suggest_float(f'lr_{level}', 0.01, 100., log=True),
-                'tau': trial.suggest_float(f'tau_{level}', 0.001, 100., log=True),
-                'multiplier': trial.suggest_float(f'multiplier_{level}', 0.0001, 1., log=True),
-                'alpha': trial.suggest_float(f'alpha_{level}', 0., 1.)
+                'tau': trial.suggest_float(f'tau_{level}', 0.1, 10., log=True),
+                'alpha': trial.suggest_float(f'alpha_{level}', 0., 0.5)
             }
 
         agent_type = Softmax
@@ -57,8 +59,8 @@ def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
     elif agent == 'UCB':
         def suggest_params(level):
             return {
-                'c': trial.suggest_float(f'c_{level}', 0., 100.),
-                'gamma': trial.suggest_float(f'gamma_{level}', 0., 1.)
+                'c': trial.suggest_float(f'c_{level}', 0., 10.),
+                'gamma': trial.suggest_float(f'gamma_{level}', 0.5, 1.0)
             }
 
         agent_type = UCB
@@ -73,7 +75,7 @@ def objective(trial: optuna.Trial, agent: str, hierarchical: bool) -> float:
                 'alpha': trial.suggest_float(f'alpha_{level}', 0., 100.),
                 'beta': trial.suggest_float(f'beta_{level}', 0., 100.),
                 'lam': 0.,
-                'mu': trial.suggest_float(f'mu_{level}', 0., 1000.)
+                'mu': trial.suggest_float(f'mu_{level}', 0., 10.)
             }
 
         agent_type = NormalThompsonSampling

@@ -4,7 +4,7 @@ from typing import Optional
 import jax
 import jax.numpy as jnp
 from chex import Array, Scalar, PRNGKey
-from mapc_sim.constants import DEFAULT_TX_POWER, DEFAULT_SIGMA
+from mapc_sim.constants import DEFAULT_TX_POWER, DEFAULT_SIGMA, DATA_RATES
 from mapc_sim.sim import network_data_rate
 
 from mapc_mab.envs.scenario import Scenario
@@ -45,6 +45,8 @@ class DynamicScenario(Scenario):
         Adjacency matrix of walls after the change.
     walls_pos_sec: Optional[Array]
         Array of wall positions after the change.
+    tx_power_delta: Scalar
+        Difference in transmission power between the tx power levels.
     """
 
     def __init__(
@@ -80,6 +82,7 @@ class DynamicScenario(Scenario):
             walls=walls
         ))
         self.tx_power_first = jnp.full(pos.shape[0], tx_power)
+        self.mcs_first = mcs
 
         if pos_sec is None:
             pos_sec = pos.copy()
@@ -100,19 +103,27 @@ class DynamicScenario(Scenario):
             walls=walls_sec
         ))
         self.tx_power_sec = jnp.full(pos_sec.shape[0], tx_power_sec)
+        self.mcs_sec = mcs_sec
 
         self.data_rate_fn = self.data_rate_fn_first
         self.tx_power = self.tx_power_first
+        self.mcs = self.mcs_first
         self.switch_steps = switch_steps
         self.step = 0
         self.tx_power_delta = tx_power_delta
 
-    def __call__(self, key: PRNGKey, tx: Array, tx_power: Array) -> Scalar:
+    def __call__(self, key: PRNGKey, tx: Array, tx_power: Array) -> tuple[Scalar, Scalar]:
+        if tx_power is None:
+            tx_power = jnp.zeros(self.pos.shape[0])
+
         if self.step in self.switch_steps:
             self.switch()
 
         self.step += 1
-        return self.data_rate_fn(key, tx, tx_power=self.tx_power - self.tx_power_delta * tx_power)
+
+        thr = self.data_rate_fn(key, tx, tx_power=self.tx_power - self.tx_power_delta * tx_power)
+        reward = thr / DATA_RATES[self.mcs]
+        return thr, reward
 
     def reset(self) -> None:
         self.data_rate_fn = self.data_rate_fn_first
@@ -122,9 +133,11 @@ class DynamicScenario(Scenario):
         if self.data_rate_fn is self.data_rate_fn_first:
             self.data_rate_fn = self.data_rate_fn_sec
             self.tx_power = self.tx_power_sec
+            self.mcs = self.mcs_sec
         else:
             self.data_rate_fn = self.data_rate_fn_first
             self.tx_power = self.tx_power_first
+            self.mcs = self.mcs_first
 
     @staticmethod
     def from_static_params(

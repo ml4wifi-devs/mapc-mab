@@ -43,11 +43,12 @@ def run_scenario(
             # Schedule the transmissions for the next n slots ahead
             tx_schedule = [agent.sample() for _ in range(slots_ahead)]
 
-            # Get the data rates for the scheduled transmissions
-            data_rates = [scenario(k, *tx_tuple) for k, tx_tuple in zip(scenario_schedule_keys, tx_schedule)]
+            # Get the data rates and rewards for the scheduled transmissions
+            results = [scenario(k, *tx_tuple) for k, tx_tuple in zip(scenario_schedule_keys, tx_schedule)]
+            data_rates, rewards = zip(*results)
 
             # Update the agent with the data rates as rewards
-            agent.update(jnp.array(data_rates))
+            agent.update(jnp.array(rewards))
 
             # Save the data rates and actions, increment the step
             runs[-1] += data_rates

@@ -28,7 +28,7 @@ class Scenario(ABC):
         self.associations = associations
 
     @abstractmethod
-    def __call__(self, *args, **kwargs) -> Scalar:
+    def __call__(self, *args, **kwargs) -> tuple[Scalar, Scalar]:
         pass
 
     def reset(self) -> None:

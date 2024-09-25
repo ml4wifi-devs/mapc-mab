@@ -34,6 +34,8 @@ class StaticScenario(Scenario):
         Adjacency matrix of walls. Each entry corresponds to a node.
     walls_pos: Optional[Array]
         Two dimensional array of wall positions. Each row corresponds to X and Y coordinates of a wall.
+    tx_power_delta: Scalar
+        Difference in transmission power between the tx power levels.
     """
 
     def __init__(
@@ -50,7 +52,7 @@ class StaticScenario(Scenario):
         super().__init__(associations)
 
         self.pos = pos
-        self.mcs = jnp.full(pos.shape[0], mcs, dtype=jnp.int32)
+        self.mcs = mcs
         self.tx_power = jnp.full(pos.shape[0], tx_power)
         self.tx_power_delta = tx_power_delta
         self.sigma = sigma
@@ -60,13 +62,18 @@ class StaticScenario(Scenario):
         self.data_rate_fn = jax.jit(partial(
             network_data_rate,
             pos=self.pos,
-            mcs=self.mcs,
+            mcs=jnp.full(pos.shape[0], mcs, dtype=jnp.int32),
             sigma=self.sigma,
             walls=self.walls
         ))
 
-    def __call__(self, key: PRNGKey, tx: Array, tx_power: Array) -> Scalar:
-        return self.data_rate_fn(key, tx, tx_power=self.tx_power - self.tx_power_delta * tx_power)
+    def __call__(self, key: PRNGKey, tx: Array, tx_power: Optional[Array] = None) -> tuple[Scalar, Scalar]:
+        if tx_power is None:
+            tx_power = jnp.zeros(self.pos.shape[0])
+
+        thr = self.data_rate_fn(key, tx, tx_power=self.tx_power - self.tx_power_delta * tx_power)
+        reward = thr / DATA_RATES[self.mcs]
+        return thr, reward
 
     def plot(self, filename: str = None) -> None:
         super().plot(self.pos, filename, self.walls_pos)
