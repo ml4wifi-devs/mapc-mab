@@ -29,7 +29,7 @@ dependencies = [
   "tqdm~=4.66.1"
 ]
 
-[tool.setuptools]
+[tool.setuptools.packages.find]
 packages.find = {
     where = ".",
     include = ["mapc_mab*"],
