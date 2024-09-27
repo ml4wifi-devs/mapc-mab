@@ -29,8 +29,9 @@ dependencies = [
   "tqdm~=4.66.1"
 ]
 
-[tool.setuptools]
-packages = ["mapc_mab"]
+
+[tool.setuptools.packages]
+find = {}
 
 [build-system]
 requires = ["setuptools", "wheel"]
