@@ -30,7 +30,10 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["mapc_mab"]
+packages.find = {
+    where = ".",
+    include = ["mapc_mab*"],
+}
 
 [build-system]
 requires = ["setuptools", "wheel"]
