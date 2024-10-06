@@ -22,7 +22,6 @@ def run_scenario(
         scenario: Scenario,
         n_reps: int,
         n_steps: int,
-        slots_ahead: int,
         seed: int
 ) -> tuple[list, list]:
     key = jax.random.PRNGKey(seed)
@@ -34,28 +33,16 @@ def run_scenario(
         scenario.reset()
         runs.append([])
         actions.append([])
+        reward = 0.
 
-        step = 0
-        while step < n_steps:
+        for _ in range(n_steps):
             key, scenario_key = jax.random.split(key)
-            scenario_schedule_keys = jax.random.split(scenario_key, slots_ahead)
+            tx_matrix, tx_power = agent.sample(reward)
+            data_rate, reward = scenario(scenario_key, tx_matrix, tx_power)
+            runs[-1].append(data_rate.item())
+            actions[-1].append(scenario.tx_matrix_to_action(tx_matrix))
 
-            # Schedule the transmissions for the next n slots ahead
-            tx_schedule = [agent.sample() for _ in range(slots_ahead)]
-
-            # Get the data rates and rewards for the scheduled transmissions
-            results = [scenario(k, *tx_tuple) for k, tx_tuple in zip(scenario_schedule_keys, tx_schedule)]
-            data_rates, rewards = zip(*results)
-
-            # Update the agent with the data rates as rewards
-            agent.update(jnp.array(rewards))
-
-            # Save the data rates and actions, increment the step
-            runs[-1] += data_rates
-            actions[-1] += [scenario.tx_matrix_to_action(tx_tuple[0]) for tx_tuple in tx_schedule]
-            step += slots_ahead
-
-    return jax.tree.map(lambda x: x.tolist(), runs), actions
+    return runs, actions
 
 
 if __name__ == '__main__':
@@ -91,7 +78,7 @@ if __name__ == '__main__':
                 seed=config['seed']
             )
 
-            runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], scenario_config['slots_ahead'], config['seed'])
+            runs, actions = run_scenario(agent_factory, scenario, config['n_reps'], scenario_config['n_steps'], config['seed'])
             scenario_results.append({
                 'agent': {
                     'name': agent_config['name'],

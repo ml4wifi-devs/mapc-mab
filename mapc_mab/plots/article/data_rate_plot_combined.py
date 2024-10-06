@@ -16,9 +16,9 @@ plt.rcParams.update({
 })
 
 AGGREGATE_STEPS = {
-    "scenario_10m": 15,
-    "scenario_20m": 15,
-    "scenario_30m_long": 75,
+    "scenario_10m": 20,
+    "scenario_20m": 20,
+    "scenario_30m_long": 100,
 }
 TITLES = {
     "scenario_10m": r"(a) $d=10$ m",
@@ -27,7 +27,7 @@ TITLES = {
 }
 CLASSIC_MAB = {
     "scenario_10m": "EGreedy",
-    "scenario_20m": "EGreedy",
+    "scenario_20m": "NormalThompsonSampling",
     "scenario_30m_long": "Softmax",
 }
 

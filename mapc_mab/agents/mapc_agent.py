@@ -6,10 +6,5 @@ class MapcAgent:
     Base class for the MAPC agent.
     """
 
-    def update(self, rewards: Array) -> None:
-
-        raise NotImplementedError
-
-    def sample(self) -> Array:
-
+    def sample(self, reward: Scalar) -> tuple[Array, Array]:
         raise NotImplementedError

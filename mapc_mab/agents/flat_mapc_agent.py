@@ -1,8 +1,9 @@
+from collections import defaultdict
 from typing import Callable
 
 import numpy as np
-from chex import Shape, Array
-from mapc_mab.agents.offline_wrapper import OfflineWrapper as RLib
+from chex import Array, Shape, Scalar
+from reinforced_lib import RLib
 
 from mapc_mab.agents.mapc_agent import MapcAgent
 
@@ -16,7 +17,7 @@ class FlatMapcAgent(MapcAgent):
     ----------
     associations : dict[int, list[int]]
         The dictionary of associations between APs and stations.
-    agent_dict : dict[int, RLib]
+    agents : dict[int, RLib]
         The dictionary of agents for each AP-station pair.
     agent_action_to_pairs : Callable
         The function which translates the action of the agent to the list of AP-station pairs.
@@ -27,40 +28,22 @@ class FlatMapcAgent(MapcAgent):
     def __init__(
             self,
             associations: dict[int, list[int]],
-            agent_dict: dict[int, RLib],
+            agents: dict[int, RLib],
             agent_action_to_pairs: Callable,
             tx_matrix_shape: Shape
     ) -> None:
         self.associations = {ap: np.array(stations) for ap, stations in associations.items()}
         self.access_points = np.array(list(associations.keys()))
 
-        self.agent_dict = agent_dict
+        self.agents = agents
+        self.last_step = defaultdict(int)
         self.agent_action_to_pairs = agent_action_to_pairs
         self.tx_matrix_shape = tx_matrix_shape
 
         self.step = 0
-        self.buffer = {}
-    
-    def update(self, rewards: Array) -> None:
-        """
-        Updates the agent with the rewards obtained in the previous steps.
+        self.rewards = []
 
-        Parameters
-        ----------
-        rewards : Array
-            The buffer of rewards obtained in the previous steps.
-        """
-        
-        for reward, (_, step_buffer) in zip(rewards, self.buffer.items()):
-            designated_station, action = step_buffer
-
-            # Update the agent
-            self.agent_dict[designated_station].update(action, reward)
-        
-        # Reset buffer
-        self.buffer = {}
-
-    def sample(self) -> tuple:
+    def sample(self, reward: Scalar) -> tuple[Array, Array]:
         """
         Samples the agent to get the transmission matrix.
 
@@ -71,13 +54,17 @@ class FlatMapcAgent(MapcAgent):
         """
 
         self.step += 1
+        self.rewards.append(reward)
 
         # Sample sharing AP and designated station
-        sharing_ap = np.random.choice(self.access_points)
-        designated_station = np.random.choice(self.associations[sharing_ap])        # Save the designated station
+        sharing_ap = np.random.choice(self.access_points).item()
+        designated_station = np.random.choice(self.associations[sharing_ap]).item()
 
         # Sample the appropriate agent
-        action = self.agent_dict[designated_station].sample()                       # Save the action
+        reward = self.rewards[self.last_step[designated_station]]
+        self.last_step[designated_station] = self.step
+
+        action = self.agents[designated_station].sample(reward).item()
         pairs, tx_power = self.agent_action_to_pairs(designated_station, action)
 
         # Create the transmission matrix based on the sampled pairs
@@ -86,8 +73,5 @@ class FlatMapcAgent(MapcAgent):
 
         for ap, sta in pairs:
             tx_matrix[ap, sta] = 1
-
-        # Save step info to buffer
-        self.buffer[self.step] = (designated_station, action)
 
         return tx_matrix, tx_power

@@ -6,7 +6,6 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_10m",
       "n_steps": 600,
-      "slots_ahead": 1,
       "params": {
         "d_ap": 10.0,
         "d_sta": 2.0,
@@ -17,7 +16,6 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_20m",
       "n_steps": 600,
-      "slots_ahead": 1,
       "params": {
         "d_ap": 20.0,
         "d_sta": 2.0,
@@ -32,7 +30,6 @@
       "scenario": "simple_scenario_5",
       "name": "scenario_30m_long",
       "n_steps": 3000,
-      "slots_ahead": 1,
       "params": {
         "d_ap": 30.0,
         "d_sta": 2.0,
@@ -48,116 +45,112 @@
     {
       "name": "EGreedy",
       "params1": {
-        "e": 0.005149628504594233,
-        "optimistic_start": 263.4249433444631,
-        "alpha": 0.7740298643657798
+        "e": 0.01,
+        "optimistic_start": 1.9,
+        "alpha": 0.45
       },
       "params2": {
-        "e": 0.0016400142918236457,
-        "optimistic_start":  147.50270904685462,
-        "alpha": 0.2903903582401631
+        "e": 0.01,
+        "optimistic_start": 10.7,
+        "alpha": 0.75
       },
       "params3": {
-        "e": 0.0014203172729192986,
-        "optimistic_start": 101.58460367880325,
-        "alpha": 0.47045521281238545
+        "e": 0.06,
+        "optimistic_start": 0.05,
+        "alpha": 0.1
       },
       "hierarchical": true
     },
     {
       "name": "EGreedy",
       "params1": {
-        "e": 0.06547272061855722,
-        "optimistic_start": 104.01284982798052,
-        "alpha": 0.5510216586931845
+        "e": 0.03,
+        "optimistic_start": 0.3,
+        "alpha": 0.6
       },
       "hierarchical": false
     },
     {
       "name": "Softmax",
       "params1": {
-        "lr": 9.42079786064951,
-        "tau": 0.09114970521104462,
-        "multiplier": 0.00011061127004785016,
-        "alpha": 0.44542633041241686
+        "lr": 2.4,
+        "tau": 0.6,
+        "alpha": 0.75
       },
       "params2": {
-        "lr": 1.537336873847733,
-        "tau": 0.2860334753783949,
-        "multiplier": 0.017449215843841997,
-        "alpha": 0.5406773634083542
+        "lr": 3.5,
+        "tau": 0.65,
+        "alpha": 0.75
       },
       "params3": {
-        "lr": 18.147769441181218,
-        "tau": 0.024083043297689507,
-        "multiplier": 0.9875599305976297,
-        "alpha": 0.8399426651016632
+        "lr": 6.0,
+        "tau": 0.15,
+        "alpha": 0.7
       },
       "hierarchical": true
     },
     {
       "name": "Softmax",
       "params1": {
-        "lr": 30.416931118697764,
-        "tau": 0.7526784595876853,
-        "multiplier": 0.0010230577422252485,
-        "alpha": 0.29370178579613526
+        "lr": 2.9,
+        "tau": 0.15,
+        "alpha": 0.85
       },
       "hierarchical": false
     },
     {
       "name": "UCB",
       "params1": {
-        "c": 63.21551774910675,
-        "gamma": 0.9652657302083578
+        "c": 2.9,
+        "gamma": 0.45
       },
       "params2": {
-        "c": 43.36739719816629,
-        "gamma": 0.761849546887197
+        "c": 4.5,
+        "gamma": 0.25
       },
       "params3": {
-        "c": 6.968658074842494,
-        "gamma": 0.7889920941268386
+        "c": 1.0,
+        "gamma": 0.8
       },
       "hierarchical": true
     },
     {
       "name": "UCB",
       "params1": {
-        "c": 8.57897370582168,
-        "gamma": 0.9637271006784834
+        "c": 2.5,
+        "gamma": 0.25
       },
       "hierarchical": false
     },
     {
       "name": "NormalThompsonSampling",
       "params1": {
-        "alpha": 58.59162056694514,
-        "beta": 12.523650093763427,
-        "lam": 0.0,
-        "mu": 324.903167139304
+        "alpha": 8.8,
+        "beta": 0.02,
+        "lam": 1.0,
+        "mu": 1.1
       },
       "params2": {
-        "alpha": 16.02201616878458,
-        "beta": 10.322670722617655,
-        "lam": 0.0,
-        "mu": 443.17837052280487
+        "alpha": 9.0,
+        "beta": 6.5,
+        "lam": 1.0,
+        "mu": 0.15
       },
       "params3": {
-        "alpha": 71.42759692603124,
-        "beta": 27.480600955986322,
-        "lam": 0.0,
-        "mu": 596.4578871782285
+        "alpha": 7.5,
+        "beta": 0.15,
+        "lam": 1.0,
+        "mu": 1.0
       },
       "hierarchical": true
     },
     {
       "name": "NormalThompsonSampling",
       "params1": {
-        "alpha": 84.62087221064701,
-        "beta": 12.676349222833183,
-        "lam": 0.0,
-        "mu": 106.04979788031865
+        "alpha": 9.0,
+        "beta": 0.07,
+        "lam": 1.0,
+        "mu": 0.2
       },
       "hierarchical": false
     }

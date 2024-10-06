@@ -65,7 +65,7 @@ class DynamicScenario(Scenario):
             walls_sec: Optional[Array] = None,
             walls_pos_sec: Optional[Array] = None,
             switch_steps: Optional[list] = None,
-            tx_power_delta: Scalar = 6.0
+            tx_power_delta: Scalar = 3.0
     ) -> None:
         super().__init__(associations)
 

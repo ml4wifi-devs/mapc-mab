@@ -47,7 +47,7 @@ class StaticScenario(Scenario):
             associations: dict,
             walls: Optional[Array] = None,
             walls_pos: Optional[Array] = None,
-            tx_power_delta: Scalar = 6.0
+            tx_power_delta: Scalar = 3.0
     ) -> None:
         super().__init__(associations)
 
