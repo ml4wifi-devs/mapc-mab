@@ -100,6 +100,79 @@ def simple_scenario_1(
 
     return StaticScenario(pos, mcs, tx_power, sigma, associations)
 
+
+def distance_scenario(
+        d: Scalar = 0.,
+        mcs: int = DEFAULT_MCS,
+        tx_power: Scalar = DEFAULT_TX_POWER,
+        sigma: Scalar = DEFAULT_SIGMA
+) -> StaticScenario:
+    """
+    There is a single AP with a single STA placed at distance `d`. 
+    """
+    
+    return StaticScenario(jnp.array([[0., 0.], [d, 0.]]), mcs, tx_power, sigma, {0: 1})
+
+
+def hidden_station_scenario(
+        d: Scalar = 0.,
+        mcs: int = DEFAULT_MCS,
+        tx_power: Scalar = DEFAULT_TX_POWER,
+        sigma: Scalar = DEFAULT_SIGMA
+) -> StaticScenario:
+    """
+    There are two APs 2 distance units `d` apart. Both APs have a single
+    station placed in between them in the same place.
+
+    AP_A <--d--> STA_1, STA_2 <--d--> AP_B 
+    """
+
+    pos = jnp.array([
+        [0., 0.],       # AP A
+        [d, 0.],        # STA 1
+        [d, 0.],        # STA 2
+        [2 * d, 0.]     # AP B
+    ])
+
+    associations = {
+        0: [1],
+        3: [2]
+    }
+
+    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+
+
+def flow_in_the_middle_scenario(
+        d: Scalar = 0.,
+        mcs: int = DEFAULT_MCS,
+        tx_power: Scalar = DEFAULT_TX_POWER,
+        sigma: Scalar = DEFAULT_SIGMA
+) -> StaticScenario:
+    """
+    There are thres APs placed in line spaced `d` units apart. Each AP is associated with a single STA,
+    placed in the same place as the AP.
+
+    AP_A <--d--> STA_1, STA_2 <--d--> AP_B 
+    """
+
+    pos = jnp.array([
+        [0., 0.],       # AP A
+        [0., 0.],       # STA 1
+        [d, 0.],        # AP B
+        [d, 0.],        # STA 2
+        [2 * d, 0.],    # AP C
+        [2 * d, 0.]     # STA 3
+    ])
+
+    associations = {
+        0: [1],
+        2: [3],
+        4: [5]
+    }
+
+    return StaticScenario(pos, mcs, tx_power, sigma, associations)
+
+
 def dense_point_scenario(
         n_ap: int = 10,
         n_associations: int = 1,
