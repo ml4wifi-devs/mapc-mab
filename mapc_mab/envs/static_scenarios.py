@@ -111,7 +111,7 @@ def distance_scenario(
     There is a single AP with a single STA placed at distance `d`. 
     """
     
-    return StaticScenario(jnp.array([[0., 0.], [d, 0.]]), mcs, tx_power, sigma, {0: 1})
+    return StaticScenario(jnp.array([[0., 0.], [d, 0.]]), mcs, tx_power, sigma, {0: [1]})
 
 
 def hidden_station_scenario(
