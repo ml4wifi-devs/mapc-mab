@@ -92,7 +92,7 @@ class MapcAgentFactory:
             The hierarchical MAPC agent.
         """
 
-        # Define dictionary of agents selecting groups
+        # Agent selecting groups
         find_groups = RLib(
             agent_type=self.agent_type,
             agent_params=self.agent_params_lvl1.copy(),
@@ -127,28 +127,21 @@ class MapcAgentFactory:
                 assign_stations[n].init(self.seed)
                 self.seed += 1
 
-        # Define dictionary of agents selecting tx power
-        select_tx_power = {
-            n: RLib(
-                agent_type=self.agent_type,
-                agent_params=self.agent_params_lvl3.copy(),
-                ext_type=BasicMab,
-                ext_params={'n_arms': self.tx_power_levels ** n}
-            ) for n in range(1, self.n_ap + 1)
-        }
+        # Agent selecting tx power
+        select_tx_power = RLib(
+            agent_type=self.agent_type,
+            agent_params=self.agent_params_lvl3.copy(),
+            ext_type=BasicMab,
+            ext_params={'n_arms': self.tx_power_levels}
+        )
         select_tx_power_dict = {}
-        select_tx_power_idxs = defaultdict(int)
+        idx = 0
 
         for group in self._powerset(self.access_points):
-            if len(group) == 0:
-                continue
-
-            for stas in product(*[self.associations[ap] for ap in group]):
-                n = len(group)
-                idx = select_tx_power_idxs[n]
-                select_tx_power_idxs[n] += 1
-                select_tx_power_dict[group, stas] = (n, idx)
-                select_tx_power[n].init(self.seed)
+            for sta in chain.from_iterable(self.associations[ap] for ap in group):
+                select_tx_power_dict[group, sta] = idx
+                idx += 1
+                select_tx_power.init(self.seed)
                 self.seed += 1
 
         return HierarchicalMapcAgent(
@@ -157,7 +150,7 @@ class MapcAgentFactory:
             find_groups_dict=find_groups_dict,
             assign_stations_agents=assign_stations,
             assign_stations_dict=assign_stations_dict,
-            select_tx_power_agents=select_tx_power,
+            select_tx_power_agent=select_tx_power,
             select_tx_power_dict=select_tx_power_dict,
             ap_group_action_to_ap_group=self._ap_group_action_to_ap_group,
             sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
