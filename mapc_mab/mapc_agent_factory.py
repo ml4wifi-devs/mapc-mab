@@ -8,9 +8,9 @@ from reinforced_lib import RLib
 from reinforced_lib.agents import BaseAgent
 from reinforced_lib.exts import BasicMab
 
-from mapc_mab.agents.flat_mapc_agent import FlatMapcAgent
-from mapc_mab.agents.hierarchical_mapc_agent import HierarchicalMapcAgent
-from mapc_mab.agents.mapc_agent import MapcAgent
+from mapc_mab.flat_mapc_agent import FlatMapcAgent
+from mapc_mab.hierarchical_mapc_agent import HierarchicalMapcAgent
+from mapc_mab.mapc_agent import MapcAgent
 
 
 class MapcAgentFactory:

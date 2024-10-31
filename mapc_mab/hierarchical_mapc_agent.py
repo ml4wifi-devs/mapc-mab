@@ -1,13 +1,12 @@
 from collections import defaultdict
 from itertools import chain
 from typing import Callable
-from copy import copy
 
 import numpy as np
 from chex import Array, Shape, Scalar
 from reinforced_lib import RLib
 
-from mapc_mab.agents.mapc_agent import MapcAgent
+from mapc_mab.mapc_agent import MapcAgent
 
 
 class HierarchicalMapcAgent(MapcAgent):
