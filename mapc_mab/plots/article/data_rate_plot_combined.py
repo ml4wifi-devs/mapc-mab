@@ -34,7 +34,7 @@ CLASSIC_MAB = {
 
 if __name__ == '__main__':
     args = ArgumentParser()
-    args.add_argument('-f', '--file', type=str, required=True)
+    args.add_argument('-f', '--file', type=str, default=f'../../envs/all_results.json')
     args = args.parse_args()
 
     with open(args.file, 'r') as file:
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         xs = np.linspace(0, scenario['scenario']['n_steps'], n_points) * TAU
 
         if 'mcs' in scenario['scenario']['params']:
-            ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray', label='Single TX')
+            ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray')
 
         if 'sec' in scenario['scenario']:
             for sec in scenario['scenario']['switch_steps']:
@@ -67,10 +67,10 @@ if __name__ == '__main__':
                 mean, ci_low, ci_high = confidence_interval(np.asarray(run))
 
                 if hierarchical:
-                    ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c, marker='o')
+                    ax.plot(xs, mean, c=c, marker='o')
                     ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
                 elif name == CLASSIC_MAB[scenario_name]:
-                    ax.plot(xs, mean, linestyle='--', marker='^', c='gray', markersize=2, label='Best classical MAB')
+                    ax.plot(xs, mean, linestyle='--', marker='^', c='gray', markersize=2)
                     ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color='gray', linewidth=0.0)
 
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
@@ -82,8 +82,18 @@ if __name__ == '__main__':
 
         if scenario_name == 'scenario_10m':
             ax.set_ylabel('Effective data rate [Mb/s]', fontsize=12)
-            ax.legend(ncols=2, loc='upper left')
+            ax.plot([], [], 'o', linestyle='-', c=colors[0], label=r'$\varepsilon$-greedy')
+            ax.plot([], [], 'o', linestyle='-', c=colors[1], label='Softmax')
+            ax.plot([], [], 'o', linestyle='-', c=colors[2], label='UCB')
+            ax.plot([], [], 'o', linestyle='-', c=colors[3], label='TS')
+            ax.legend(loc='upper left', title='Hierarchical MABs')
+
+            ax2 = ax.twinx()
+            ax2.axis('off')
+            ax2.plot([], [], linestyle='--', c="gray", label='Single TX')
+            ax2.plot([], [], '^', linestyle='--', c='gray', label='Best flat MAB')
+            ax2.legend(loc='upper right', title='Baselines')
 
     plt.tight_layout()
     plt.savefig(f'data-rates.pdf', bbox_inches='tight')
-    plt.clf()
+    plt.show()
