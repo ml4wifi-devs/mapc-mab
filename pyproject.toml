@@ -1,7 +1,7 @@
 [project]
 name = "mapc_mab"
 version = "2.0.0"
-description = "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchical Multi-Armed Bandits"
+description = "Coordinated Spatial Reuse Scheduling With Machine Learning in IEEE 802.11 MAPC Networks"
 
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -10,11 +10,16 @@ keywords = ["802.11", "coordinated spatial reuse", "multi-armed bandits", "machi
 authors = [
   {name = "Maksymilian Wojnar", email = "maksymilian.wojnar@agh.edu.pl"},
   {name = "Wojciech Ciężobka", email = "wojciech.ciezobka@agh.edu.pl"},
-  {name = "Katarzyna Kosek-Szott", email = "katarzyna.kosek-szott@agh.edu.pl"},
+  {name = "Artur Tomaszewski", email = "artur.tomaszewski@pg.edu.pl"},
+  {name = "Piotr Chołda", email = "piotr.cholda@agh.edu.pl"},
   {name = "Krzysztof Rusek", email = "krzysztof.rusek@agh.edu.pl"},
+  {name = "Katarzyna Kosek-Szott", email = "katarzyna.kosek-szott@agh.edu.pl"},
+  {name = "Jetmir Haxhibeqiri", email = "Jetmir.Haxhibeqiri@UGent.be"},
+  {name = "Jeroen Hoebeke", email = "Jeroen.Hoebeke@UGent.be"},
+  {name = "Boris Bellalta", email = "boris.bellalta@upf.edu"},
+  {name = "Anatolij Zubow", email = "zubow@tkn.tu-berlin.de"},
+  {name = "Falko Dressler", email = "dressler@tkn.tu-berlin.de"},
   {name = "Szymon Szott", email = "szymon.szott@agh.edu.pl"},
-  {name = "David Nunez", email = "david.nunez@upf.edu"},
-  {name = "Boris Bellalta", email = "boris.bellalta@upf.edu"}
 ]
 
 requires-python = ">=3.9"
