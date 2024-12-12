@@ -93,10 +93,10 @@ python mapc_mab/envs/run.py -c $PATH_TO_CONFIG_FILE
 
 3.  This will generate an `all_results.json` file in the project root.
     
-4.  Plot the experiment results with the following command (`-f` is the option to provide the results file path):
+4.  Plot the experiment results with the following command (`-f` is the option to provide the results file path and `-s` is the number of steps to aggregate in one point of the figure):
 
 ```bash
-python mapc_mab/plots/article/data_rate_plot_combined.py -f all_results.json
+python mapc_mab/plots/data_rate_plot.py -f all_results.json -s 25
 ```
 
 ## Repository Structure
