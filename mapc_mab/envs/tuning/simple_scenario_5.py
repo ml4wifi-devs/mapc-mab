@@ -150,9 +150,9 @@ if __name__ == "__main__":
 
     # Define argument parser
     parser = ArgumentParser()
-    parser.add_argument("-m", "--mcs", type=int, help="MCS index")
-    parser.add_argument("-s", "--distance_sta", type=float, help="Distance between AP and STA [m]")
-    parser.add_argument("-r", "--resolution", type=int, default=50, help="The distance space resolution to search")
+    parser.add_argument("-m", "--mcs", type=int, help="MCS index", default=11)
+    parser.add_argument("-s", "--distance_sta", type=float, help="Distance between AP and STA [m]", default=2)
+    parser.add_argument("-r", "--resolution", type=int, help="The distance space resolution to search", default=50)
     parser.add_argument("-p", "--plot", action="store_true", help="Plot effective data rate")
     parser.add_argument("--save-path", type=str, default="./", help="Path to save results")
 

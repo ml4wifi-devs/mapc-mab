@@ -26,7 +26,7 @@ PLOT_PARAMS = {
 
 AGENT_NAMES = {
     'EGreedy': r'$\varepsilon$-greedy',
-    'NormalThompsonSampling': 'Normal TS'
+    'NormalThompsonSampling': 'TS'
 }
 
 

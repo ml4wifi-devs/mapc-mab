@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from mapc_mab.envs.scenarios import StaticScenario
-from mapc_mab.envs.scenarios.static import simple_scenario_5
+from mapc_mab.envs.static_scenarios import StaticScenario
+from mapc_mab.envs.static_scenarios import simple_scenario_5
 from mapc_mab.plots.config import get_cmap
 
 

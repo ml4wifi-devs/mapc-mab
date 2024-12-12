@@ -56,7 +56,7 @@ if __name__ == '__main__':
         xs = np.linspace(0, scenario['scenario']['n_steps'], n_points) * TAU
 
         if 'mcs' in scenario['scenario']['params']:
-            ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray', label='Single TX')
+            ax.axhline(DATA_RATES[scenario['scenario']['params']['mcs']], linestyle='--', color='gray')
 
         if 'sec' in scenario['scenario']:
             for sec in scenario['scenario']['switch_steps']:
@@ -70,7 +70,7 @@ if __name__ == '__main__':
                     ax.plot(xs, mean, label=AGENT_NAMES.get(name, name), c=c, marker='o')
                     ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color=c, linewidth=0.0)
                 elif name == CLASSIC_MAB[scenario_name]:
-                    ax.plot(xs, mean, linestyle='--', marker='^', c='gray', markersize=2, label='Best classical MAB')
+                    ax.plot(xs, mean, linestyle='--', marker='^', c='gray', markersize=2)
                     ax.fill_between(xs, ci_low, ci_high, alpha=0.3, color='gray', linewidth=0.0)
 
         ax.set_title(TITLES[scenario_name], y=-0.45, fontsize=12)
@@ -82,7 +82,13 @@ if __name__ == '__main__':
 
         if scenario_name == 'scenario_10m':
             ax.set_ylabel('Effective data rate [Mb/s]', fontsize=12)
-            ax.legend(ncols=2, loc='upper left')
+            ax.legend(loc='upper left', title='Hierarchical MABs', title_fontsize=9)
+
+            ax2 = ax.twinx()
+            ax2.axis('off')
+            ax2.plot([], [], label='Best classical MAB', linestyle='--', c='gray', marker='^')
+            ax2.plot([], [], label='Single TX', linestyle='--', c='gray')
+            ax2.legend(loc='upper right', title='Baselines', title_fontsize=9)
 
     plt.tight_layout()
     plt.savefig(f'data-rates.pdf', bbox_inches='tight')
