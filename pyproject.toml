@@ -1,6 +1,6 @@
 [project]
 name = "mapc_mab"
-version = "0.1.0"
+version = "1.0.0"
 description = "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchical Multi-Armed Bandits"
 
 readme = "README.md"
