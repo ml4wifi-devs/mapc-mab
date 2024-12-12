@@ -1,6 +1,6 @@
 [project]
 name = "mapc_mab"
-version = "1.0.0"
+version = "0.1.0"
 description = "IEEE 802.11bn Multi-AP Coordinated Spatial Reuse with Hierarchical Multi-Armed Bandits"
 
 readme = "README.md"
@@ -22,7 +22,7 @@ dependencies = [
   "chex~=0.1.86",
   "jax~=0.4.30",
   "jaxlib~=0.4.30",
-  "mapc-sim~=0.1.6",
+  "mapc-sim==0.1.6",
   "matplotlib~=3.9.2",
   "optuna~=3.5.0",
   "reinforced-lib==1.1.2",
