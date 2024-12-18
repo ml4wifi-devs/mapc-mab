@@ -1,12 +1,9 @@
-from collections import defaultdict
 from copy import deepcopy
 from itertools import chain, combinations, product
 from typing import Iterable, Iterator
 
+import jax
 import numpy as np
-from reinforced_lib import RLib
-from reinforced_lib.agents import BaseAgent
-from reinforced_lib.exts import BasicMab
 
 from mapc_mab.flat_mapc_agent import FlatMapcAgent
 from mapc_mab.hierarchical_mapc_agent import HierarchicalMapcAgent
@@ -21,7 +18,7 @@ class MapcAgentFactory:
     ----------
     associations : dict[int, list[int]]
         The dictionary of associations between APs and stations.
-    agent_type : BaseAgent
+    agent_type : type
         The type of the agent.
     agent_params_lvl1 : dict
         The parameters of the first level agent.
@@ -40,7 +37,7 @@ class MapcAgentFactory:
     def __init__(
             self,
             associations: dict[int, list[int]],
-            agent_type: BaseAgent,
+            agent_type: type,
             agent_params_lvl1: dict,
             agent_params_lvl2: dict = None,
             agent_params_lvl3: dict = None,
@@ -55,9 +52,7 @@ class MapcAgentFactory:
         self.agent_params_lvl3 = agent_params_lvl3
         self.hierarchical = hierarchical
         self.tx_power_levels = tx_power_levels
-        self.seed = seed
-
-        np.random.seed(seed)
+        self.key = jax.random.PRNGKey(seed)
 
         # Retrieve stations and access points from associations
         self.inv_associations = {sta: ap for ap, stas in self.associations.items() for sta in stas}
@@ -93,56 +88,36 @@ class MapcAgentFactory:
         """
 
         # Agent selecting groups
-        find_groups = RLib(
-            agent_type=self.agent_type,
-            agent_params=self.agent_params_lvl1.copy(),
-            ext_type=BasicMab,
-            ext_params={'n_arms': 2 ** (self.n_ap - 1)}
-        )
+        find_groups = self.agent_type(**(self.agent_params_lvl1.copy() | {'n_arms': 2 ** (self.n_ap - 1)}))
         find_groups_dict = {}
 
-        for i, sta in enumerate(self.stations):
-            find_groups_dict[sta] = i
-            find_groups.init(self.seed)
-            self.seed += 1
+        for sta in self.stations:
+            self.key, init_key = jax.random.split(self.key)
+            find_groups_dict[sta] = (None, find_groups.init(init_key))
 
         # Define dictionary of agents selecting stations
         assign_stations = {
-            n: RLib(
-                agent_type=self.agent_type,
-                agent_params=self.agent_params_lvl2.copy(),
-                ext_type=BasicMab,
-                ext_params={'n_arms': n}
-            ) for n in np.unique([len(stas) for stas in self.associations.values()])
+            n: self.agent_type(**(self.agent_params_lvl2.copy() | {'n_arms': n}))
+            for n in np.unique([len(stas) for stas in self.associations.values()])
         }
         assign_stations_dict = {}
-        assign_stations_idxs = defaultdict(int)
 
         for group in self._powerset(self.access_points):
             for ap in group:
                 n = len(self.associations[ap])
-                idx = assign_stations_idxs[n]
-                assign_stations_idxs[n] += 1
-                assign_stations_dict[group, ap] = (n, idx)
-                assign_stations[n].init(self.seed)
-                self.seed += 1
+                self.key, init_key = jax.random.split(self.key)
+                assign_stations_dict[group, ap] = (n, None, assign_stations[n].init(init_key))
 
         # Agent selecting tx power
-        select_tx_power = RLib(
-            agent_type=self.agent_type,
-            agent_params=self.agent_params_lvl3.copy(),
-            ext_type=BasicMab,
-            ext_params={'n_arms': self.tx_power_levels}
-        )
+        select_tx_power = self.agent_type(**(self.agent_params_lvl3.copy() | {'n_arms': self.tx_power_levels}))
         select_tx_power_dict = {}
-        idx = 0
 
         for group in self._powerset(self.access_points):
             for sta in chain.from_iterable(self.associations[ap] for ap in group):
-                select_tx_power_dict[group, sta] = idx
-                idx += 1
-                select_tx_power.init(self.seed)
-                self.seed += 1
+                self.key, init_key = jax.random.split(self.key)
+                select_tx_power_dict[group, sta] = (None, select_tx_power.init(init_key))
+
+        self.key, mapc_agent_key = jax.random.split(self.key)
 
         return HierarchicalMapcAgent(
             associations=self.associations,
@@ -154,8 +129,8 @@ class MapcAgentFactory:
             select_tx_power_dict=select_tx_power_dict,
             ap_group_action_to_ap_group=self._ap_group_action_to_ap_group,
             sta_group_action_to_sta_group=self._sta_group_action_to_sta_group,
-            tx_matrix_shape=(self.n_nodes, self.n_nodes),
-            tx_power_levels=self.tx_power_levels
+            n_nodes=self.n_nodes,
+            key=mapc_agent_key
         )
 
     def create_flat_mapc_agent(self) -> MapcAgent:
@@ -168,24 +143,27 @@ class MapcAgentFactory:
             The flat MAPC agent.
         """
 
-        agents = {
-            sta: RLib(
-                agent_type=self.agent_type,
-                agent_params=self.agent_params_lvl1.copy(),
-                ext_type=BasicMab,
-                ext_params={'n_arms': sum(map(lambda x: x[1], self._list_pairs_num(sta)))}
-            ) for sta in self.stations
+        n_arms = {
+            sta: sum(map(lambda x: x[1], self._list_pairs_num(sta))) for sta in self.stations
         }
+        agents = {
+            n: self.agent_type(**(self.agent_params_lvl1 | {'n_arms': n})) for n in np.unique(list(n_arms.values()))
+        }
+        agents_dict = {}
 
-        for agent in agents.values():
-            agent.init(self.seed)
-            self.seed += 1
+        for sta, n in n_arms.items():
+            self.key, init_key = jax.random.split(self.key)
+            agents_dict[sta] = (n, None, agents[n].init(init_key))
+
+        self.key, mapc_agent_key = jax.random.split(self.key)
 
         return FlatMapcAgent(
             associations=self.associations,
             agents=agents,
+            agents_dict=agents_dict,
             agent_action_to_pairs=self._agent_action_to_pairs,
-            tx_matrix_shape=(self.n_nodes, self.n_nodes)
+            n_nodes=self.n_nodes,
+            key=mapc_agent_key
         )
 
     @staticmethod
