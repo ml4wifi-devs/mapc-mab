@@ -1,9 +1,11 @@
 from collections import defaultdict
 from typing import Callable
 
+import jax
 import numpy as np
-from chex import Array, Shape, Scalar
-from reinforced_lib import RLib
+from chex import Array, PRNGKey, Scalar
+from reinforced_lib.agents import BaseAgent
+from reinforced_lib.agents.mab.scheduler import RandomScheduler
 
 from mapc_mab.mapc_agent import MapcAgent
 
@@ -17,28 +19,40 @@ class FlatMapcAgent(MapcAgent):
     ----------
     associations : dict[int, list[int]]
         The dictionary of associations between APs and stations.
-    agents : dict[int, RLib]
-        The dictionary of agents for each AP-station pair.
+    agents : dict[int, BaseAgent]
+        The dictionary of agents.
+    agents_dict : dict[int, tuple]
+        The dictionary which maps the station to the agent state.
     agent_action_to_pairs : Callable
         The function which translates the action of the agent to the list of AP-station pairs.
-    tx_matrix_shape : Shape
-        The shape of the transmission matrix.
+    n_nodes : int
+        The number of nodes in the network.
+    key : PRNGKey
+        The key for the random number generator.
     """
 
     def __init__(
             self,
             associations: dict[int, list[int]],
-            agents: dict[int, RLib],
+            agents: dict[int, BaseAgent],
+            agents_dict: dict[int, tuple],
             agent_action_to_pairs: Callable,
-            tx_matrix_shape: Shape
+            n_nodes: int,
+            key: PRNGKey
     ) -> None:
-        self.associations = {ap: np.array(stations) for ap, stations in associations.items()}
-        self.access_points = np.array(list(associations.keys()))
-
+        self.associations = associations
+        self.aps = dict(enumerate(associations.keys()))
         self.agents = agents
+        self.agents_dict = agents_dict
         self.last_step = defaultdict(int)
+
         self.agent_action_to_pairs = agent_action_to_pairs
-        self.tx_matrix_shape = tx_matrix_shape
+        self.tx_matrix_shape = (n_nodes, n_nodes)
+        self.tx_power_shape = (n_nodes,)
+
+        self.ap_scheduler = RandomScheduler(len(associations))
+        self.sta_schedulers = {ap: RandomScheduler(len(stations)) for ap, stations in associations.items()}
+        self.key = key
 
         self.step = 0
         self.rewards = []
@@ -57,14 +71,25 @@ class FlatMapcAgent(MapcAgent):
         self.rewards.append(reward)
 
         # Sample sharing AP and designated station
-        sharing_ap = np.random.choice(self.access_points).item()
-        designated_station = np.random.choice(self.associations[sharing_ap]).item()
+        self.key, ap_key, sta_key = jax.random.split(self.key, 3)
+        sharing_ap = self.ap_scheduler.sample(None, ap_key).item()
+        sharing_ap = self.aps[sharing_ap]
+        designated_station = self.sta_schedulers[sharing_ap].sample(None, sta_key).item()
+        designated_station = self.associations[sharing_ap][designated_station]
 
         # Sample the appropriate agent
         reward = self.rewards[self.last_step[designated_station]]
         self.last_step[designated_station] = self.step
 
-        action = self.agents[designated_station].sample(reward).item()
+        self.key, update_key, sample_key = jax.random.split(self.key, 3)
+        n, last_action, state = self.agents_dict[designated_station]
+
+        if last_action is not None:
+            state = self.agents[n].update(state, update_key, last_action, reward)
+
+        action = self.agents[n].sample(state, sample_key).item()
+        self.agents_dict[designated_station] = (n, action, state)
+
         pairs, tx_power = self.agent_action_to_pairs(designated_station, action)
 
         # Create the transmission matrix based on the sampled pairs
