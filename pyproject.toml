@@ -1,6 +1,6 @@
 [project]
 name = "mapc_mab"
-version = "2.0.0"
+version = "2.0.1"
 description = "Coordinated Spatial Reuse Scheduling With Machine Learning in IEEE 802.11 MAPC Networks"
 
 readme = "README.md"
