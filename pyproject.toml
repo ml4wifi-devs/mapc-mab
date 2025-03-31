@@ -24,7 +24,7 @@ authors = [
 
 requires-python = ">=3.12"
 dependencies = [
-  "reinforced-lib==1.2.2"
+  "reinforced-lib==1.2.1"
 ]
 
 [tool.setuptools]
